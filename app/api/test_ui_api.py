@@ -123,6 +123,14 @@ class TheseusUiApiAcceptanceTests(unittest.TestCase):
         with self.assertRaises(ContractError):
             self.app.activate_candidate({})
 
+        # 5. Verify app.js escapes apostrophes and uses delegated data attributes instead of inline onclick IDs
+        app_js = (UI_DIR / "app.js").read_text(encoding="utf-8")
+        self.assertIn("&#39;", app_js)
+        self.assertIn("data-evidence-id=", app_js)
+        self.assertNotIn("onclick=\"openEvidenceDrawer(", app_js)
+        self.assertNotIn("onclick=\"toggleQuestionFinding(", app_js)
+        self.assertNotIn("onclick=\"submitQuestionFinding(", app_js)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -40,7 +40,8 @@ function esc(str) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function provenanceBadgeClass(cat) {
@@ -176,7 +177,7 @@ function renderCiteButton(evidenceId, customLabel) {
   const cat = (stateStore.data && stateStore.data.evidence_catalog) || {};
   const item = cat[evidenceId];
   const label = customLabel || (item && item.human_label) || "See source";
-  return `<button type="button" class="cite-btn" onclick="openEvidenceDrawer('${esc(evidenceId)}', this)">${esc(label)}</button>`;
+  return `<button type="button" class="cite-btn" data-evidence-id="${esc(evidenceId)}">${esc(label)}</button>`;
 }
 
 function captureS01DraftInputs() {
@@ -197,8 +198,8 @@ function renderS01(d) {
   const isCommitted = c.mandate_status === "committed_mandate";
 
   const statusPill = isCommitted
-    ? `<span class="status-pill teal">Direction saved</span>`
-    : `<span class="status-pill amber">Pending your confirmation</span>`;
+    ? `<span class="status-pill teal">Direction saved (${esc(c.committed_version || "mandate-v2")})</span>`
+    : `<span class="status-pill amber">Pending your confirmation (${esc(c.draft_version || "mandate-v2-draft")})</span>`;
 
   const monitoringPill = `<span class="status-pill ${c.monitoring_status.includes("active") ? "teal" : "amber"}">${esc(c.human_monitoring_status || "Monitoring is partial: discount outcomes are missing")}</span>`;
 
@@ -246,7 +247,7 @@ function renderS01(d) {
           <button type="button" class="btn btn-secondary" onclick="toggleS01Edit()">
             ${stateStore.s01EditOpen ? "Hide edit fields" : "Edit direction"}
           </button>
-          <button type="button" class="btn btn-secondary" onclick="openEvidenceDrawer('ev:codex-ep-187', this)">
+          <button type="button" class="btn btn-secondary" data-evidence-id="ev:codex-ep-187">
             Why these recommendations?
           </button>
         </div>
@@ -392,7 +393,7 @@ function renderS02(d) {
       ${simPatterns.map((p) => renderPatternCard(p, true)).join("")}
 
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top: 14px;">
-        <button type="button" class="btn btn-secondary" onclick="openEvidenceDrawer('ev:culture-crm-blindness', this)">
+        <button type="button" class="btn btn-secondary" data-evidence-id="ev:culture-crm-blindness">
           See examples
         </button>
         <button type="button" class="btn btn-amber" onclick="navigateToFrame('S03')">
@@ -465,7 +466,7 @@ function renderS03(d) {
           <div>
             ${card.evidence_ids.map((eid) => renderCiteButton(eid)).join("")}
           </div>
-          <button type="button" class="btn btn-secondary btn-sm" onclick="toggleQuestionFinding('${esc(card.card_id)}')">
+          <button type="button" class="btn btn-secondary btn-sm" data-toggle-question-card="${esc(card.card_id)}">
             ${isQuestionOpen ? "Cancel" : "Question this finding"}
           </button>
         </div>
@@ -488,7 +489,7 @@ function renderS03(d) {
                 <input type="text" id="q-reason-${esc(card.card_id)}" placeholder="e.g., Training norm was never approved as company rule" value="Training norm was not confirmed as a binding rule; CRM outcome data is missing." />
               </div>
             </div>
-            <button type="button" class="btn btn-sm" onclick="submitQuestionFinding('${esc(card.card_id)}')">
+            <button type="button" class="btn btn-sm" data-submit-question-card="${esc(card.card_id)}">
               Save my review note
             </button>
           </div>
@@ -1209,6 +1210,26 @@ window.addEventListener("DOMContentLoaded", () => {
   if (closeBtn) {
     closeBtn.addEventListener("click", () => {
       closeEvidenceDrawer(true);
+    });
+  }
+  const stageEl = document.getElementById("main-stage");
+  if (stageEl) {
+    stageEl.addEventListener("click", (ev) => {
+      const evBtn = ev.target.closest("[data-evidence-id]");
+      if (evBtn) {
+        openEvidenceDrawer(evBtn.getAttribute("data-evidence-id"), evBtn);
+        return;
+      }
+      const qToggleBtn = ev.target.closest("[data-toggle-question-card]");
+      if (qToggleBtn) {
+        toggleQuestionFinding(qToggleBtn.getAttribute("data-toggle-question-card"));
+        return;
+      }
+      const qSubmitBtn = ev.target.closest("[data-submit-question-card]");
+      if (qSubmitBtn) {
+        submitQuestionFinding(qSubmitBtn.getAttribute("data-submit-question-card"));
+        return;
+      }
     });
   }
   const hash = (window.location.hash || "#S01").replace("#", "").toUpperCase();
