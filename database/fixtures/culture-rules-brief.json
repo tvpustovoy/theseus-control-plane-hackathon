@@ -1,0 +1,225 @@
+{
+ "artifact": "culture-rules brief v1 for S02/S03/Setu (sanitized, source-linked, NO prevalence percentages)",
+ "content_class": "sanitized_real_claim_statements_no_raw_text_no_names",
+ "goal_frame": "Monitor ONE concrete goal - protect value and margin while growing sales - and the rules and emergent culture around discounting. Not comprehensive monitoring of the organization.",
+ "rule_status_key": {
+  "active": "mandate-v1 (flexible seller discounts)",
+  "proposed_unapproved": "mandate-v2-draft / codex-v2: every discount receives an explicit customer commitment in return (preview only)",
+  "training_norms": "unapproved SOP/training norms, not binding rules"
+ },
+ "stage_key": "request (customer asks) / offer (seller states terms) / grant (seller agrees in-episode) / refusal / accepted_deal / payment. Grant in a chat is NOT an accepted deal and NOT a payment; CRM linkage for these episodes is unestablished.",
+ "rules_reviewed": [
+  {
+   "claim_id": "C30-85b1dbab4c",
+   "source_ref": {
+    "source_id": "src:f280459448fd88e1ec57",
+    "source_text_sha256": "9bbf45583075229db4d4a1d134fece6364742392b5abb9a1a1bd1623c30641b2"
+   },
+   "evidence_ref": {
+    "quote_sha256": "41ff42f833e38435523d2021ea0d3140f08f251894b285a1cd0c0ba17254a4be",
+    "char_start": 83075,
+    "char_end": 83140
+   },
+   "statement": "Founder principle: business prefers gifts; discounts suit the economy segment.",
+   "status": "proposed codex-v2 anchor, UNAPPROVED",
+   "stage": "norm_principle"
+  },
+  {
+   "claim_id": "C43-fe7cfc0d51",
+   "source_ref": {
+    "source_id": "src:05980d726343bdca80fc",
+    "source_text_sha256": "62b0fb606a3bb41a5ef542d85550fa2e09a08e7a96ab2458c2119b3e1d2903ed"
+   },
+   "evidence_ref": {
+    "quote_sha256": "84aad6154c72e3b8029f5bd279ab5df63cae2c1ebf56264ef6d82f34b3240dec",
+    "char_start": 15319,
+    "char_end": 15413
+   },
+   "statement": "Partner 30% applies only to self-launched solutions, not the club tariff; broad wording prohibited.",
+   "status": "unapproved training/partner norm",
+   "stage": "norm_rule"
+  },
+  {
+   "claim_id": "C570-d639e92e25",
+   "source_ref": {
+    "source_id": "src:b3521d3608494dae24ad",
+    "source_text_sha256": "1b4a8ee5364ba7ad6680566db095966b211a7edb3e51e600d92cd186757c07a3"
+   },
+   "evidence_ref": {
+    "quote_sha256": "c6e614a706ad440efaa396965d0152dc5ff449262fffae3e56d75eff97d14295",
+    "char_start": 540,
+    "char_end": 636
+   },
+   "statement": "SOP: the manager never bargains directly; escalates and returns with a gift instead of a discount.",
+   "status": "unapproved SOP norm",
+   "stage": "norm_rule"
+  },
+  {
+   "claim_id": "C572-a694d24aa4",
+   "source_ref": {
+    "source_id": "src:b3521d3608494dae24ad",
+    "source_text_sha256": "1b4a8ee5364ba7ad6680566db095966b211a7edb3e51e600d92cd186757c07a3"
+   },
+   "evidence_ref": {
+    "quote_sha256": "04507c4c480fb0c11ce8c6d0426ac6e09af0dadb1a127337b8fc4fee3ef57090",
+    "char_start": 1732,
+    "char_end": 1767
+   },
+   "statement": "SOP: never name the price in the first message.",
+   "status": "unapproved SOP norm",
+   "stage": "norm_rule"
+  },
+  {
+   "claim_id": "C145-69afdeab1d",
+   "source_ref": {
+    "source_id": "src:5e0c6535a0fd626142b3",
+    "source_text_sha256": "701f068607022a07b7d21b5107a55b813191e439e0909c2a67590ae00bf0e4e5"
+   },
+   "evidence_ref": {
+    "quote_sha256": "234d5f4be96cda1d58f75cfa6b20c93f176cff059a744c6f7d8a92a56b97896e",
+    "char_start": 2910,
+    "char_end": 2966
+   },
+   "statement": "Unified price intended; deviations only via sales head (same note records live price scatter).",
+   "status": "internal intent, unapproved",
+   "stage": "norm_rule"
+  }
+ ],
+ "observed_examples_reviewed": [
+  {
+   "claim_id": "C32-300b5f59f6",
+   "source_ref": {
+    "source_id": "src:00618e79dfed20f237a8",
+    "source_text_sha256": "3cd0045310c2cce777eeb342b895a81318e3fd4e24228b08978ddf4887a7486e"
+   },
+   "evidence_ref": {
+    "quote_sha256": "de41d209961a6b64a60c3134e13b6c79becb14a5352c274c32c280282e11d193",
+    "char_start": 442,
+    "char_end": 494
+   },
+   "statement": "Partner requests a discount when launching two companies (2024-04-24).",
+   "stage": "request",
+   "outcome": "see grant below; signing/payment unknown"
+  },
+  {
+   "claim_id": "C33-3024412d9f",
+   "source_ref": {
+    "source_id": "src:00618e79dfed20f237a8",
+    "source_text_sha256": "3cd0045310c2cce777eeb342b895a81318e3fd4e24228b08978ddf4887a7486e"
+   },
+   "evidence_ref": {
+    "quote_sha256": "18a4ce36e22508d40c10e7b39e3c08802af259a8eddfacd185610a015ec7c672",
+    "char_start": 636,
+    "char_end": 663
+   },
+   "statement": "Seller agrees immediately at 10k in the same conversation; per-branch basis not explicit.",
+   "stage": "grant (offer-stage)",
+   "outcome": "accepted deal/payment NOT evidenced"
+  },
+  {
+   "claim_id": "C228-2b8eb61aeb",
+   "source_ref": {
+    "source_id": "src:5ba65d172a9d76ce70ba",
+    "source_text_sha256": "add6391a45dda864f2f7b797ac02e07837a517d8beefd7112a3004a6ac6fc70d"
+   },
+   "evidence_ref": {
+    "quote_sha256": "64b4b8bcdbbc0b0c17f5e6fa27e6ca4714c14eaf41191d2886f1c66948bdbd36",
+    "char_start": 60,
+    "char_end": 105
+   },
+   "statement": "Seller grants an extra 30% off platform price (2026-08-13); payment route asked next.",
+   "stage": "grant (offer-stage)",
+   "outcome": "payment NOT evidenced"
+  },
+  {
+   "claim_id": "C41-58ceac2f04",
+   "source_ref": {
+    "source_id": "src:043d42a050557a538088",
+    "source_text_sha256": "88c4e1706a460f44c3e10d11410f886a4cba2003c52082cfe00c86106e80839e"
+   },
+   "evidence_ref": {
+    "quote_sha256": "553b46ba1828efab89fd38b67ad551c34c1322671436db2a076970b33dc12c4b",
+    "char_start": 359,
+    "char_end": 394
+   },
+   "statement": "Seller mentions partner 30% without stating its scope (2026-09-22).",
+   "stage": "offer",
+   "outcome": "n/a"
+  },
+  {
+   "claim_id": "C398-8df541a2b3",
+   "source_ref": {
+    "source_id": "src:8dc5eaa72851986870fa",
+    "source_text_sha256": "d519c20c4d5d3b1ab2fb83a06556069dd1397b7f684fcb2ea979e2d734c67403"
+   },
+   "evidence_ref": {
+    "quote_sha256": "e207caf396ca26060a668151e4652e916a33dc0b69caeadaf60e4b81194ff200",
+    "char_start": 190,
+    "char_end": 265
+   },
+   "statement": "Announced loyalty discount not applied; client paid full price, fix promised (2026-06-19, archive-summary based).",
+   "stage": "announced_not_applied",
+   "outcome": "resolution unknown"
+  }
+ ],
+ "counterexamples_reviewed": [
+  {
+   "claim_id": "C65-3888ae4342",
+   "source_ref": {
+    "source_id": "src:3057c59c2d16e6bdd12e",
+    "source_text_sha256": "5b8aadfb9aecc9290ab4a0ee86af6f92a7071a36964f80da5805795b440d7d7c"
+   },
+   "evidence_ref": {
+    "quote_sha256": "160a57dac611112c1c2df1c3024de225c501c7f43a61e90cedcd0de6de84f2d2",
+    "char_start": 225,
+    "char_end": 278
+   },
+   "statement": "Bulk-review discount request refused: minimum price (2025-05-27).",
+   "stage": "refusal",
+   "against": "discount-as-default"
+  },
+  {
+   "claim_id": "C43-fe7cfc0d51",
+   "source_ref": {
+    "source_id": "src:05980d726343bdca80fc",
+    "source_text_sha256": "62b0fb606a3bb41a5ef542d85550fa2e09a08e7a96ab2458c2119b3e1d2903ed"
+   },
+   "evidence_ref": {
+    "quote_sha256": "84aad6154c72e3b8029f5bd279ab5df63cae2c1ebf56264ef6d82f34b3240dec",
+    "char_start": 15319,
+    "char_end": 15413
+   },
+   "statement": "Scope correction exists and is communicated to partners.",
+   "stage": "norm_rule",
+   "against": "no rules exist"
+  },
+  {
+   "claim_id": "C495-cab3643af9",
+   "source_ref": {
+    "source_id": "src:b3521d3608494dae24ad",
+    "source_text_sha256": "1b4a8ee5364ba7ad6680566db095966b211a7edb3e51e600d92cd186757c07a3"
+   },
+   "evidence_ref": {
+    "quote_sha256": "996ef49499ecd06e2e64515cf7a45d2cc4e00d37cad1861f7b284d3d8f9c8496",
+    "char_start": 6353,
+    "char_end": 6411
+   },
+   "statement": "Price-ladder template sits in the same SOP source that forbids price-first messages.",
+   "stage": "offer_template",
+   "against": "rules simply followed"
+  }
+ ],
+ "verified_review": "SubQ subq-snap-1.1, 5 approved pairs: NO proven contradiction (different_scope_time / insufficient_evidence / low-confidence consistent). Full packet: database/fixtures/review-packet-subq-discount.json",
+ "cannot_claim": [
+  "any prevalence percentage or frequency for discounts/grants (keyword-selected pool, not representative)",
+  "that any chat grant became a signed deal or payment",
+  "CRM revenue or client totals (frozen, semantics unverified)",
+  "that historical episodes violate the proposed rule (never retroactive)"
+ ],
+ "narration_safe_lines": [
+  "We watch one goal: protect value and margin while growing sales.",
+  "The proposed rule - every discount earns a customer commitment in return - is still unapproved; today flexible seller discounts are the active baseline.",
+  "In the reviewed episodes, discounts are granted case by case, sometimes immediately, and the commitment in return is not recorded; firm refusals at minimum price also occur.",
+  "External review found no proven contradiction - it found a monitoring gap: discount outcomes and reasons are not captured, so compliance can be neither proven nor disproven at scale."
+ ]
+}
