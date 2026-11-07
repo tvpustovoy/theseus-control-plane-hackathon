@@ -1,0 +1,474 @@
+{
+  "project": "Theseus Control Plane",
+  "as_of": "2026-11-07",
+  "coordination": "Active ours-codex session: Viveka.HackatonCoordinator",
+  "rule": "Readiness is not authorization. Dispatch only on Taras's explicit instruction.",
+  "actors": [
+    {
+      "name": "Viveka.HackatonCoordinator",
+      "state": "future_session"
+    },
+    {
+      "name": "Muse.Hackathon",
+      "state": "not_started"
+    },
+    {
+      "name": "Argon.Hackathon",
+      "state": "not_started"
+    },
+    {
+      "name": "Setu.Hackathon",
+      "state": "message_sent_ack_pending"
+    },
+    {
+      "name": "Independent verifier",
+      "state": "unassigned"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "P00",
+      "phase": "Подготовка",
+      "title": "План, роли, пакеты и трекер",
+      "owner": "Viveka.Hackathon",
+      "depends_on": [],
+      "blockers": [],
+      "scope": "docs/",
+      "acceptance": "Читаемые план/пакеты; пересчёт трекера и его проверки проходят",
+      "status": "done",
+      "approval": "user",
+      "dispatch": "not_sent",
+      "evidence": [
+        "docs/PLAN.md",
+        "docs/PHASES.md",
+        "docs/COLLABORATION.md",
+        "reports/build.py",
+        "reports/evidence/tracker-check.md"
+      ]
+    },
+    {
+      "id": "P01",
+      "phase": "Подготовка",
+      "title": "Зафиксировать контракты и план независимой оценки",
+      "owner": "Viveka.HackatonCoordinator",
+      "depends_on": [
+        "P00"
+      ],
+      "blockers": [],
+      "scope": "docs/CONTRACTS.md; app/evaluation/",
+      "acceptance": "Согласованы входы/выходы, development/validation/final splits и критерии допуска",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "P02",
+      "phase": "Подготовка",
+      "title": "Запустить сессии и связь Ours",
+      "owner": "Viveka.HackatonCoordinator",
+      "depends_on": [
+        "P00"
+      ],
+      "blockers": [
+        "Команда Тараса на создание/запуск ролей"
+      ],
+      "scope": "docs/status/",
+      "acceptance": "У каждой роли отдельная идентичность; HELLO/ACK подтверждены; монитор проверен",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "P03",
+      "phase": "Подготовка",
+      "title": "Проверить ключи Meta, Gemini и SubQ",
+      "owner": "Viveka.HackatonCoordinator",
+      "depends_on": [
+        "P00"
+      ],
+      "blockers": [
+        "Получить Gemini API key; определить бюджет теста"
+      ],
+      "scope": "приватная конфигурация; reports/evidence/",
+      "acceptance": "Минимальные разрешённые вызовы и доступные модели записаны без секретов",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "P04",
+      "phase": "Подготовка",
+      "title": "Подготовить MongoDB и ограниченный доступ",
+      "owner": "Argon.Hackathon",
+      "depends_on": [
+        "P01"
+      ],
+      "blockers": [
+        "Разрешить создание базы/доступа"
+      ],
+      "scope": "database/",
+      "acceptance": "Подключение, запись/чтение синтетической записи, scope организации проверен",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "A01",
+      "phase": "A",
+      "title": "Выбрать процесс и разрешённые источники",
+      "owner": "Тарас",
+      "depends_on": [
+        "P00"
+      ],
+      "blockers": [
+        "Ссылка/набор данных и границы использования"
+      ],
+      "scope": "приватный реестр; docs/DECISIONS.md",
+      "acceptance": "Один процесс, источники, права и критерии результата определены",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "A02",
+      "phase": "A",
+      "title": "Приём файлов, типы, хеши и повторная загрузка",
+      "owner": "Muse.Hackathon",
+      "depends_on": [
+        "P01",
+        "P02"
+      ],
+      "blockers": [],
+      "scope": "app/ingestion/",
+      "acceptance": "SourceRecord/Delta; повтор не дублируется; ошибки типа/доступа видимы",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "A03",
+      "phase": "A",
+      "title": "Meta: текст/PDF/медиа → claims со свидетельствами",
+      "owner": "Muse.Hackathon",
+      "depends_on": [
+        "A02",
+        "P03",
+        "A01"
+      ],
+      "blockers": [],
+      "scope": "app/extraction/",
+      "acceptance": "Реальный вызов; проверяемые цитаты/таймкоды; наблюдения отделены от выводов",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "A04",
+      "phase": "A",
+      "title": "Версионированная модель и запросы",
+      "owner": "Argon.Hackathon",
+      "depends_on": [
+        "P01",
+        "P02",
+        "P04"
+      ],
+      "blockers": [],
+      "scope": "app/model/; database/",
+      "acceptance": "Сохранены источники/claims, изоляция scope, запрос provenance, версия без перезаписи истории",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "A05",
+      "phase": "A",
+      "title": "Подбор конфликтов и SubQ-шлюз",
+      "owner": "Muse.Hackathon",
+      "depends_on": [
+        "P00"
+      ],
+      "blockers": [],
+      "scope": "app/verification/",
+      "acceptance": "Нормализация/группировка, uncertainty route, тест межгрупповых пропусков; mock отделён от live",
+      "status": "doing",
+      "approval": "user",
+      "dispatch": "acknowledged",
+      "evidence": []
+    },
+    {
+      "id": "A06",
+      "phase": "A",
+      "title": "Собрать и подтвердить исходную модель v1",
+      "owner": "Viveka.HackatonCoordinator",
+      "depends_on": [
+        "A03",
+        "A04",
+        "A05"
+      ],
+      "blockers": [
+        "Решение Тараса по существенным конфликтам"
+      ],
+      "scope": "интеграция; docs/DECISIONS.md",
+      "acceptance": "Сквозной Meta→MongoDB→SubQ прогон; утверждённый baseline; открытые вопросы сохранены",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "A07",
+      "phase": "A",
+      "title": "Построить один исполняемый инструмент",
+      "owner": "Argon.Hackathon",
+      "depends_on": [
+        "A06"
+      ],
+      "blockers": [],
+      "scope": "app/runtime/",
+      "acceptance": "Инструмент исполняет выбранный процесс; границы полномочий и baseline tests",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "B01",
+      "phase": "B",
+      "title": "Дельта модели и затронутые зависимости",
+      "owner": "Argon.Hackathon",
+      "depends_on": [
+        "A06"
+      ],
+      "blockers": [],
+      "scope": "app/model/",
+      "acceptance": "Diff новой версии, impacted rules/goals/tools, прежняя версия доступна",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "B02",
+      "phase": "B",
+      "title": "Новый файл/видео → новые свидетельства",
+      "owner": "Muse.Hackathon",
+      "depends_on": [
+        "A03",
+        "B01"
+      ],
+      "blockers": [
+        "Разрешённый новый материал, например звонок"
+      ],
+      "scope": "app/ingestion/; app/extraction/",
+      "acceptance": "Обработана только дельта; предложения встречи не превращены в одобренные правила",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "B03",
+      "phase": "B",
+      "title": "Новые противоречия и измерение экономии",
+      "owner": "Muse.Hackathon",
+      "depends_on": [
+        "B02",
+        "A05",
+        "P03"
+      ],
+      "blockers": [],
+      "scope": "app/verification/",
+      "acceptance": "Одинаковый набор: direct review против Snap+escalation; расходы и missed conflicts",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "B04",
+      "phase": "B",
+      "title": "Человеческое решение и проверка полномочий",
+      "owner": "Argon.Hackathon",
+      "depends_on": [
+        "B01",
+        "B03",
+        "A07"
+      ],
+      "blockers": [],
+      "scope": "app/control/",
+      "acceptance": "Автор/версия/scope решения проверены; без разрешения изменение не активно",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "B05",
+      "phase": "B",
+      "title": "Изменение инструмента и собственного навыка",
+      "owner": "Argon.Hackathon",
+      "depends_on": [
+        "B04"
+      ],
+      "blockers": [],
+      "scope": "app/runtime/",
+      "acceptance": "Зафиксирована development-ошибка, patch и versioned skill/context/routing change",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "B06",
+      "phase": "B",
+      "title": "Независимая held-out оценка",
+      "owner": "Проверяющий — не назначен",
+      "depends_on": [
+        "B05",
+        "P01"
+      ],
+      "blockers": [
+        "Назначить независимого проверяющего"
+      ],
+      "scope": "app/evaluation/; отдельный закрытый набор",
+      "acceptance": "Baseline/candidate на unseen cases, sample sizes, regressions, reproducible gate",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "B07",
+      "phase": "B",
+      "title": "Принятие/откат и доказательство поведения",
+      "owner": "Argon.Hackathon",
+      "depends_on": [
+        "B06"
+      ],
+      "blockers": [
+        "Разрешение на активацию точной версии"
+      ],
+      "scope": "app/runtime/; app/control/",
+      "acceptance": "Хорошая версия принята при выполнении критериев; плохая заблокирована; rollback и поведение проверены",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "F01",
+      "phase": "Интерфейс",
+      "title": "Каркас Deputy CEO и инструменты состояния",
+      "owner": "Argon.Hackathon",
+      "depends_on": [
+        "P01",
+        "P02"
+      ],
+      "blockers": [],
+      "scope": "app/deputy/",
+      "acceptance": "Обзор, предложения и evidence через scoped tools; без произвольного доступа к базе",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "F02",
+      "phase": "Интерфейс",
+      "title": "Fetch Deputy CEO / Agentverse bridge",
+      "owner": "Viveka.Hackathon",
+      "depends_on": [
+        "F01",
+        "B07"
+      ],
+      "blockers": [
+        "Доступ/регистрация Agentverse"
+      ],
+      "scope": "app/deputy/agentverse/",
+      "acceptance": "Hosted Deputy CEO guides the owner to Theseus views; localhost-only data access is not claimed",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "F03",
+      "phase": "Интерфейс",
+      "title": "Six Theseus browser UI states on localhost",
+      "owner": "Argon.Hackathon",
+      "depends_on": [
+        "P00"
+      ],
+      "blockers": [],
+      "scope": "app/ui/; app/api/; existing Argon backend areas",
+      "acceptance": "Six navigable states, evidence drawer, demo CRM validation, honest live/fixture/simulation labels, one start command and exact localhost URL",
+      "status": "doing",
+      "approval": "user",
+      "dispatch": "acknowledged",
+      "evidence": [
+        "docs/agents/argon/UI-LOCALHOST-BRIEF.md",
+        "reports/2-scenarios/DEMO-INTERFACES.md"
+      ]
+    },
+    {
+      "id": "D01",
+      "phase": "Защита",
+      "title": "Нарратив, презентация, видео и сценарий",
+      "owner": "Setu.Hackathon",
+      "depends_on": [
+        "P00"
+      ],
+      "blockers": [],
+      "scope": "reports/1-concept/; reports/2-scenarios/; reports/3-artifacts/",
+      "acceptance": "Черновики 60s/3min/слайдов/Q&A, список недостающих evidence; работа ещё не подтверждена ACK",
+      "status": "todo",
+      "approval": "user",
+      "dispatch": "sent_unacknowledged",
+      "evidence": []
+    },
+    {
+      "id": "D02",
+      "phase": "Защита",
+      "title": "Подставить реальные результаты и ссылки",
+      "owner": "Setu.Hackathon",
+      "depends_on": [
+        "D01",
+        "F03"
+      ],
+      "blockers": [],
+      "scope": "reports/3-artifacts/",
+      "acceptance": "Пять partner usage evidence, built-today, финальные ролик и слайды без вымышленных claims",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    },
+    {
+      "id": "D03",
+      "phase": "Защита",
+      "title": "Публикация и сдача",
+      "owner": "Viveka.HackatonCoordinator",
+      "depends_on": [
+        "D02"
+      ],
+      "blockers": [
+        "Явная команда Тараса на публикацию и отправку"
+      ],
+      "scope": "публичный GitHub; формы",
+      "acceptance": "Проверены секреты, запуск, ссылки; GitHub и обе заявки подтверждены",
+      "status": "todo",
+      "approval": "pending",
+      "dispatch": "not_sent",
+      "evidence": []
+    }
+  ]
+}
+

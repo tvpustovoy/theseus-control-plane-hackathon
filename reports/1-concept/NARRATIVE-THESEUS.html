@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тесей: нарратив и сюжет</title>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F7F7; --surface:#FFFFFF; --warm-white:#F4F1E8;
+  --amber:#F28D20; --amber-tint:#FAE5C4;
+  --jade:#00695E;  --jade-tint:#C7E2D8;
+  --ink:#1C1C1A; --text:#3A3A38; --text-secondary:#6A6A66;
+  --line:#E3EAEA;   /* холодный hairline под холодный фон */
+  --font:'Mulish',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --radius:6px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.55}
+.wrap{max-width:880px;margin:0 auto;padding:40px 16px 64px}
+h1,h2,h3{color:var(--ink);margin:0;line-height:1.2}
+h1{font-size:30px;font-weight:800}
+h2{font-size:21px;font-weight:800;margin:40px 0 8px}
+h3{font-size:16px;font-weight:800;margin:20px 0 6px}
+.kicker{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary)}
+.lead{font-size:18px;color:var(--ink);margin:14px 0 0}
+.hero{display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-top:22px}
+.hero img{width:240px;max-width:100%;height:auto}
+.hero .core{flex:1 1 300px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.core .en{font-size:17px;font-weight:700;color:var(--ink)}
+.core .ru{font-size:15px;color:var(--text-secondary);margin-top:6px}
+.stage{background:var(--warm-white);border-radius:var(--radius);padding:16px 20px;margin-top:10px}
+.stage p{margin:0 0 10px;color:var(--ink);font-size:16.5px}
+.stage p:last-child{margin:0;font-weight:700}
+.tbl{overflow-x:auto;margin-top:10px}
+table{border-collapse:collapse;width:100%;min-width:560px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line);font-size:15px}
+th{font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);font-weight:700}
+td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+ol.steps{padding-left:22px;margin:10px 0 0}
+ol.steps li{margin-bottom:8px}
+.partner{display:inline-block;font-size:12px;font-weight:700;color:var(--jade);background:var(--jade-tint);border-radius:4px;padding:1px 6px;margin-left:4px}
+.note{background:var(--amber-tint);border-radius:var(--radius);padding:14px 16px;margin-top:16px;color:var(--ink);font-size:15px}
+.codex{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.card b{color:var(--ink)}
+.card.drift{border-left:4px solid var(--amber)}
+.card.rule{border-left:4px solid var(--jade)}
+footer{margin-top:44px;font-size:13px;color:var(--text-secondary);border-top:1px solid var(--line);padding-top:12px}
+code{font-family:'Source Code Pro',ui-monospace,monospace;font-size:.88em}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kicker">Theseus Control Plane · Setu.Hackathon · 07.11.2026, 13:21</div>
+<h1>Нарратив вступления и сюжет «кодекс против потока сделок»</h1>
+<p class="lead">Твоё слово: мы помогаем заметить то, что меняется и уплывает и важно для человека, и подсказываем обратить на это внимание: организация развивается не так, как он закладывал.</p>
+
+<div class="hero">
+  <img src="../../styles/theseus-logo-v8-spacesuit.png" alt="Логотип Theseus: корабль, наполовину голубой и цельный, наполовину янтарный и перестраиваемый, человек у штурвала">
+  <div class="core">
+    <div class="en">Theseus notices where your organization is drifting from the course you set — and brings it to your attention while it can still be corrected.</div>
+    <div class="ru">Тесей замечает, где организация уходит с курса, который ты задал, и показывает тебе это, пока ещё можно поправить.</div>
+  </div>
+</div>
+
+<h2>1. Вступление: текст для сцены, около 70 секунд</h2>
+<p>Говорится поверх логотипа. Не зависит от того, какой сюжет демо выберем.</p>
+<div class="stage" lang="en">
+<p>In Athens they kept the ship of Theseus. As its planks rotted, they replaced them, one by one, until no original plank was left. And the philosophers asked: is it still the same ship?</p>
+<p>That question is now about your company. Agents are replacing the planks — a process here, a role there, code, skills, context. Every day, while you sail. That is the point: the ship gets better.</p>
+<p>But every new plank is a little different. Each change makes sense on its own. And one day the ship is sailing somewhere you never set a course for. Nobody decided it. It drifted.</p>
+<p>So the real question is not "is it the same ship". It is "is it still going where I said?"</p>
+<p>You cannot inspect every plank. There are thousands, and they change every hour. You need something that watches the course with you: that notices what is shifting and matters to you, and says — look here.</p>
+<p>That is Theseus Control Plane. It watches your organization in five areas — purpose, rules, resources, relationships and progress. It notices where the organization is developing differently from how you laid it down, and brings you the one thing worth your attention. You decide. Theseus makes sure the decision takes hold. And because it keeps every old plank, you can always compare — and go back.</p>
+<p>Let your agents rebuild the ship. Keep the helm.</p>
+</div>
+<h3>О чём это по-русски</h3>
+<p>Доски корабля Тесея меняли одну за другой. Сегодня доски компании меняют агенты, и это хорошо: корабль становится лучше. Но каждая новая доска немного другая. Каждое изменение по отдельности разумно, а вместе они уводят корабль туда, куда никто курс не прокладывал. Вопрос не «тот же ли это корабль», а «идёт ли он туда, куда я сказал». Каждую доску не осмотришь. Нужен тот, кто смотрит на курс вместе с тобой и говорит «посмотри сюда». Тесей смотрит в пяти областях, приносит одно главное, ты решаешь, а он следит, чтобы решение дошло до дела. Старые доски он хранит: всегда можно сравнить и вернуться. Это ответ Гоббсу, который спрашивал, что будет, если из старых досок собрать второй корабль.</p>
+
+<h2>2. Пять способов уйти с курса</h2>
+<div class="tbl"><table>
+<tr><th>Область</th><th>Как выглядит дрейф</th><th>Что Тесей помогает заметить</th><th>Что делает человек</th></tr>
+<tr><td>Целое</td><td>команда усердно гребёт, но к другому порту</td><td>работа уже не служит тому, зачем существует организация, или выходит за её границу</td><td>заново задаёт назначение или границу</td></tr>
+<tr><td>Правила</td><td>у команды завелись обычаи, которые никто не утверждал</td><td>живая практика противоречит записанным правилам</td><td>принимает, отвергает или переделывает практику</td></tr>
+<tr><td>Ресурсы</td><td>припасы и силы капитана уходят не туда, куда он их посылал</td><td>деньги, повторная работа и внимание владельца текут против приоритетов</td><td>двигает бюджеты, приоритеты, границы самостоятельности</td></tr>
+<tr><td>Отношения</td><td>обещание пассажиру тихо нарушено</td><td>обязательства перед клиентами и людьми больше не держатся</td><td>восстанавливает обязательство, решает, кто говорит от его имени</td></tr>
+<tr><td>Движение</td><td>команда учится, но не тому</td><td>цели уплывают, улучшения оптимизируют не то</td><td>перенаправляет цели, принимает или откатывает изменение</td></tr>
+</table></div>
+<p>У каждой области две стороны: что человек видит и бережёт, и чем он управляет (сборка 5×2 от 04.11). Каждое решение проходит путь: получено → понято → применено → видно в поведении.</p>
+
+<h2>3. Как дрейф себя выдаёт: кодекс основателя против потока сделок</h2>
+<p>Твоё слово: ровно то, что происходило в исходном проекте. Здесь «ссылки» я читаю как «скидки».</p>
+<div class="codex">
+  <div class="card rule"><b>Кодекс основателя</b><br>1. Скидки могут быть гибкими.<br>2. Мы не заливаем людей скидками, подменяя ценность ценой.</div>
+  <div class="card drift"><b>Что в потоке</b><br>Тысячи сделок, звонков и переписок. Каждая скидка казалась разумной тому, кто её дал. А вместе скидки идут несистемно: кому, сколько и почему, по кодексу не узнать. Часть скидок — первый ответ на «дорого», без всякого обмена ценностью.</div>
+</div>
+<p style="margin-top:12px"><b>Почему здесь нужен человек.</b> Два принципа тянут в разные стороны. «Запретить скидки» ломает первый, «можно всё» ломает второй. Где кончается гибкость и начинается подмена ценности, может сказать только основатель.</p>
+<p>На лендинге Firny та же форма: в CRM сделка «закрыта как проигранная», а в письме клиент просит прислать новое предложение сегодня. Противоречие двух записей — первая видимая трещина. Дальше Тесей идёт к закономерности, к корневой причине и к тому, что на кону, а человеку приносит один вопрос.</p>
+
+<h2>4. Один дрейф, пять областей</h2>
+<p>Чтобы показать пять областей, не нужны пять демо: один и тот же дрейф виден из каждой по-своему.</p>
+<div class="tbl"><table>
+<tr><th>Область</th><th>Дрейф скидок отсюда</th></tr>
+<tr><td>Целое</td><td>мы продаём ценность или цену?</td></tr>
+<tr><td>Правила</td><td>кодекс говорит одно, практика в потоке сделок — другое</td></tr>
+<tr><td>Ресурсы</td><td>маржа отдана, а взамен ничего не получено</td></tr>
+<tr><td>Отношения</td><td>похожих клиентов обслуживают по-разному; клиенты учатся ждать скидку</td></tr>
+<tr><td>Движение</td><td>продажи «улучшаются», то есть быстрее дают скидку: выучен не тот урок</td></tr>
+</table></div>
+
+<h2>5. Ход демо: предложение, думаем дальше</h2>
+<ol class="steps">
+<li><b>Кодекс.</b> Из слов самого основателя извлекаем два принципа, со ссылкой на место. <span class="partner">Meta</span></li>
+<li><b>Поток.</b> Из сделок, звонков и переписок извлекаем скидки и причины, которые назвали люди. Всё хранится с источником и версией. <span class="partner">Meta</span> <span class="partner">MongoDB</span></li>
+<li><b>Замечаем.</b> Каждую скидку сверяем с кодексом: согласна · противоречит · другой случай · мало данных. Противоречия собираются в один дрейф и его закономерность. <span class="partner">SubQ</span></li>
+<li><b>Внимание.</b> Заместитель в чате приносит основателю одну карточку: дрейф, доказательства, чтение по пяти областям, что на кону, и один вопрос. <span class="partner">Fetch.ai</span></li>
+<li><b>Решение.</b> Основатель проводит черту, например: «скидка должна что-то покупать — длинный срок, предоплату, рекомендацию; и никогда не первый ответ на “дорого”».</li>
+<li><b>Изменение.</b> Правило встраивается новой версией в инструмент, которым агенты решают о скидках, и проверяется на сделках, которых строитель не видел. Скидки за ценность проходят, подмена ценности помечается. Лёгкий путь «вообще без скидок» блокируется: он ломает первый принцип. <span class="partner">Gemini</span></li>
+<li><b>Видно в поведении.</b> Приходит новая сделка, агент поступает по новой версии. Одним шагом можно вернуться к прежней. <span class="partner">MongoDB</span></li>
+</ol>
+<p>Так сюжет идёт и в главный трек «The System That Gets Better»: новая версия правила проверена на отложенных случаях и может быть откачена. И это не дашборд: главное здесь — решение и изменение поведения.</p>
+
+<div class="note"><b>Что открыто.</b><br>
+1. Верно ли я понял: «ссылки» = «скидки»?<br>
+2. Откуда берём слова основателя о скидках: звонок с основателями, документ, переписка? Без источника кодекс придётся писать руками, а это слабее.<br>
+3. Есть ли в данных, которые сегодня переносим в MongoDB, скидки по сделкам? Цифры исходного проекта — прежняя работа, на сцене только то, что найдёт сегодняшний конвейер.<br>
+4. Можно ли называть клиента на сцене, или говорим «реальная компания».</div>
+
+<footer>Английская версия для команды: <code>reports/1-concept/NARRATIVE-THESEUS.md</code>. Логотип: <code>styles/theseus-logo-v8-spacesuit.png</code>. Блок противоречий Firny: <code>hanuman-sibling/projects/firny-site/public/index.html</code>, раздел <code>#contradictions</code>.</footer>
+</div>
+</body>
+</html>

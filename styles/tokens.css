@@ -1,0 +1,14 @@
+/* Theseus / Firny visual identity v8 owner-selected identity. Does not load font files. */
+:root {
+  --theseus-ink: #0b3a5e;
+  --theseus-glacier: #3fa6e8;
+  --theseus-ice: #dde9f2;
+  --theseus-amber: #f5bf45;
+  --theseus-teal: #40877c;
+  --theseus-background: #f6f9fc;
+  --theseus-surface: #ffffff;
+  --theseus-muted: #5a7389;
+  --theseus-font-sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --theseus-font-display: "Instrument Serif", Georgia, serif;
+  --theseus-font-mono: "Geist Mono", ui-monospace, monospace;
+}

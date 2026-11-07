@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тесей: хорда демо</title>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F7F7; --surface:#FFFFFF; --warm-white:#F4F1E8;
+  --amber:#F28D20; --amber-tint:#FAE5C4;
+  --jade:#00695E;  --jade-tint:#C7E2D8;
+  --ink:#1C1C1A; --text:#3A3A38; --text-secondary:#6A6A66;
+  --line:#E3EAEA;   /* холодный hairline под холодный фон */
+  --font:'Mulish',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --radius:6px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.55}
+.wrap{max-width:960px;margin:0 auto;padding:40px 16px 64px}
+h1,h2,h3{color:var(--ink);margin:0;line-height:1.2}
+h1{font-size:30px;font-weight:800}
+h2{font-size:21px;font-weight:800;margin:40px 0 8px}
+.kicker{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary)}
+.question{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--jade);border-radius:var(--radius);padding:16px 18px;margin-top:18px}
+.question .ru{font-size:18px;color:var(--ink);font-weight:700}
+.question .en{font-size:15px;color:var(--text-secondary);margin-top:6px}
+.chord{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px}
+.step .n{font-size:12px;font-weight:800;color:var(--jade);letter-spacing:.06em;text-transform:uppercase}
+.step b{display:block;color:var(--ink);font-size:16px;margin:2px 0 4px}
+.step.key{border-color:var(--amber);background:var(--amber-tint)}
+.tbl{overflow-x:auto;margin-top:10px}
+table{border-collapse:collapse;width:100%;min-width:640px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line);font-size:14.5px}
+th{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);font-weight:700}
+td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+td.en{color:var(--ink);background:var(--warm-white)}
+.partner{display:inline-block;font-size:12px;font-weight:700;color:var(--jade);background:var(--jade-tint);border-radius:4px;padding:1px 6px;margin:0 3px 3px 0}
+.ph{font-family:'Source Code Pro',ui-monospace,monospace;font-size:.9em;color:var(--amber)}
+ul{margin:8px 0 0;padding-left:22px}
+li{margin-bottom:6px}
+.note{background:var(--amber-tint);border-radius:var(--radius);padding:14px 16px;margin-top:16px;color:var(--ink);font-size:15px}
+footer{margin-top:44px;font-size:13px;color:var(--text-secondary);border-top:1px solid var(--line);padding-top:12px}
+code{font-family:'Source Code Pro',ui-monospace,monospace;font-size:.88em}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kicker">Theseus Control Plane · Setu.Hackathon · 07.11.2026, 13:34 · передано координатору</div>
+<h1>Хорда демо: сценарий и что показываем</h1>
+
+<div class="question">
+  <div class="ru">Когда AI-native организация постоянно меняется и в ней работают тысячи агентов и людей, как заметить, что она стала другой и уже не соответствует твоим замыслам? Нужен control plane, обращённый к человеку: замечать важное, не снижая скорости.</div>
+  <div class="en">When your AI-native organization keeps changing, how do you notice it no longer matches what you intended — without slowing it down?</div>
+</div>
+
+<h2>Хорда: пять шагов, всё остальное вокруг них</h2>
+<div class="chord">
+  <div class="step"><div class="n">1 · Кодекс и цели</div><b>Как задумано</b>Принципы и цели из файлов основателя; обновляются по тому, что происходит, в том числе по живым встречам.</div>
+  <div class="step"><div class="n">2 · Культура</div><b>Как на деле</b>Повторяемое значимое поведение в действиях агентов и людей.</div>
+  <div class="step"><div class="n">3 · Конфликт</div><b>Задумано против того, как есть</b>Культура противоречит кодексу или работает против целей; изменение организации предъявлено как этот конфликт.</div>
+  <div class="step key"><div class="n">4 · Предложение</div><b>Три рычага</b>Агенты-продавцы: правим их правила. Люди-продавцы: онбордим. Среда: обязательное поле «обоснование скидки» в CRM, которое меняет поведение само.</div>
+  <div class="step"><div class="n">5 · Во времени</div><b>Эффект</b>Каждое корректирующее изменение отслеживаем во времени и прямо показываем, сработало ли.</div>
+</div>
+<p>Кейс — скидки. Кодекс: «скидки могут быть гибкими» и «не заливаем людей скидками, подменяя ценность». Культура в потоке сделок: скидки идут несистемно, часто как первый ответ на «дорого». Так и было в исходном проекте.</p>
+
+<h2>Что показала проверка данных (Datamaster, 13:26)</h2>
+<p>Только ссылки на источники, без данных клиента.</p>
+<ul>
+<li><b>Кодекс.</b> Решения и замечания основателя об <i>условиях</i> скидок есть: три эпизода в <code>model.FIELD_FACTS</code>. Фраза «не предлагать скидку первыми» есть, но нужно проверить, кто её сказал. Прямой фразы основателя, где вместе «скидки гибкие» и «не подменяем ценность ценой», <b>не нашли</b>. Нужен источник от тебя, например звонок с основателями, или говорим это как твою формулировку.</li>
+<li><b>Культура.</b> Просьбы о скидках и причины есть в разговорах: четыре эпизода, связанные со сделками. Была ли скидка дана, по ним не видно.</li>
+<li><b>CRM.</b> Во всех 6 102 сделках и в истории этапов <b>нет поля скидки или её причины</b>. Событий скидок в CRM нет.</li>
+</ul>
+<p><b>Что это меняет.</b> «Скидки идут несистемно» пока гипотеза, пока сегодняшнее извлечение её не измерит. Зато находка про CRM усиливает четвёртый шаг. Культура скидок живёт только в разговорах, а система, в которой идут сделки, её не видит. Поэтому изменение среды, обязательное поле «обоснование скидки», — правильное предложение, и оно опирается на настоящие данные. Строка для сцены на шаге 2: «Discount talk lives in calls and chats — [N] conversations — and nowhere in the CRM. The rule the founder cares about is invisible to the system that runs the deals.»</p>
+<p><b>Шаг 5 «во времени».</b> Момента, когда CRM поменяли, в истории нет. Значит, шаг 5 — симуляция с нашими агентами-продавцами, подписанная на экране. Другой вариант — ты укажешь реальный момент.</p>
+
+<h2>Сценарий на 3 минуты</h2>
+<p>Слева что на экране, справа текст для сцены. <span class="ph">[ ]</span> — места для цифр из сегодняшних прогонов.</p>
+<div class="tbl"><table>
+<tr><th>Время</th><th>Шаг и экран</th><th>Текст</th></tr>
+<tr><td>0:00–0:25</td><td><b>Вход.</b> Логотип v8 (человек в скафандре у штурвала, выбран тобой): корабль наполовину перестроен</td><td class="en" lang="en">Your AI-native organization changes every hour — thousands of agents and people, each making a sensible local choice. Like the ship of Theseus, plank by plank, it becomes a different ship. How do you notice it no longer matches what you intended — without slowing it down? You need a human-facing control plane. This is Theseus.</td></tr>
+<tr><td>0:25–0:50</td><td><b>1 · Кодекс и цели.</b> Файлы основателя и запись встречи → принципы и цели с цитатами; разница v1 → v2 после последней встречи</td><td class="en" lang="en">Theseus reads the founder's own words — documents and live meetings — and keeps a living codex and the goals behind it. Here: discounts can be flexible, but we never flood people with discounts in place of value; and the goal is [goal from source]. The latest meeting refined it; Theseus shows exactly what changed.</td></tr>
+<tr><td>0:50–1:15</td><td><b>2 · Культура.</b> Поток сделок → повторяемое поведение: «скидка как первый ответ на “дорого”» — <span class="ph">[N]</span> сделок, <span class="ph">[M]</span> продавцов и агентов</td><td class="en" lang="en">Then it watches what people and agents actually do — [N] deals, calls and chats — and extracts the real culture: behavior that repeats and matters. Nobody wrote this rule. It grew.</td></tr>
+<tr><td>1:15–1:35</td><td><b>3 · Конфликт.</b> Принцип кодекса против нормы культуры, вердикт «противоречит», по строке на пять областей</td><td class="en" lang="en">And here is the moment you need: your organization has become different. The codex says one thing, the culture another. Margin is leaking, customers are learning to wait for a discount.</td></tr>
+<tr><td>1:35–2:15</td><td><b>4 · Предложение.</b> Заместитель в ASI:One показывает три рычага рядом: <b>агенты</b> — правила скидок v1 → v2; <b>люди</b> — новый раздел онбординга продавцов; <b>среда</b> — обязательное поле в CRM; владелец утверждает</td><td class="en" lang="en">The Deputy CEO doesn't just report — it proposes one correction on three levels. For the sales agents: we edit their rules. For the human sellers: we update their onboarding. And for the environment: one required field in the CRM — why this discount? Every seller and every agent has to answer it before giving one. Behavior changes without a single lecture.</td></tr>
+<tr><td>2:15–2:45</td><td><b>5 · Во времени.</b> Линия по каждому рычагу (агенты · люди · среда): доля скидок с обоснованием ценностью и доля согласных с кодексом, до и после, с отметками; оставить или откатить</td><td class="en" lang="en">Then Theseus follows each lever over time. After the field went in, [X]% of discounts carried a value reason, up from [Y]%. The agents' new rules moved them at once; the people's onboarding is slower — so it stays a candidate. Every change is versioned; anything that doesn't work rolls back.</td></tr>
+<tr><td>2:45–3:00</td><td><b>Финал.</b> Логотип, главная строка, ссылка на репозиторий</td><td class="en" lang="en">Theseus doesn't slow your ship down. It shows you where it turned. Let your agents rebuild the ship — keep the helm.</td></tr>
+</table></div>
+<p>Видео на 60 секунд идёт по тем же шагам, по 8–12 секунд на шаг. Текст — в английском файле.</p>
+
+<h2>Что работает на каждом шаге</h2>
+<div class="tbl"><table>
+<tr><th>Шаг</th><th>Вход</th><th>Что работает</th><th>Партнёры</th><th>На экране</th></tr>
+<tr><td>1 · Кодекс и цели</td><td>файлы основателя о продажах и скидках; запись одной встречи как «обновление»</td><td>извлечь принципы и цели с цитатой и охватом; хранить версии; после новой встречи извлечь заново и показать разницу</td><td><span class="partner">Meta</span><span class="partner">MongoDB</span></td><td>кодекс v1 и v2 рядом, у каждого принципа цитата</td></tr>
+<tr><td>2 · Культура</td><td>сделки, этапы, скидки, звонки и переписки (данные RecPlace в MongoDB, на экране обезличены) и/или действия наших агентов-продавцов</td><td>извлечь скидки и названные причины; собрать повторяющееся поведение «та же ситуация → то же действие»; ранжировать по частоте, числу участников и деньгам</td><td><span class="partner">Meta</span><span class="partner">MongoDB</span></td><td>список норм: сколько раз, у скольких, примеры и контрпримеры</td></tr>
+<tr><td>3 · Конфликт</td><td>принципы и цели × нормы</td><td>каждую пару: согласуется · противоречит · другой случай · мало данных; противоречия — на дополнительную проверку</td><td><span class="partner">SubQ</span></td><td>карточка конфликта: принцип, норма, доказательства, вердикт, что на кону, пять областей</td></tr>
+<tr><td>4 · Предложение</td><td>карточка конфликта</td><td>заместитель предлагает одну поправку на трёх уровнях; после «да» владельца готовятся: <b>агенты</b> — правила скидок v2 (когда скидка допустима, что она должна купить, иначе к человеку); <b>люди</b> — раздел онбординга для продавцов; <b>среда</b> — обязательное поле «обоснование скидки» (длинный срок · предоплата · рекомендация · объём · другое с текстом). Каждый рычаг — изменение с версией</td><td><span class="partner">Fetch.ai</span><span class="partner">Gemini</span><span class="partner">MongoDB</span></td><td>разговор в ASI:One; три изменения рядом: правила агента v1 → v2, онбординг, форма CRM с новым полем</td></tr>
+<tr><td>5 · Во времени</td><td>изменения как события с версией; скидки после каждого</td><td>по периодам и по каждому рычагу: доля скидок с обоснованием, доля согласных с кодексом и целями, средняя скидка; эффект каждого изменения отдельно у агентов и у людей; оставить или откатить</td><td><span class="partner">MongoDB</span></td><td>линия времени с отметками изменений и вердиктом по каждому</td></tr>
+</table></div>
+
+<h2>Откуда «во времени» на шаге 5 — решено: симуляция (твоё слово, 13:41)</h2>
+<ul>
+<li><b>Реальная история.</b> Если в записях исходного проекта есть момент, когда практика скидок или CRM поменялись, показываем настоящие «до» и «после». Это самое сильное. Нужно, чтобы ты указал этот момент и он был в сегодняшнем импорте.</li>
+<li><b>Симуляция недель с нашими агентами-продавцами.</b> Несколько агентов работают на синтетических заявках, собранных по образцу реальных сделок: <span class="ph">[k]</span> недель до поля в CRM и <span class="ph">[k]</span> после. Их действия идут в шаг 2, и «культура из действий агентов» становится буквальной. На экране подписываем «симуляция».</li>
+<li><b>Оба.</b> История — для культуры людей (шаги 2–3), симуляция — для эффекта изменения (шаг 5).</li>
+</ul>
+
+<h2>Минимум к срезу 15:30 (предложение)</h2>
+<p>Шаги 1–3 на реальных данных с настоящими вызовами Meta, MongoDB и SubQ, плюс поле в CRM и линия времени шага 5 из одного из источников выше. Заместитель в ASI:One — вживую, если агент в Agentverse поднят; иначе та же карточка в нашем приложении, а Fetch.ai — как следующий шаг. Главный трек «The System That Gets Better» держится на шаге 5: версия изменения среды и агентов, измерена, оставлена или откачена.</p>
+
+<div class="note"><b>Нужно от тебя.</b><br>
+1. Слова основателя о скидках и его цели: какие файлы, и какая встреча — «живое обновление». Особенно источник принципа «не подменяем ценность ценой».<br>
+3. CRM в демо — настоящая CRM клиента (только показываем предложенное изменение) или наша демо-CRM (применяем)?<br>
+4. Называем ли клиента на сцене?</div>
+
+<section id="part-ii" lang="en">
+<h2>Part II: tools, placement and evidence</h2>
+<p><strong>SubQ belongs at step 3:</strong> after Meta extracts cited claims, before the Deputy CEO proposes a correction. Code selects relevant evidence first. SubQ Snap checks rule applicability, evidential support and consistency, including an explicit “insufficient evidence” outcome. Step 5 reuses the same versioned rubric on new episodes.</p>
+<p><a href="TOOLS-PART-II.html"><strong>Open the single partner slide</strong></a> · <a href="THESEUS-PART-II-TOOLS.pptx">Editable PowerPoint</a> · <a href="DEMO-INTERFACES.md">Interfaces, owners and build order</a> · <a href="TOOLS-PART-II.md">Background notes and sources</a></p>
+<p>One slide maps all five partners to the demo. The separate working plan specifies three application screens, each handoff, proposed owners and readiness gates. No live SubQ result or measured token saving is claimed.</p>
+</section>
+<footer>Английская версия для команды и координатора: <code>reports/2-scenarios/DEMO-CHORD.md</code>. Отправлено Viveka.HackatonCoordinator в 13:31 с просьбой пересобрать план вокруг хорды. Прежние черновики питча, видео и слайдов помечены как замещённые. Ни один шаг пока не запускался. Part II added by Viveka.Hackathon at the owner's request, November 7.</footer>
+</div>
+</body>
+</html>

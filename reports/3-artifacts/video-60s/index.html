@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=block" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <!--
+      Theseus Control Plane — 60 s video skeleton. Setu.Hackathon, 07.11.2026.
+      Scenes follow reports/2-scenarios/DEMO-CHORD.md (video table). Amber mono [ ] marks are placeholders:
+      replace them with numbers from today's runs before the final render (see README.md). Step 5 values are a labeled
+      simulation by the owner's decision. Explainer scenes only; live screen recordings are added when the system runs.
+    -->
+    <style>
+      :root {
+        --ink: #0b3a5e;
+        --glacier: #3fa6e8;
+        --ice: #dde9f2;
+        --amber: #f5bf45;
+        --amber-deep: #c98a12;
+        --teal: #40877c;
+        --snow: #f6f9fc;
+        --surface: #ffffff;
+        --muted: #5a7389;
+        --sans: "Geist", -apple-system, "Segoe UI", sans-serif;
+        --serif: "Instrument Serif", Georgia, serif;
+        --mono: "Geist Mono", ui-monospace, monospace;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--snow); }
+      #root { position: relative; width: 100%; height: 100%; font-family: var(--sans); color: var(--ink); }
+      .scene { position: absolute; inset: 0; padding: 110px 140px; }
+      .kicker { font-family: var(--mono); font-size: 28px; letter-spacing: .16em; text-transform: uppercase; color: var(--glacier); margin-bottom: 22px; }
+      .headline { font-family: var(--serif); font-size: 92px; line-height: 1.02; letter-spacing: -.01em; color: var(--ink); max-width: 1500px; }
+      .headline em { font-style: italic; color: var(--amber-deep); }
+      .sub { margin-top: 26px; font-size: 38px; line-height: 1.3; color: var(--muted); max-width: 1300px; }
+      .ph { font-family: var(--mono); color: var(--amber-deep); background: rgba(245,191,69,.18); padding: 0 8px; border-radius: 6px; }
+      .card { background: var(--surface); border: 2px solid var(--ice); border-radius: 18px; padding: 28px 32px; box-shadow: 0 10px 30px rgba(11,58,94,.07); }
+      .card .lbl { font-family: var(--mono); font-size: 28px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+      .card .txt { font-size: 40px; line-height: 1.2; font-weight: 600; color: var(--ink); }
+      .card.amber { border-color: var(--amber); }
+      .card.amber .lbl { color: var(--amber-deep); }
+      .chip { display: inline-block; font-family: var(--mono); font-size: 30px; padding: 10px 18px; border-radius: 999px; background: var(--ice); color: var(--ink); margin-right: 14px; }
+      .chip.amber { background: rgba(245,191,69,.25); color: #7a5300; }
+
+      /* 1 · opening */
+      #logo1 { position: absolute; left: 110px; top: 170px; width: 700px; height: 700px; }
+      #s1 .text { position: absolute; left: 880px; top: 300px; width: 920px; }
+      #s1 .headline { font-size: 88px; }
+      /* 2 · codex */
+      #s2 .grid { position: absolute; left: 140px; top: 470px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; width: 1640px; }
+      #ver { position: absolute; right: 140px; top: 120px; }
+      /* 3 · culture */
+      #s3 .norm { position: absolute; left: 140px; top: 470px; width: 1100px; }
+      #s3 .counts { position: absolute; left: 1290px; top: 470px; display: flex; flex-direction: column; gap: 22px; }
+      #s3 .counts .card { width: 490px; }
+      .big { font-size: 96px; font-weight: 700; line-height: 1; }
+      /* 4 · conflict */
+      #s4 .pair { position: absolute; left: 140px; top: 420px; width: 1640px; display: grid; grid-template-columns: 1fr 260px 1fr; align-items: center; }
+      #stamp { justify-self: center; font-family: var(--mono); font-size: 32px; font-weight: 500; letter-spacing: .12em; color: #fff; background: var(--amber-deep); padding: 16px 20px; border-radius: 10px; transform: rotate(-6deg); }
+      #s4 .stake { position: absolute; left: 140px; top: 820px; font-size: 36px; color: var(--muted); }
+      /* 5 · levers */
+      #s5 .levers { position: absolute; left: 140px; top: 400px; width: 1640px; display: grid; grid-template-columns: 1fr 1fr 1.15fr; gap: 28px; }
+      .lever .who { font-family: var(--mono); font-size: 28px; letter-spacing: .12em; text-transform: uppercase; color: var(--glacier); margin-bottom: 10px; }
+      .lever .what { font-size: 40px; font-weight: 600; line-height: 1.2; }
+      .diff { margin-top: 18px; font-family: var(--mono); font-size: 28px; line-height: 1.5; }
+      .diff .del { color: #a3473b; text-decoration: line-through; }
+      .diff .add { color: var(--teal); }
+      .field { margin-top: 18px; border: 3px solid var(--amber); border-radius: 12px; padding: 16px 18px; background: #fffaf0; }
+      .field .name { font-size: 32px; font-weight: 700; }
+      .field .name b { color: #a3473b; }
+      .opts { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 10px; }
+      .opts span { font-family: var(--mono); font-size: 28px; padding: 6px 12px; border-radius: 8px; background: var(--ice); }
+      /* 6 · tracking */
+      #chart { position: absolute; left: 140px; top: 380px; width: 1640px; height: 560px; }
+      #sim { position: absolute; right: 140px; top: 120px; }
+      /* 7 · close */
+      #logo7 { position: absolute; left: 610px; top: 90px; width: 700px; height: 700px; }
+      #s7 .text { position: absolute; left: 0; right: 0; top: 800px; text-align: center; }
+      #s7 .headline { font-size: 80px; max-width: none; }
+      #s7 .name { margin-top: 18px; font-family: var(--mono); font-size: 30px; letter-spacing: .2em; text-transform: uppercase; color: var(--glacier); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="60" data-width="1920" data-height="1080">
+
+      <!-- 1 · Opening, 0–8 s -->
+      <div id="s1" class="scene clip" data-start="0" data-duration="8" data-track-index="1">
+        <img id="logo1" src="assets/logo-v8.png" alt="Theseus: a half-rebuilt ship with a human at the helm" />
+        <div class="text">
+          <div class="kicker">Theseus Control Plane</div>
+          <div class="headline">Your AI-native organization changes <em>every hour.</em></div>
+          <div class="sub">How do you notice it's no longer what you intended?</div>
+        </div>
+      </div>
+
+      <!-- 2 · Codex and goals, 8–18 s -->
+      <div id="s2" class="scene clip" data-start="8" data-duration="10" data-track-index="1">
+        <div class="kicker">1 · Codex and goals</div>
+        <div class="headline">A living codex, from the founder's <em>own words.</em></div>
+        <div id="ver"><span class="chip">v1 → v2</span><span class="chip amber">updated from a meeting</span></div>
+        <div class="grid">
+          <div class="card c2"><div class="lbl">Principle</div><div class="txt">Discounts can be flexible.</div></div>
+          <div class="card c2"><div class="lbl">Principle</div><div class="txt">Never substitute price for value.</div></div>
+          <div class="card c2"><div class="lbl">Goal</div><div class="txt"><span class="ph">[goal from source]</span></div></div>
+        </div>
+      </div>
+
+      <!-- 3 · Culture, 18–28 s -->
+      <div id="s3" class="scene clip" data-start="18" data-duration="10" data-track-index="1">
+        <div class="kicker">2 · Culture</div>
+        <div class="headline">The real culture, from what agents and people <em>do.</em></div>
+        <div class="card amber norm"><div class="lbl">Repeated behavior</div><div class="txt">A discount as the first answer to “too expensive”.</div></div>
+        <div class="counts">
+          <div class="card c3"><div class="lbl">In calls and chats</div><div class="big"><span class="ph">[N]</span></div></div>
+          <div class="card c3"><div class="lbl">In the CRM</div><div class="big">0</div></div>
+        </div>
+      </div>
+
+      <!-- 4 · Conflict, 28–36 s -->
+      <div id="s4" class="scene clip" data-start="28" data-duration="8" data-track-index="1">
+        <div class="kicker">3 · Conflict</div>
+        <div class="headline">Your organization has become <em>different.</em></div>
+        <div class="pair">
+          <div class="card" id="cl"><div class="lbl">Codex</div><div class="txt">Never substitute price for value.</div></div>
+          <div id="stamp">contradicts</div>
+          <div class="card amber" id="cr"><div class="lbl">Culture</div><div class="txt">A discount as the first answer to “too expensive”.</div></div>
+        </div>
+        <div class="stake">At stake: margin given away · customers learning to wait for a discount</div>
+      </div>
+
+      <!-- 5 · Three levers, 36–48 s -->
+      <div id="s5" class="scene clip" data-start="36" data-duration="12" data-track-index="1">
+        <div class="kicker">4 · One decision, three levers</div>
+        <div class="headline">Correct people and agents — <em>and their environment.</em></div>
+        <div class="levers">
+          <div class="card lever" id="lv1">
+            <div class="who">Sales agents</div>
+            <div class="what">Edit their rules</div>
+            <div class="diff"><div class="del">discount: on objection</div><div class="add">discount: must buy value</div><div class="add">else: ask a human</div></div>
+          </div>
+          <div class="card lever" id="lv2">
+            <div class="who">Human sellers</div>
+            <div class="what">Onboard them</div>
+            <div class="diff"><div class="add">+ When a discount is allowed</div><div class="add">+ What it must buy</div></div>
+          </div>
+          <div class="card lever amber" id="lv3">
+            <div class="who">Environment</div>
+            <div class="what">Change the CRM</div>
+            <div class="field" id="fld">
+              <div class="name">Discount justification <b>*</b></div>
+              <div class="opts"><span>Longer term</span><span>Prepayment</span><span>Referral</span><span>Volume</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6 · Tracking, 48–56 s -->
+      <div id="s6" class="scene clip" data-start="48" data-duration="8" data-track-index="1">
+        <div class="kicker">5 · Over time</div>
+        <div class="headline">Did the change <em>actually work?</em></div>
+        <div id="sim"><span class="chip amber">Simulation · placeholder values</span></div>
+        <svg id="chart" viewBox="0 0 1640 560" xmlns="http://www.w3.org/2000/svg">
+          <g font-family="Geist Mono, monospace" font-size="28" fill="#5a7389">
+            <line x1="80" y1="470" x2="1600" y2="470" stroke="#dde9f2" stroke-width="3" />
+            <line x1="80" y1="40" x2="80" y2="470" stroke="#dde9f2" stroke-width="3" />
+            <text x="90" y="520">week 1</text><text x="1460" y="520">week 8</text>
+            <text x="0" y="60">100%</text><text x="20" y="470">0%</text>
+            <line id="marker" x1="760" y1="40" x2="760" y2="470" stroke="#c98a12" stroke-width="4" stroke-dasharray="10 10" />
+            <text x="780" y="80" fill="#c98a12">three levers applied</text>
+          </g>
+          <path id="pEnv" d="M80 400 L300 395 L520 405 L760 398 L980 230 L1200 170 L1400 150 L1600 140" fill="none" stroke="#f5bf45" stroke-width="8" stroke-linejoin="round" />
+          <path id="pAgt" d="M80 380 L300 385 L520 375 L760 380 L980 180 L1200 165 L1400 160 L1600 155" fill="none" stroke="#3fa6e8" stroke-width="8" stroke-linejoin="round" />
+          <path id="pPpl" d="M80 410 L300 405 L520 410 L760 402 L980 370 L1200 320 L1400 290 L1600 270" fill="none" stroke="#40877c" stroke-width="8" stroke-linejoin="round" />
+          <g font-family="Geist, sans-serif" font-size="30" font-weight="600">
+            <text id="lEnv" x="1290" y="125" fill="#c98a12">environment</text>
+            <text id="lAgt" x="1290" y="205" fill="#3fa6e8">agents</text>
+            <text id="lPpl" x="1290" y="320" fill="#40877c">people</text>
+          </g>
+        </svg>
+      </div>
+
+      <!-- 7 · Close, 56–60 s -->
+      <div id="s7" class="scene clip" data-start="56" data-duration="4" data-track-index="1">
+        <img id="logo7" src="assets/logo-v8.png" alt="Theseus logo" />
+        <div class="text">
+          <div class="headline">Let your agents rebuild the ship. <em>Keep the helm.</em></div>
+          <div class="name">Theseus Control Plane</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const DUR = 60;
+      const tl = gsap.timeline({ paused: true });
+      tl.to({ t: 0 }, { t: DUR, duration: DUR, ease: "none" }, 0);
+
+      const inOut = (sel, at, len) => {
+        tl.fromTo(sel, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }, at);
+        tl.to(sel, { opacity: 0, y: -20, duration: 0.5, ease: "power2.in" }, at + len - 0.5);
+      };
+      const pop = (sel, at, stagger = 0) => tl.fromTo(sel, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out", stagger }, at);
+
+      // 1 · opening
+      inOut("#s1", 0, 8);
+      tl.fromTo("#logo1", { scale: 0.92 }, { scale: 1, duration: 7.5, ease: "none" }, 0);
+      // 2 · codex and goals
+      inOut("#s2", 8, 10);
+      pop("#s2 .c2", 9.2, 0.7);
+      pop("#ver", 12.5);
+      // 3 · culture
+      inOut("#s3", 18, 10);
+      pop("#s3 .norm", 19.2);
+      pop("#s3 .c3", 21, 0.9);
+      // 4 · conflict
+      inOut("#s4", 28, 8);
+      tl.fromTo("#cl", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.6 }, 28.8);
+      tl.fromTo("#cr", { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 0.6 }, 29.3);
+      tl.fromTo("#stamp", { opacity: 0, scale: 2.2 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(2)" }, 30.4);
+      pop("#s4 .stake", 31.6);
+      // 5 · three levers
+      inOut("#s5", 36, 12);
+      pop("#lv1", 37.2); pop("#lv2", 39.2); pop("#lv3", 41.2);
+      tl.fromTo("#fld", { scale: 0.9, boxShadow: "0 0 0 0 rgba(245,191,69,0)" }, { scale: 1, boxShadow: "0 0 0 14px rgba(245,191,69,.25)", duration: 0.8, ease: "power2.out" }, 42.4);
+      pop("#lv3 .opts span", 43.2, 0.25);
+      // 6 · tracking
+      inOut("#s6", 48, 8);
+      pop("#sim", 48.6);
+      ["#pAgt", "#pEnv", "#pPpl"].forEach((sel, k) => {
+        const el = document.querySelector(sel);
+        const len = el.getTotalLength();
+        el.style.strokeDasharray = len;
+        tl.fromTo(sel, { strokeDashoffset: len }, { strokeDashoffset: 0, duration: 3.2, ease: "power1.inOut" }, 49.2 + k * 0.5);
+      });
+      pop(["#lEnv", "#lAgt", "#lPpl"], 52.6, 0.2);
+      // 7 · close
+      inOut("#s7", 56, 4);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

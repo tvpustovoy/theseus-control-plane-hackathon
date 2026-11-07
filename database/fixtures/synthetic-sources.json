@@ -1,0 +1,10 @@
+{
+  "synthetic": true,
+  "organization_id": "synthetic-demo",
+  "purpose": "Invented inputs for a future extraction and contradiction demo; not client data or evaluation results.",
+  "sources": [
+    {"id": "source-policy", "text": "For all purchases in November 2026, the research agent may spend up to 50 USD per purchase without human approval."},
+    {"id": "source-note", "text": "For all purchases in November 2026, the research agent may spend up to 500 USD per purchase without human approval."}
+  ],
+  "expected_review": "Flag the conflicting spending limit for a human; neither statement automatically becomes an active permission."
+}

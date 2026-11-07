@@ -1,0 +1,141 @@
+# Work log
+
+## 2026-11-07 — Theseus: team preparation and owner corrections
+
+Owner named the product **Theseus Control Plane / Тесей**; folder renamed to `theseus-control-plane-hackathon`. Accepted the ship metaphor and requested initial preparation plus incremental operation as two phases. Prepared PLAN, PHASES, CONTRACTS v0, COLLABORATION, Muse/Argon role prompts, onboarding and a coordinator handoff.
+
+Owner corrected the collaboration method: one shared folder with separated write areas; no mandatory branches; no task dispatch without explicit instruction. A future fork through ours-codex will use **Viveka.HackatonCoordinator**. That identity/session has not been created here.
+
+Before that clarification, Setu.Hackathon received the explicitly requested delivery brief via Ours, including the requested Hanuman mantra. Delivery is confirmed, acceptance is not. No task sent to Muse or Argon, and neither session started. The mantra is also in AGENTS.md and the prepared role prompts. Instructions are not proof that another session has loaded them.
+
+Added docs/tasks.json, append-only docs/events.jsonl, a stdlib tracker generator, Markdown/HTML views and 7 passing readiness/authorization/evidence tests. Product integrations remain unimplemented. The Google event account is API-only with $25 according to the supplied email; no password/key was written into this project, and personal Antigravity login was not changed.
+
+Ours identity Viveka.Hackathon was bound for the authorized message. Its Human parent was confirmed. Monitor tooling reports that this standard Codex session cannot provide background wake; no blocking monitor was started. Ours CLI read failed with `fetch failed`, while MCP messaging worked; do not treat CLI reachability as verified.
+
+## 2026-11-07 — Public-ready project foundation
+
+**Owner direction:** raw data → identification of facts and structure with Meta → database model → consistency review with SubQ → native agents and optional Fetch.ai onboarding from stated intent.
+
+Started the working structure, initial contracts and synthetic inputs. Documented open decisions. Selected the previous hackathon's outcomes → concept → scenarios → artifacts delivery protocol for adaptation. Reporting automation and the calculated dashboard remain unimplemented; an earlier draft incorrectly described them as already added.
+
+**Reused:** reporting protocol and established reporting visual conventions; prior conceptual work about evidence, agent compilation and human governance. No historical application feature code or client data imported.
+
+**Status:** scaffold and planning artifacts only. No API model calls, cloud database provisioning, agent deployment or public repository publication performed by this change.
+
+No runtime validation has been performed: there is no application runtime yet.
+
+## 2026-11-07 — Revised name and challenge framing
+
+Renamed the local folder to `firny-control-plane-hackathon` at the owner's request. Read FIVE-AREAS.md, the Google and Fetch.ai hackathon guides, and current Meta/SubQ documentation. Owner confirmed the latest 5×2 model as a light upper-level framework and proposed a Fetch.ai Deputy CEO.
+
+Added FRAME.md as a proposal: one bounded software rebuilding task, evidence-led review, versioned improvements and held-out acceptance. All five sponsor products have a proposed role and required usage evidence. No external publication, client data transfer, paid inference or implementation run was performed. The implementation and publication plan still needs owner confirmation.
+
+## 2026-11-07 — Theseus startup packets and raw-first handoff
+
+The owner renamed the product Theseus Control Plane and requested a shared workspace with separated write areas. Prepared startup packets for Muse and Argon, the raw ingestion contract, extraction guidance/prompt and separate Ours/RecPlace MCP instructions. Argon owns schema/adapter and lossless raw transfer; Muse builds new Meta extraction from MongoDB. Workers have not been launched or dispatched by this preparation.
+
+Read-only source inspection confirmed seven raw tables containing 53,431 rows at inspection time. json_keys is absent from the SQL function allowlist; COUNT queries work. No raw payload export or MongoDB import was performed. New worker MCP credentials and live connections remain pending.
+
+Added exact startup commands verified against installed Muse/Antigravity CLI help. Recommended Wonder for coding; runtime extraction model is configured separately. The Antigravity command uses the existing subscription route, not the temporary event API account. No credentials were copied into the project.
+
+The local tracker was generated and its seven checks passed during preparation; this is reporting infrastructure, not application implementation. Refreshed README and plan to reflect the new startup sequence. Public repository publication remains undone.
+
+## 2026-11-07 — Separate coordinator started
+
+Taras started a separate ours-codex coordinator chat. Viveka.HackatonCoordinator read its startup packet, created and bound its own Ours role under the existing Human identity, and armed the session-scoped live mail monitor. `current_identity` and `monitor_status` confirmed both states. No worker task was dispatched; Muse's Ours readiness and Argon's launch remain unconfirmed. See docs/status/Viveka.HackatonCoordinator.md for the startup record and limits.
+
+## 2026-11-07 — English artifacts and organizer reporting
+
+At Taras's request, translated the shared AGENTS.md instructions to English and established English for new shared artifacts, with Russian replies to the owner. Added the organizer reporting protocol and the first factual draft. It describes the planned Google design briefs—verified data migration first, then the control plane across Purpose, Rules, Resources, Relationships and Progress—without claiming assignment or implementation. Coordinator reporting scope now includes checkpoint updates; no message to organizers or new implementation task is authorized by this change.
+
+## 2026-11-07 — Worker check-ins and Agentverse write boundary
+
+The coordinator received a sibling relay of the owner's request for durable worker check-ins. Added docs/CHECK-IN-PROTOCOL.md and linked it from collaboration and worker startup packets. It asks workers to update their own English status record at task start, checkpoints, blockers and stop, then send a short Ours pointer. An approximate 15-minute target applies during active work, but the live mail monitor has no fixed timer; no timed automation was started. Reserved app/deputy/agentverse/ for Taras and Viveka.Hackathon's parallel initial Agentverse work, pending later handoff to Argon. No new implementation task was dispatched.
+
+## 2026-11-07 — Agentverse brief prepared; Argon orientation reported
+
+Viveka.Hackathon reported the initial Agentverse brief, and the coordinator verified its README, creation brief and status record exist. These are preparation artifacts, not a deployed Fetch.ai integration. The browser remains blocked at Cloudflare security verification according to the sibling's report; the owner handoff is pending. Argon.Hackathon sent an authenticated Ours HELLO stating orientation complete and task none. It reported missing target MongoDB and scoped RecPlace MCP access for a real import. The coordinator delivered the check-in protocol and reserved-area reminder and requested an onboarding status record. Delivery is not worker acknowledgment; no implementation task was dispatched.
+
+## 2026-11-07 — Muse Code MCP schema failure isolated
+
+The owner reported repeated HTTP 400 `Recursive JSON schemas are not currently supported` errors in Muse after Ours MCP setup. A local trace showed Ours MCP advertising 34 tools before the Meta provider failed. The coordinator preserved an exact private settings backup, removed only the Ours MCP entry, and verified a fresh Wonder run returned `OK` with exit code 0. Existing auth and session history remain intact. Ours MCP integration for Muse is still unresolved; a fresh TUI can continue coding without it. No data import or application implementation was run as part of this diagnosis.
+
+## 2026-11-07 — Argon reported Stage 1 start; access still absent
+
+Argon.Hackathon sent an authenticated Ours ACK and wrote its own status reporting a direct owner instruction to begin autonomous work on SCHEMA_READY. The coordinator has not independently inspected that owner chat, so this is recorded as worker-reported authorization, not yet a tracker approval. Project inspection found no configured MONGODB_URI or dedicated Argon read-only RecPlace MCP key. Argon was told to continue the synthetic schema/adapter and importer verification scaffold while treating live raw import as blocked. No credential was shared.
+
+## 2026-11-07 — Fetch.ai Deputy CEO bounded runtime and logo
+
+Viveka.Hackathon reported owner-authorized creation of `@theseus-deputy-ceo` on Agentverse. Its saved source parses, and manual Agent Chat Protocol tests produced real model responses. After a truncated answer, the agent was revised and retested. It refused a request to grant itself enforcement authority. The verification record also documents failed evidence fidelity and policy consistency checks. This is a proposal-only hosted conversation, not a live database-backed control plane; a separate ASI:One conversation and independent evaluation remain unverified. Evidence: `app/deputy/agentverse/README.md`, `app/deputy/agentverse/VERIFICATION.md`, and `docs/status/Viveka.Hackathon.md`.
+
+The same sibling generated a transparent Ship of Theseus logo and recorded its design guidance in `styles/` and `DESIGN.md`. The asset has not been uploaded to Agentverse or integrated into the application. No raw RecPlace import or additional worker task was part of this checkpoint.
+
+## 2026-11-07 — Argon synthetic schema and adapter verified
+
+Argon.Hackathon reported `SCHEMA_READY` for a MongoDB-compatible schema, ingestion adapter, raw importer/verifier scaffold and versioned model diff. The coordinator inspected the implementation and status file, then independently ran `python3 -m unittest discover -s app/model -p 'test_*.py' -q`: six tests passed. A local synthetic fixture covers the seven RecPlace table shapes; the adapter exposes a Python entry point and JSON CLI for Muse. This is a verified synthetic development result. No live RecPlace rows were transferred, no MongoDB target connection was checked, and the scoped source key remains unavailable. Real `RAW_IMPORT_VERIFIED` is still blocked.
+
+Argon then added an offline Phase A/B scaffold for authenticated human decisions, bounded discount-tool execution, versioned candidate activation, rollback, audit events and scoped Deputy CEO tools. The coordinator inspected the files and reran `python3 -m unittest discover -s app -p 'test_*.py' -q`: eight tests passed. The held-out gate currently checks an `EvaluationReport` supplied to the runtime; this is not evidence that an independent verifier has produced unseen-case results. The live database, real import and end-to-end integration remain pending.
+
+## 2026-11-07 — MongoDB target provisioned; access in progress
+
+After Taras instructed the agents to remove blockers autonomously, Argon confirmed that he had requested a dedicated read-only RecPlace MCP key from Viveka.Datamaster. The coordinator inspected MongoDB Atlas: the hackathon organization has $100 promotional credits and one project with no cluster. Created an active **Free** GCP cluster named `TheseusControlPlane` in that project, with sample data and automatic security setup disabled. The free tier is 512 MB; whether all 53,431 raw rows fit remains unverified. No paid deployment, payment method, database user, IP allowlist entry, or MongoDB URI was created at this checkpoint. The coordinator contacted Viveka.Datamaster for the source-key status and notified Argon that the target cluster exists but is not yet connectable.
+
+Atlas allows a database user with `readWrite` scoped to `theseus_recplace`, limited to the new cluster and one day, plus an allowlist entry for only the current IP. The computer-use automatic review stopped this form preparation as a security-sensitive access change and requested explicit owner confirmation; that confirmation is pending. Read-only RecPlace source access and target MongoDB write access are separate permissions. No credential was shared or written into the public repository.
+
+Viveka.Datamaster reported that automatic approval review also stopped issuance of Argon's dedicated read-only source MCP key because that session lacked a direct owner authorization naming Argon and the full raw-data scope. Datamaster asked Taras for that authorization and will provide a private key-file path after approval. This is a separate access gate from Atlas. Its MCP enforces response-size limits, so the importer needs bounded pagination/chunking; no full source export has yet occurred.
+
+Argon subsequently completed the live MCP importer's adaptive pagination and oversized-row reassembly scaffold. It checked the source SQL guard's allowed functions and wire response limits. The coordinator inspected the implementation/status and reran `python3 -m unittest discover -s app -p 'test_*.py' -q`: nine tests passed. This verifies local test cases for pagination, not an actual MCP export or Atlas insert; both access gates above remain pending.
+
+Taras directly approved a dedicated read-only source MCP credential for Argon through Viveka.Datamaster. Datamaster issued it with access to only the seven planned raw tables and stated query/volume limits; the coordinator verified the private file's existence and restrictive permissions without reading its contents. Argon received the access instructions through Ours. Atlas target write access remains a separate pending confirmation.
+
+Datamaster's read-only evidence check narrowed the proposed discount demo. Specific founder remarks about discounts and conversation evidence of discount requests exist, but a single direct founder statement combining flexibility with the broader value-substitution principle was not verified. The conversations do not prove that discounts were applied. The raw CRM deal and stage-event tables do not expose discount or discount-reason fields. Systematic discount drift is therefore a hypothesis, not an observed CRM finding. Detailed source pointers were exchanged only within the authorized agent channel, without client payload, and were not placed in this public-ready workspace.
+
+Argon completed a live read-only source preflight under the dedicated credential: seven raw tables contain 53,431 rows in total, with unique source keys. It tested adaptive pagination, reconstruction of oversized rows and two deterministic cross-table links without writing source payload into this workspace. The coordinator inspected its status and independently reran the app suite: 9 tests passed. This verifies source access and importer behavior; no Atlas write or full raw import has occurred. Target database access remains gated by the owner's pending confirmation.
+
+## 2026-11-07 — Visual direction updated
+
+Viveka.Hackathon reported further owner-guided revisions to the ship mark. The initial jade v1 was rejected; v4's vessel was accepted but its small flat human was rejected. The current **v5 review candidate** in `styles/theseus-logo-v5.png` uses the Firny visual family, a roughly half amber digital vessel and a larger human at the helm. The coordinator read the current `styles/README.md` and sibling status. No logo was applied to the app, Agentverse profile or defense deck, and owner approval of v5 is not recorded.
+
+The owner subsequently accepted v5 as the **working selection**. Viveka.Hackathon also generated `styles/theseus-logo-v6-face-only.png` at the owner's request; it is an additional option, not a replacement. The coordinator verified this distinction in the updated `styles/README.md`. No upload or deck/app integration is recorded.
+
+Later, after rejecting v6 and v7, Taras selected `styles/theseus-logo-v8-spacesuit.png` as the current mark and directed landing pages and presentations to use Firny's visual language. The coordinator checked the asset, `DESIGN.md`, `styles/README.md` and the sibling status. This supersedes the earlier v5 selection. The style decision is recorded; integration into a live page, deck or Agentverse profile is not yet evidenced.
+
+## 2026-11-07 — Proposed founder-codex drift demo
+
+Setu.Hackathon reported an owner-directed narrative: show where an agent-run organization drifts from a founder's intent, using flexible discounting versus substituting discounts for value as the candidate tension. The coordinator inspected `reports/1-concept/NARRATIVE-THESEUS.md` and its status. The seven-step Meta→MongoDB→SubQ→Fetch.ai→human decision→Gemini improvement→observed behavior sequence is a proposal, not a run. It requires two source checks: an authorized founder statement and actual discount events/reasons in today's RecPlace raw scope. The coordinator asked Viveka.Datamaster for table/document references and confidence only, with no client payload in Ours. Older pitch/video drafts are not yet aligned with this story. No worker implementation task was dispatched by this checkpoint.
+
+Muse.Hackathon sent an authenticated Ours HELLO from Muse Code on `muse-wonder-1.0`. It reports a working Ours CLI/watch channel after the Muse MCP recursive-schema failure, with no API keys shared and no implementation task currently assigned. The coordinator replied with receipt, the available synthetic adapter boundary and Taras's instruction that he will continue with Muse directly. No Muse files or settings were changed and no worker implementation task was dispatched.
+
+## 2026-11-07 — Demo plan rebuilt around the owner's five-step chord
+
+Setu passed Taras's direction: laws → observed culture → conflict → Deputy CEO proposal including a required CRM discount-justification field → tracked effect over time. The coordinator inspected `reports/2-scenarios/DEMO-CHORD.md` and created `docs/DEMO-EXECUTION.md` with an evidence gate for each step, current dependencies and role boundaries; `docs/PLAN.md` points to it. The raw CRM scope does not establish actual applied discounts or reasons, so the proposed discount drift and intervention timeline remain hypothetical or explicitly simulated until new evidence arrives. Setu and Argon received the current map and the v8 visual decision; no new implementation task was dispatched. `python3 reports/build.py --check` validated 24 tracker tasks.
+
+Setu relayed further owner corrections: step 1 includes goals alongside the codex; step 4 is one human decision with three versioned levers (sales-agent rules, human-seller onboarding, and the CRM environment); step 5 measures their effects separately. The coordinator updated `docs/DEMO-EXECUTION.md` and acknowledged the revised script. Source limits and simulation labels remain explicit.
+
+Taras then chose an explicitly labeled simulation for step 5. The coordinator specified paired synthetic leads/seeds, isolated and combined lever runs, versioned events and computed metrics in `docs/DEMO-EXECUTION.md`. A separate human-seller actor is required before claiming an onboarding effect. Argon received the bounded implementation task for a local deterministic harness that can proceed before Atlas access; Setu received the evidence constraint. No simulation results exist at this checkpoint.
+
+Argon reported a second import blocker: the dedicated read-only source MCP key exhausted its daily read-volume quota during the attempted full export. It requested a scoped quota increase from Viveka.Datamaster and added private per-table caching. The coordinator followed up with Datamaster and asked Argon to work on the independent local simulation harness while both source quota and Atlas target access are unresolved. No full export or raw import was verified at this point.
+
+Taras authorized the Atlas target access. He completed the browser's password/user submission step; the coordinator verified a one-day `argon-hackathon-import` user with `readWriteAnyDatabase` limited to `TheseusControlPlane` (the owner explicitly chose the broader built-in write role) and an active current-IP allowlist entry. The password and assembled URI were saved in ignored local files with mode `0600`; only the file path was sent to Argon. A PyMongo ping failed before authentication because TLS handshakes failed on two of three Atlas SRV nodes; independent OpenSSL checks confirmed one node succeeds and two return an internal TLS alert. Connection and import are therefore not yet verified. Datamaster reported the 100M-character daily read quota exhausted and a blocked attempt to raise it to 300M; the coordinator asked Taras for that exact approval.
+
+Datamaster then confirmed Taras authorized 300M response characters per rolling 24 hours on Argon's same read-only seven-table key; the policy change is live. Atlas's current IP changed, and Taras added the new address. The coordinator confirmed the machine's egress matches it, then PyMongo `ping` and a temporary insert/read/delete in `theseus_recplace` succeeded. Argon received the private URI path and verified target status, with instructions to resume the cached raw export and report `RAW_IMPORT_VERIFIED` only after Atlas counts/checksums. No full raw import is yet claimed.
+
+Argon also completed a deterministic, explicitly labeled Step 5 simulation harness with five arms and distinct modeled agent/human seller actors. The coordinator independently reran 12 app tests (all passed) and its CLI using a temporary local store; the report contains all five arms and `SIMULATION · synthetic leads · synthetic weeks` provenance. These are simulated results in a local store, not a real historical effect or a MongoDB-backed run at this checkpoint.
+
+Argon's earlier Atlas TLS diagnostic proposed widening the venue IP allowlist. The coordinator's later successful SRV ping and target insert/read/delete followed the addition of the machine's current single-IP entry. Argon was told not to widen the network to `/24` or `0.0.0.0/0`, because current target access is already verified. Argon is resuming the 53,431-row export from its private cache under the raised source quota. Muse confirmed bidirectional Ours messaging and the owner-direct task boundary; no Muse implementation task was assigned by the coordinator.
+
+## 2026-11-07 14:12 PST — Raw import accepted
+
+Argon completed the full RecPlace export and Atlas upload. Its verifier re-read all seven `raw.*` tables, reported matching canonical multiset SHA-256 digests, `facts_created_count=0` and no errors. The coordinator independently connected to Atlas read-only and checked the completed import-run record, exactly 53,431 `raw_records` across the seven expected per-table counts, 53,431 `sources` across five expected types, and 5/600/360 simulation run/event/demo CRM documents. The coordinator inspected the private verification summary but did not independently recompute the digests. `RAW_IMPORT_VERIFIED` was accepted and relayed to Muse, Viveka.Hackathon and Setu. No raw client text or credential was copied into this log or Ours.
+
+For the evidence pilot, Taras directly authorized Datamaster to share exactly three RecPlace records with Muse. Muse verified their hashes; a labeled Muse Code exploratory extraction is authorized now, while the actual Meta Model API call remains pending a private API key. The new hackathon collaboration rule is in `docs/COLLABORATION.md` and was delivered to the five active project identities.
+
+Muse reported an exploratory pass on the three approved records: 18 candidate claims with exact quotes, three preserved rejections and one possible conflict signal. The coordinator independently reran eight quote-gate tests and verified all 18 quote spans and hashes against the private sample without printing raw text. Every claim currently serializes `src_row` as a string whereas the source sample uses an integer; Muse received a bounded rework request to preserve the source type. The possible conflict is a candidate for review, not a verified contradiction. No actual Meta Model API call has occurred.
+
+Muse corrected `src_row` to the source integer type in the private builder and API runner. The coordinator independently rechecked all 18 claims for exact typed provenance, quote spans and quote hashes: zero mismatches. The Muse Code exploratory checkpoint was accepted and relayed to Viveka.Hackathon and Setu with the same evidence limits; no new task was assigned.
+
+## 2026-11-07 14:16 PST — Theseus UI ownership transferred to Argon
+
+Viveka.Hackathon relayed Taras's explicit direction that Argon builds the application interfaces and that the coordinator dispatch the task. The coordinator read the owner-approved localhost brief and current six-state storyboard, then sent the bounded UI assignment to Argon through Ours (delivery confirmed; ACK pending at this checkpoint). Argon owns Commit, Culture, Drift, Proposal, Apply and Track in `app/ui/`, a thin `app/api/` if needed, the shared evidence drawer and demo CRM behavior, reusing his verified backend. Viveka keeps Fetch Agentverse bridge/avatar, Muse extraction/SubQ and Setu the demo. No public tunnel, database exposure or remote localhost retrieval is authorized. The role map, task F03, event log and generated dashboard were updated; `python3 reports/build.py` validated 25 tasks.
+
+Argon ACKed F03, selected a Python localhost server on port 8765 with six deep-linked states, named his `app/ui/` and `app/api/` write areas and reported no immediate blocker. The tracker now marks F03 acknowledged/doing. Taras then asked why Muse was idle and who should assign the next task. The coordinator took responsibility and dispatched the already planned bounded A05 step: deterministic candidate-pair prefilter and filtered-pair audit on the accepted M01 claims, followed by one SubQ Snap review if the private key/provider gate permits. Muse ACKed A05, reported no immediate blocker and began the local milestone. The tracker marks A05 acknowledged/doing; its local pilot no longer depends on unfinished global P01 contract freeze, and the generated dashboard validates 25 tasks. No result from either new task is claimed yet.
