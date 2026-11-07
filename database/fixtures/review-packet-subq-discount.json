@@ -1,8 +1,17 @@
 {
  "schema_version": 1,
  "packet_version": "review-packet-v1",
+ "content_class": "sanitized_real_claim_statements_no_raw_text_no_names",
+ "rule_status": "mixed_reference_statuses_see_per_claim",
+ "rule_status_semantics": "Top-level is intentionally NOT a single rule class: this packet mixes (a) one proposed founder principle (unapproved codex-v2 direction), (b) unapproved SOP/training norms, and (c) observed sales acts that carry no rule status. Use per-claim mandate_status plus active_reference_version (mandate-v1) and proposed_reference_version (mandate-v2-draft, unapproved) for any judgment.",
+ "status_breakdown": {
+  "proposed_unapproved_founder_principle": 1,
+  "unapproved_sop_training_norm": 2,
+  "observed_act_no_rule_status": 6
+ },
  "approved_rule_version": null,
- "rule_status": "unapproved_training_norm",
+ "active_reference_version": "mandate-v1 (flexible seller discounts baseline)",
+ "proposed_reference_version": "mandate-v2-draft / codex-v2:discount-reciprocity-principle (UNAPPROVED, preview only)",
  "scope": {
   "packet": "SubQ discount/pricing comparisons (owner-approved exact transmission plan)",
   "scenarios": [
@@ -375,9 +384,6 @@
    "human_conclusion": "SubQ signal only; not a proven violation. Historical episodes predate the proposed rule and are never retroactive violations."
   }
  ],
- "content_class": "sanitized_real_claim_statements_no_raw_text_no_names",
- "active_reference_version": "mandate-v1 (flexible seller discounts baseline)",
- "proposed_reference_version": "mandate-v2-draft / codex-v2:discount-reciprocity-principle (UNAPPROVED, preview only)",
  "extraction_provenance": "Muse Code exploratory (session muse-wonder-1.0 central review; muse-spark-1.3 fan-out drafts); review model: SubQ subq-snap-1.1 (Decisions API)",
  "conclusion": "No proven contradiction in the five discount comparisons. Verdicts: 1x different_scope_time, 3x insufficient_evidence, 1x consistent (low confidence). This packet does NOT establish comprehensive monitoring of the organization; it covers one concrete goal - protect value and margin while growing sales - and the rules/emergent discount culture around it.",
  "usage_totals": {
