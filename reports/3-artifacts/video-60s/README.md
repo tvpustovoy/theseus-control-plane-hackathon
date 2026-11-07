@@ -35,3 +35,13 @@ partner), ElevenLabs `eleven_v3` as backup; music optional. Keys come from a sec
   by reading hundreds of chats." Visual: a field of chat and agent-action chips that dims as the logo appears.
 - All lines sped up ×1.12 (pitch kept) to fit. `tts/build.py` now synthesizes missing lines, places them, mixes the
   voice-over and rewrites scene timings, the SCENES block and subtitles in `index.html`; rerun it after any text change.
+
+## Draft run 3 (owner, about 15:25)
+
+- Opening: the banner line on screen in the close's style, logo left; the voice and subtitles carry the question
+  («не нужно читать текст с экрана - текст отдельно субтитры отдельно»). Close: the voice says "Theseus doesn't slow your
+  company down. It shows you where it turned." under the banner line, with subtitles.
+- Thesis scene: overlapping chat windows and dark agent terminals («много окошек и терминалов»).
+- Tools slide rebuilt in HTML with a Claude Code row (neutral "C" badge until an official mark is supplied); the voice
+  now names OpenAI Codex and Claude («на последнем слайде нет claude И ты не говоришь про openai»). Deck copy:
+  `reports/2-scenarios/THESEUS-MODELS-AND-TOOLS-v2.png` (frame from the render).

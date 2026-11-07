@@ -18,8 +18,8 @@ HERE = Path(__file__).parent
 OUT = HERE / "out"
 INDEX = HERE.parent / "index.html"
 DUR = 60.0
-GAP = 0.4
-EXTRA = {"03_culture": 0.3, "04_drift": 0.3, "06_decision": 0.3, "07_outcome": 0.3}
+GAP = 0.35
+EXTRA = {"03_culture": 0.1, "04_drift": 0.1, "06_decision": 0.1, "07_outcome": 0.1}
 
 # (id, scene element id, style, text)
 LINES = [
@@ -40,11 +40,11 @@ LINES = [
     ("07_outcome", "s6", "assured",
      "Then it tracks whether the change actually worked."),
     ("08_close", "s7", "warm, uplifting, finishing strong",
-     "Let AI employees improve your company. <short pause> Keep your goals, rules, and culture."),
+     "Theseus doesn't slow your company down. <short pause> It shows you where it turned."),
     ("09_tech", "tech", "friendly, matter-of-fact",
-     "Built with Gemini, Meta, Sub Q, Fetch AI, and MongoDB."),
+     "Built with OpenAI Codex, Claude, Gemini, Meta, Sub Q, Fetch AI, and MongoDB."),
 ]
-SUB_SCENES = {"s1", "sT", "s2", "s3", "s4", "s5", "s6"}  # opening, close and tools slide keep their own big text
+SUB_SCENES = {"s0", "s1", "sT", "s2", "s3", "s4", "s5", "s6", "s7"}  # screen text and narration differ: the banner line is on screen, the voice and subtitles carry their own words; the tools slide has no subtitles
 CAPTION_FIX = {"Sub Q": "SubQ", "Fetch AI": "Fetch.ai", "NO LONGER": "no longer"}
 
 
