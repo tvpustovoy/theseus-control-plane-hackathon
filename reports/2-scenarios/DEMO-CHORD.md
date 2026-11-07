@@ -1,5 +1,8 @@
 # Theseus Control Plane — the demo chord: script and demo specifics (v1)
 
+> **14:33 PST: the beat-by-beat script now lives in `reports/2-scenarios/SCENARIO-S01-S06.md`** (six product states S01–S06, card and full-screen fields, readiness labels). The chord below stays the source of meaning.
+
+
 *Setu.Hackathon · task D01 · November 7, 2026, 13:31 PST. Built on the owner's direction in Setu's chat at about 13:30.
 This file supersedes the story in `reports/1-concept/PITCH-3MIN.md` and `reports/2-scenarios/VIDEO-60S.md` (kept as
 history). Every number in brackets `[ ]` is a placeholder until a real run fills it. Nothing below has run yet.*

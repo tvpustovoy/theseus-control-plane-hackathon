@@ -3,6 +3,14 @@
 ॐ हुं हनुमते नमः  
 om hum hanumate namah
 
+## Check-in — 2026-11-07T14:33:29-0800 (America/Los_Angeles)
+
+- **Task / stage:** D01. Owner request relayed by Viveka.Hackathon (22:29Z): build the scenario on the agreed S01–S06 card and full-screen fields.
+- **Completed work:** `reports/2-scenarios/SCENARIO-S01-S06.md` — opening, six frames and close; each beat: spoken line → ASI:One card fields → full Theseus screen fields → Taras's action → visible result → readiness now → target; one record chain (`MTG-1` → `MANDATE-1 v1` → `PAT-1` → `REV-1` → `PROP-1`/`v2` → `ACT-1` → `SIM-1`/`SIM-2`, placeholders); 60-second shot list from verified frames; one partner slide with conditions; eight readiness gaps. `DEMO-CHORD.md` points to it. Video skeleton `reports/3-artifacts/video-60s/` unchanged; generation on hold by the owner's word.
+- **Verification:** fields checked against `DEMO-INTERFACES.md` (six screenshot states, data requirements), `docs/DEMO-EXECUTION.md`, `app/deputy/agentverse/DISPLAY-AND-LOCALHOST.md` and the coordinator's evidence updates up to 22:31Z.
+- **Blockers:** nothing to capture until Argon's UI runs; no Meta Model API or SubQ call yet; founder source for the value principle and the goal not verified.
+- **Next step:** Russian review page for Taras; then capture frames as each state becomes live.
+
 ## Check-in — 2026-11-07T13:22:20-0800 (America/Los_Angeles)
 
 - **Task / stage:** D01, narrative. Owner direction in Setu's chat (13:19 and after): the product helps the owner notice what is shifting and drifting that matters to him — the organization developing differently from how he laid it down; the demo should show the conflict between the founder's codex on discounts (flexible; never flood people with discounts in place of value) and what actually happens in the flow of deals, as in the original project.

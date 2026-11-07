@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тесей: сценарий S01–S06</title>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&family=Source+Code+Pro:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F7F7; --surface:#FFFFFF; --warm-white:#F4F1E8;
+  --amber:#F28D20; --amber-tint:#FAE5C4;
+  --jade:#00695E;  --jade-tint:#C7E2D8;
+  --ink:#1C1C1A; --text:#3A3A38; --text-secondary:#6A6A66;
+  --line:#E3EAEA;   /* холодный hairline под холодный фон */
+  --font:'Mulish',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --radius:6px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:16px;line-height:1.55}
+.wrap{max-width:1040px;margin:0 auto;padding:40px 16px 64px}
+h1,h2{color:var(--ink);margin:0;line-height:1.2}
+h1{font-size:30px;font-weight:800}
+h2{font-size:21px;font-weight:800;margin:36px 0 8px}
+.kicker{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary)}
+.banner{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--jade);border-radius:var(--radius);padding:16px 18px;margin-top:18px}
+.banner .en{font-size:20px;font-weight:800;color:var(--ink)}
+.banner .ru{font-size:15px;color:var(--text-secondary);margin-top:4px}
+.loop{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.loop span{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-weight:700;color:var(--ink);font-size:14px}
+.tbl{overflow-x:auto;margin-top:10px}
+table{border-collapse:collapse;width:100%;min-width:780px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+th,td{text-align:left;vertical-align:top;padding:9px 11px;border-bottom:1px solid var(--line);font-size:14px}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);font-weight:700}
+td:first-child{font-weight:800;color:var(--ink);white-space:nowrap}
+td.en{color:var(--ink);background:var(--warm-white);font-size:13.5px}
+.rd{display:inline-block;font-size:12px;font-weight:700;border-radius:4px;padding:1px 6px;margin:0 3px 3px 0}
+.rd.ok{background:var(--jade-tint);color:var(--jade)}
+.rd.no{background:var(--amber-tint);color:#8a4b00}
+ol{padding-left:22px;margin:8px 0 0}
+li{margin-bottom:6px}
+.note{background:var(--amber-tint);border-radius:var(--radius);padding:14px 16px;margin-top:16px;color:var(--ink);font-size:15px}
+footer{margin-top:40px;font-size:13px;color:var(--text-secondary);border-top:1px solid var(--line);padding-top:12px}
+code{font-family:'Source Code Pro',ui-monospace,monospace;font-size:.88em}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kicker">Theseus Control Plane · Setu.Hackathon · 07.11.2026, 14:37 · после твоих ответов</div>
+<h1>Сценарий демо на шести экранах S01–S06</h1>
+<p>Собран по карте полей, которую вы утвердили с Viveka. Кнопки нажимаем мы: я веду сайт Theseus и в записи, и на сцене, а в истории действует основатель, к нему обращаемся «you». Заместитель подсказывает и объясняет. Карточка в ASI:One и экран сайта показывают одну и ту же запись и версию. Переход из карточки на сайт пока не проверен, запасной путь — вкладка браузера, открытая напрямую.</p>
+<div class="banner"><div class="en">Let AI employees improve your company. Keep your goals, rules, and culture.</div><div class="ru">Пусть ИИ-сотрудники улучшают компанию. Твои цели, правила и культура остаются твоими.</div></div>
+<div class="loop"><span>Commit</span><span>→ Observe</span><span>→ Decide</span><span>→ Track</span><span>→ снова Commit на следующей встрече</span></div>
+
+<h2>Три минуты по кадрам</h2>
+<div class="tbl"><table>
+<tr><th>Время · кадр</th><th>Что говорим</th><th>Что делает оператор за основателя</th><th>Что видно</th><th>Готовность</th></tr>
+<tr><td>0:00 Вход</td><td class="en" lang="en">Your AI-native organization changes every hour… How do you notice it no longer matches what you intended — without slowing down?</td><td>—</td><td>логотип v8, вопрос</td><td><span class="rd ok">слайд готов</span></td></tr>
+<tr><td>0:20 S01 Commit</td><td class="en" lang="en">It starts where a founder sets direction — a meeting. The Deputy drafts the intent, the goal, the principle and the culture to protect. You edit it and commit. Saved is not the same as watching.</td><td>правит одно поле и нажимает Commit</td><td>версия мандата, время вступления, реальное состояние наблюдения</td><td><span class="rd no">экран строится</span><span class="rd ok">слова Владимира из текстов</span></td></tr>
+<tr><td>0:50 S02 Culture</td><td class="en" lang="en">A practice keeps coming back: discounts raised as the first answer to a price objection — this many times, across this many people. A request is not a granted discount.</td><td>открывает один эпизод</td><td>частота со знаменателем, примеры и контрпримеры, источник</td><td><span class="rd no">экран строится</span><span class="rd ok">данные в MongoDB</span><span class="rd ok">Meta через API</span></td></tr>
+<tr><td>1:15 S03 Drift</td><td class="en" lang="en">The committed principle next to the behavior. SubQ checks it against the version you approved — it may say “contradicts”, or honestly “insufficient evidence”.</td><td>читает основание, соглашается или оспаривает</td><td>вердикт SubQ, версия правила, пять областей одной строкой</td><td><span class="rd no">экран строится</span><span class="rd ok">SubQ: вызов был</span></td></tr>
+<tr><td>1:40 S04 Correction</td><td class="en" lang="en">One correction on three levels: a rule for the sales agents, an onboarding section for the human sellers, one required field in our demo CRM. Nothing activates silently.</td><td>смотрит три изменения</td><td>три диффа рядом, версия v2 «предложена»</td><td><span class="rd no">экран строится</span><span class="rd ok">логика есть офлайн</span></td></tr>
+<tr><td>2:05 S05 Decision</td><td class="en" lang="en">You approve this exact version. Approval is not activation: checks run first. A discount without a reason is rejected; with a reason, it goes through.</td><td>нажимает Approve v2; пробует скидку без причины, потом с причиной</td><td>проверки, «применено», CRM отклоняет пустую причину</td><td><span class="rd no">поле CRM ещё не сделано</span></td></tr>
+<tr><td>2:30 S06 Outcome</td><td class="en" lang="en">This is a simulation — same leads, same seed, before and after. The share of discounts with a value reason moved from Y to X. You can keep it, roll it back, or take it to the next meeting.</td><td>выбирает Keep или откат</td><td>метка SIMULATION, до и после, знаменатели, версии</td><td><span class="rd ok">симуляция считается</span><span class="rd no">график ещё не нарисован</span></td></tr>
+<tr><td>2:50 Финал</td><td class="en" lang="en">Theseus doesn't slow your company down. It shows you where it turned. Let AI employees improve your company — keep your goals, rules, and culture.</td><td>—</td><td>один партнёрский слайд, баннер, ссылка на репозиторий</td><td><span class="rd ok">слайд готов</span></td></tr>
+</table></div>
+<p>Через все кадры проходит одна цепочка записей: встреча → мандат v1 → закономерность → проверка SubQ → предложение v2 → активация → прогоны симуляции. ID возьмём у Argon, когда экраны заработают. Ролик на 60 секунд собирается из тех же кадров, по 8 секунд на экран.</p>
+
+<h2>Чего не хватает к записи</h2>
+<ol>
+<li>Шесть экранов у Argon ещё строятся. Снимать нечего, пока нет адреса localhost и маршрутов.</li>
+<li>Валидации поля в демо-CRM для S05 ещё нет.</li>
+<li>Симуляция для S06 считается, но прогонов в MongoDB и графика пока нет.</li>
+<li>Карточки Fetch и переход из них на сайт не проверены.</li>
+<li>Реальные ID записей и эпизод с источником слов Владимира — от Argon и Muse перед записью.</li>
+</ol>
+<p>Что уже правда и можно говорить: все 53 431 исходная запись перенесены в MongoDB как есть, числа и контрольные суммы сходятся. Это проверил координатор в 14:13.</p>
+
+
+
+<footer>Подробная версия для команды: <code>reports/2-scenarios/SCENARIO-S01-S06.md</code>. Передано Viveka.HackatonCoordinator в 14:33. Генерация ролика стоит до утверждения интерфейса.</footer>
+</div>
+</body>
+</html>
