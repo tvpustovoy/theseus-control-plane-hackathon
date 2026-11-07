@@ -1,0 +1,389 @@
+{
+ "schema_version": 1,
+ "packet_version": "review-packet-v1",
+ "approved_rule_version": null,
+ "rule_status": "unapproved_training_norm",
+ "scope": {
+  "packet": "SubQ discount/pricing comparisons (owner-approved exact transmission plan)",
+  "scenarios": [
+   "S03"
+  ],
+  "scope": "5 pairs over 9 claims; bounded, not comprehensive monitoring"
+ },
+ "generated_from": [
+  {
+   "artifact": "database/private/a07-subq5-results.json",
+   "sha256": "3c6d55c9fa48bd12556bd6d96e709857a50265015873d89a45c821924777df5a"
+  }
+ ],
+ "claims": [
+  {
+   "claim_id": "C30-85b1dbab4c",
+   "claim_kind": "observation",
+   "fact_type": "canon_value",
+   "knowledge_state": "known",
+   "source_kind": "founder_meeting",
+   "provenance_label": "Muse Code exploratory",
+   "source_ref": {
+    "source_id": "src:f280459448fd88e1ec57",
+    "source_text_sha256": "9bbf45583075229db4d4a1d134fece6364742392b5abb9a1a1bd1623c30641b2",
+    "dump_id": null,
+    "src_file": null,
+    "src_row": null
+   },
+   "evidence_ref": {
+    "quote_sha256": "41ff42f833e38435523d2021ea0d3140f08f251894b285a1cd0c0ba17254a4be",
+    "char_start": 83075,
+    "char_end": 83140
+   },
+   "statement_sanitized": "Принцип сегментации акций: бизнес не любит скидки, бизнес любит подарки; скидки любит эконом-сегмент.",
+   "stage": "norm_principle",
+   "source_day": null,
+   "scope_note": "founder canon, no day metadata; timeless principle, segment-dependent",
+   "mandate_status": "proposed only: codex-v2 discount-reciprocity / mandate-v2-draft, NOT active; active baseline mandate-v1 = flexible seller discounts"
+  },
+  {
+   "claim_id": "C33-3024412d9f",
+   "claim_kind": "observation",
+   "fact_type": "decision",
+   "knowledge_state": "known",
+   "source_kind": "sales_conversation",
+   "provenance_label": "Muse Code exploratory",
+   "source_ref": {
+    "source_id": "src:00618e79dfed20f237a8",
+    "source_text_sha256": "3cd0045310c2cce777eeb342b895a81318e3fd4e24228b08978ddf4887a7486e",
+    "dump_id": null,
+    "src_file": null,
+    "src_row": null
+   },
+   "evidence_ref": {
+    "quote_sha256": "18a4ce36e22508d40c10e7b39e3c08802af259a8eddfacd185610a015ec7c672",
+    "char_start": 636,
+    "char_end": 663
+   },
+   "statement_sanitized": "Продавец сразу соглашается на скидку: по 10 тысяч сделаем.",
+   "stage": "grant",
+   "source_day": "2024-04-24",
+   "scope_note": "same chat: immediate agreement '10k' - per-branch basis plausible not explicit; signing/payment unknown; offer-stage grant, not a proven sale",
+   "mandate_status": "observed"
+  },
+  {
+   "claim_id": "C43-fe7cfc0d51",
+   "claim_kind": "normative_rule",
+   "fact_type": "training_rule",
+   "knowledge_state": "known",
+   "source_kind": "sales_conversation",
+   "provenance_label": "Muse Code exploratory",
+   "source_ref": {
+    "source_id": "src:05980d726343bdca80fc",
+    "source_text_sha256": "62b0fb606a3bb41a5ef542d85550fa2e09a08e7a96ab2458c2119b3e1d2903ed",
+    "dump_id": null,
+    "src_file": null,
+    "src_row": null
+   },
+   "evidence_ref": {
+    "quote_sha256": "84aad6154c72e3b8029f5bd279ab5df63cae2c1ebf56264ef6d82f34b3240dec",
+    "char_start": 15319,
+    "char_end": 15413
+   },
+   "statement_sanitized": "Правило: скидка 30% действует только на решения, которые партнёр запускает сам, не на тариф клуба.",
+   "stage": "norm_rule",
+   "source_day": "2026-08-27",
+   "scope_note": "partner 30% scope correction: self-launched solutions only, not club tariff",
+   "mandate_status": "unapproved training/SOP norm, not a binding company rule"
+  },
+  {
+   "claim_id": "C41-58ceac2f04",
+   "claim_kind": "observation",
+   "fact_type": "price",
+   "knowledge_state": "known",
+   "source_kind": "sales_conversation",
+   "provenance_label": "Muse Code exploratory",
+   "source_ref": {
+    "source_id": "src:043d42a050557a538088",
+    "source_text_sha256": "88c4e1706a460f44c3e10d11410f886a4cba2003c52082cfe00c86106e80839e",
+    "dump_id": null,
+    "src_file": null,
+    "src_row": null
+   },
+   "evidence_ref": {
+    "quote_sha256": "553b46ba1828efab89fd38b67ad551c34c1322671436db2a076970b33dc12c4b",
+    "char_start": 359,
+    "char_end": 394
+   },
+   "statement_sanitized": "Продавец сообщает партнёру о скидке 30% для партнёра.",
+   "stage": "offer",
+   "source_day": "2026-09-22",
+   "scope_note": "2026-09-22: seller mentions partner 30% without stating scope in that exchange",
+   "mandate_status": "observed"
+  },
+  {
+   "claim_id": "C572-a694d24aa4",
+   "claim_kind": "normative_rule",
+   "fact_type": "prohibition",
+   "knowledge_state": "known",
+   "source_kind": "sales_conversation",
+   "provenance_label": "Muse Code exploratory",
+   "source_ref": {
+    "source_id": "src:b3521d3608494dae24ad",
+    "source_text_sha256": "1b4a8ee5364ba7ad6680566db095966b211a7edb3e51e600d92cd186757c07a3",
+    "dump_id": null,
+    "src_file": null,
+    "src_row": null
+   },
+   "evidence_ref": {
+    "quote_sha256": "04507c4c480fb0c11ce8c6d0426ac6e09af0dadb1a127337b8fc4fee3ef57090",
+    "char_start": 1732,
+    "char_end": 1767
+   },
+   "statement_sanitized": "Регламент запрещает называть цену в первом сообщении клиенту.",
+   "stage": "norm_rule",
+   "source_day": "2026-05-21",
+   "scope_note": "sales SOP 2026-05-21: no price in first message",
+   "mandate_status": "unapproved training/SOP norm, not a binding company rule"
+  },
+  {
+   "claim_id": "C495-cab3643af9",
+   "claim_kind": "observation",
+   "fact_type": "price",
+   "knowledge_state": "known",
+   "source_kind": "sales_conversation",
+   "provenance_label": "Muse Code exploratory",
+   "source_ref": {
+    "source_id": "src:b3521d3608494dae24ad",
+    "source_text_sha256": "1b4a8ee5364ba7ad6680566db095966b211a7edb3e51e600d92cd186757c07a3",
+    "dump_id": null,
+    "src_file": null,
+    "src_row": null
+   },
+   "evidence_ref": {
+    "quote_sha256": "996ef49499ecd06e2e64515cf7a45d2cc4e00d37cad1861f7b284d3d8f9c8496",
+    "char_start": 6353,
+    "char_end": 6411
+   },
+   "statement_sanitized": "Годовой тариф стоит 178 800 рублей (14 900 рублей в месяц) с экономией 60 000 рублей.",
+   "stage": "offer",
+   "source_day": "2026-05-21",
+   "scope_note": "2026-05-21 SOP document template message with full price ladder; template, not proven sent as a first message",
+   "mandate_status": "observed"
+  },
+  {
+   "claim_id": "C228-2b8eb61aeb",
+   "claim_kind": "observation",
+   "fact_type": "decision",
+   "knowledge_state": "known",
+   "source_kind": "sales_conversation",
+   "provenance_label": "Muse Code exploratory",
+   "source_ref": {
+    "source_id": "src:5ba65d172a9d76ce70ba",
+    "source_text_sha256": "add6391a45dda864f2f7b797ac02e07837a517d8beefd7112a3004a6ac6fc70d",
+    "dump_id": null,
+    "src_file": null,
+    "src_row": null
+   },
+   "evidence_ref": {
+    "quote_sha256": "64b4b8bcdbbc0b0c17f5e6fa27e6ca4714c14eaf41191d2886f1c66948bdbd36",
+    "char_start": 60,
+    "char_end": 105
+   },
+   "statement_sanitized": "Продавец дал клиенту скидку 30% от цены на платформе.",
+   "stage": "grant",
+   "source_day": "2026-08-13",
+   "scope_note": "2026-08-13: seller grants extra 30% off platform price, 3 months ~30k total after discount; payment asked next, outcome unknown",
+   "mandate_status": "observed"
+  },
+  {
+   "claim_id": "C398-8df541a2b3",
+   "claim_kind": "observation",
+   "fact_type": "objection",
+   "knowledge_state": "known",
+   "source_kind": "sales_conversation",
+   "provenance_label": "Muse Code exploratory",
+   "source_ref": {
+    "source_id": "src:8dc5eaa72851986870fa",
+    "source_text_sha256": "d519c20c4d5d3b1ab2fb83a06556069dd1397b7f684fcb2ea979e2d734c67403",
+    "dump_id": null,
+    "src_file": null,
+    "src_row": null
+   },
+   "evidence_ref": {
+    "quote_sha256": "e207caf396ca26060a668151e4652e916a33dc0b69caeadaf60e4b81194ff200",
+    "char_start": 190,
+    "char_end": 265
+   },
+   "statement_sanitized": "Клиентка оплатила услугу по полной цене, хотя для старых клиентов была объявлена скидка.",
+   "stage": "announced_not_applied",
+   "source_day": "2026-06-19",
+   "scope_note": "2026-06-19 archive summary: loyalty discount announced, client paid full price; resolution promised, outcome unknown",
+   "mandate_status": "observed"
+  },
+  {
+   "claim_id": "C65-3888ae4342",
+   "claim_kind": "observation",
+   "fact_type": "decision",
+   "knowledge_state": "known",
+   "source_kind": "sales_conversation",
+   "provenance_label": "Muse Code exploratory",
+   "source_ref": {
+    "source_id": "src:3057c59c2d16e6bdd12e",
+    "source_text_sha256": "5b8aadfb9aecc9290ab4a0ee86af6f92a7071a36964f80da5805795b440d7d7c",
+    "dump_id": null,
+    "src_file": null,
+    "src_row": null
+   },
+   "evidence_ref": {
+    "quote_sha256": "160a57dac611112c1c2df1c3024de225c501c7f43a61e90cedcd0de6de84f2d2",
+    "char_start": 225,
+    "char_end": 278
+   },
+   "statement_sanitized": "Клиент просит скидку при покупке 80-100 отзывов; продавец отказывает: это минимальная цена.",
+   "stage": "refusal",
+   "source_day": "2025-05-27",
+   "scope_note": "2025-05-27: bulk-review discount request refused at minimum price (counterexample to default-discount hypothesis)",
+   "mandate_status": "observed"
+  }
+ ],
+ "pairs": [
+  {
+   "pair_id": "C30-85b1dbab4c__C33-3024412d9f",
+   "a": "C30-85b1dbab4c",
+   "b": "C33-3024412d9f",
+   "shared_topics": [
+    "price",
+    "discount_approval"
+   ],
+   "review_status": "reviewed_no_proven_contradiction",
+   "verdict": {
+    "label": "different_scope_time",
+    "probabilities": {
+     "consistent": 0.006758181843906641,
+     "contradictory": 0.07496672868728638,
+     "different_scope_time": 0.8030493259429932,
+     "insufficient_evidence": 0.11522577702999115
+    },
+    "confidence": 0.7373991012573242,
+    "uncertainty": 0.262601,
+    "model": "subq-snap-1.1"
+   },
+   "fixed_question": "Does an immediate discount concession without a recorded reciprocal commitment diverge from the gift/value-first principle? Historical 2024 episode vs proposed (unapproved) rule - never a retroactive violation.",
+   "input_tokens": 277,
+   "latency_ms": 957,
+   "human_conclusion": "SubQ signal only; not a proven violation. Historical episodes predate the proposed rule and are never retroactive violations."
+  },
+  {
+   "pair_id": "C43-fe7cfc0d51__C41-58ceac2f04",
+   "a": "C43-fe7cfc0d51",
+   "b": "C41-58ceac2f04",
+   "shared_topics": [
+    "price",
+    "discount_approval"
+   ],
+   "review_status": "reviewed_no_proven_contradiction",
+   "verdict": {
+    "label": "insufficient_evidence",
+    "probabilities": {
+     "consistent": 0.03961094468832016,
+     "contradictory": 0.015959009528160095,
+     "different_scope_time": 0.018213268369436264,
+     "insufficient_evidence": 0.926216721534729
+    },
+    "confidence": 0.9016222953796387,
+    "uncertainty": 0.098378,
+    "model": "subq-snap-1.1"
+   },
+   "fixed_question": "Is the partner 30% communicated with its correct scope (self-launched solutions only), or scope-free?",
+   "input_tokens": 265,
+   "latency_ms": 508,
+   "human_conclusion": "SubQ signal only; not a proven violation. Historical episodes predate the proposed rule and are never retroactive violations."
+  },
+  {
+   "pair_id": "C572-a694d24aa4__C495-cab3643af9",
+   "a": "C572-a694d24aa4",
+   "b": "C495-cab3643af9",
+   "shared_topics": [
+    "price",
+    "discount_approval"
+   ],
+   "review_status": "reviewed_no_proven_contradiction",
+   "verdict": {
+    "label": "insufficient_evidence",
+    "probabilities": {
+     "consistent": 0.010189732536673546,
+     "contradictory": 0.02568744122982025,
+     "different_scope_time": 0.438097208738327,
+     "insufficient_evidence": 0.5260255932807922
+    },
+    "confidence": 0.36803412437438965,
+    "uncertainty": 0.631966,
+    "model": "subq-snap-1.1"
+   },
+   "fixed_question": "Does the price-ladder template conflict with the no-price-in-first-message SOP, or is it a later-stage template? Same source document; tension candidate only.",
+   "input_tokens": 279,
+   "latency_ms": 1027,
+   "human_conclusion": "SubQ signal only; not a proven violation. Historical episodes predate the proposed rule and are never retroactive violations."
+  },
+  {
+   "pair_id": "C228-2b8eb61aeb__C43-fe7cfc0d51",
+   "a": "C228-2b8eb61aeb",
+   "b": "C43-fe7cfc0d51",
+   "shared_topics": [
+    "price",
+    "discount_approval"
+   ],
+   "review_status": "reviewed_no_proven_contradiction",
+   "verdict": {
+    "label": "insufficient_evidence",
+    "probabilities": {
+     "consistent": 0.008830193430185318,
+     "contradictory": 0.010665259324014187,
+     "different_scope_time": 0.16863131523132324,
+     "insufficient_evidence": 0.8118732571601868
+    },
+    "confidence": 0.749164342880249,
+    "uncertainty": 0.250836,
+    "model": "subq-snap-1.1"
+   },
+   "fixed_question": "Was the granted extra 30% inside the approved scope/basis, and was any reciprocal commitment recorded?",
+   "input_tokens": 263,
+   "latency_ms": 1069,
+   "human_conclusion": "SubQ signal only; not a proven violation. Historical episodes predate the proposed rule and are never retroactive violations."
+  },
+  {
+   "pair_id": "C398-8df541a2b3__C65-3888ae4342",
+   "a": "C398-8df541a2b3",
+   "b": "C65-3888ae4342",
+   "shared_topics": [
+    "price",
+    "discount_approval"
+   ],
+   "review_status": "reviewed_no_proven_contradiction",
+   "verdict": {
+    "label": "consistent",
+    "probabilities": {
+     "consistent": 0.5443557500839233,
+     "contradictory": 0.03827306255698204,
+     "different_scope_time": 0.37034815549850464,
+     "insufficient_evidence": 0.0470229871571064
+    },
+    "confidence": 0.39247433344523114,
+    "uncertainty": 0.607526,
+    "model": "subq-snap-1.1"
+   },
+   "fixed_question": "Counterexample pair for culture hypothesis: announced discount not applied vs discount firmly refused - is practice inconsistent in both directions?",
+   "input_tokens": 268,
+   "latency_ms": 1188,
+   "human_conclusion": "SubQ signal only; not a proven violation. Historical episodes predate the proposed rule and are never retroactive violations."
+  }
+ ],
+ "content_class": "sanitized_real_claim_statements_no_raw_text_no_names",
+ "active_reference_version": "mandate-v1 (flexible seller discounts baseline)",
+ "proposed_reference_version": "mandate-v2-draft / codex-v2:discount-reciprocity-principle (UNAPPROVED, preview only)",
+ "extraction_provenance": "Muse Code exploratory (session muse-wonder-1.0 central review; muse-spark-1.3 fan-out drafts); review model: SubQ subq-snap-1.1 (Decisions API)",
+ "conclusion": "No proven contradiction in the five discount comparisons. Verdicts: 1x different_scope_time, 3x insufficient_evidence, 1x consistent (low confidence). This packet does NOT establish comprehensive monitoring of the organization; it covers one concrete goal - protect value and margin while growing sales - and the rules/emergent discount culture around it.",
+ "usage_totals": {
+  "calls": 5,
+  "retries": 0,
+  "total_input_tokens": 1352,
+  "model": "subq-snap-1.1"
+ }
+}
