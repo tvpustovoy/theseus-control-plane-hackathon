@@ -7,10 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=block" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
     <!--
-      Theseus Control Plane — 60 s video, draft run 1 with screen placeholders. Setu.Hackathon, 07.11.2026.
-      Order from reports/2-scenarios/SCENARIO-S01-S06.md: opening → S01–S06 → close → models-and-tools slide (last 6.8 s,
-      owner: at least 5 s at the end). Each placeholder window is replaced by a capture of the real Theseus screen.
-      Voice: Gemini 3.8 Flash TTS, voice Kore (tts/tts.py) → assets/voiceover.wav.
+      Theseus Control Plane — 60 s video, draft run 2. Setu.Hackathon, 07.11.2026.
+      Order (reports/2-scenarios/SCENARIO-S01-S06.md): opening → S01 Commit → thesis "hundreds of agents and people" →
+      S02–S06 → close → models-and-tools slide at the end (owner: at least 5 s). Placeholder windows are replaced by
+      captures of the real Theseus screens. Timings, subtitles and the SCENES block are written by tts/build.py.
     -->
     <style>
       :root {
@@ -27,34 +27,40 @@
       .headline { font-family: var(--serif); font-size: 92px; line-height: 1.03; color: var(--ink); }
       .headline em { font-style: italic; color: var(--amber-deep); }
       .sub { margin-top: 26px; font-size: 40px; line-height: 1.3; color: var(--muted); }
+      .kicker { font-family: var(--mono); font-size: 28px; letter-spacing: .16em; text-transform: uppercase; color: var(--glacier); margin-bottom: 22px; }
       /* opening */
       #logo0 { position: absolute; left: 120px; top: 190px; width: 680px; height: 680px; }
       #s0 .text { position: absolute; left: 860px; top: 330px; width: 940px; }
-      .kicker { font-family: var(--mono); font-size: 28px; letter-spacing: .16em; text-transform: uppercase; color: var(--glacier); margin-bottom: 22px; }
       /* placeholder product window */
-      .win { position: absolute; left: 210px; top: 70px; width: 1500px; height: 790px; background: var(--surface); border: 2px solid var(--ice); border-radius: 22px; box-shadow: 0 24px 60px rgba(11,58,94,.10); overflow: hidden; }
-      .bar { height: 64px; background: #eef4f9; border-bottom: 2px solid var(--ice); display: flex; align-items: center; padding: 0 26px; gap: 12px; }
+      .win { position: absolute; left: 230px; top: 50px; width: 1460px; height: 740px; background: var(--surface); border: 2px solid var(--ice); border-radius: 22px; box-shadow: 0 24px 60px rgba(11,58,94,.10); overflow: hidden; }
+      .bar { height: 60px; background: #eef4f9; border-bottom: 2px solid var(--ice); display: flex; align-items: center; padding: 0 26px; gap: 12px; }
       .dot { width: 16px; height: 16px; border-radius: 50%; background: #c9d8e4; }
       .url { margin-left: 22px; font-family: var(--mono); font-size: 28px; color: var(--muted); }
-      .body { position: absolute; top: 64px; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-      .body img { width: 300px; height: 300px; opacity: .9; }
-      .frame { margin-top: 18px; font-family: var(--mono); font-size: 30px; letter-spacing: .14em; text-transform: uppercase; color: var(--glacier); }
-      .title { margin-top: 8px; font-family: var(--serif); font-size: 76px; color: var(--ink); }
+      .body { position: absolute; top: 60px; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+      .body img { width: 280px; height: 280px; opacity: .9; }
+      .frame { margin-top: 16px; font-family: var(--mono); font-size: 30px; letter-spacing: .14em; text-transform: uppercase; color: var(--glacier); }
+      .title { margin-top: 8px; font-family: var(--serif); font-size: 74px; color: var(--ink); }
       .hint { margin-top: 10px; font-family: var(--mono); font-size: 28px; color: var(--amber-deep); }
-      .cap { position: absolute; left: 160px; right: 160px; top: 900px; text-align: center; font-size: 40px; line-height: 1.25; font-weight: 500; color: var(--ink); }
+      /* thesis: hundreds of agents and people */
+      #sT .chip { position: absolute; font-family: var(--mono); font-size: 28px; padding: 10px 16px; border-radius: 12px; background: var(--surface); border: 2px solid var(--ice); color: var(--ink); white-space: nowrap; box-shadow: 0 6px 16px rgba(11,58,94,.06); }
+      #sT .chip.amber { border-color: var(--amber); }
+      #logoT { position: absolute; left: 780px; top: 230px; width: 360px; height: 360px; }
       /* close */
       #logo7 { position: absolute; left: 640px; top: 70px; width: 640px; height: 640px; }
       #s7 .text { position: absolute; left: 0; right: 0; top: 740px; text-align: center; }
       #s7 .headline { font-size: 78px; }
       #s7 .name { margin-top: 18px; font-family: var(--mono); font-size: 30px; letter-spacing: .2em; text-transform: uppercase; color: var(--glacier); }
-      /* tech slide */
+      /* tools slide */
       #tech { position: absolute; inset: 0; width: 1920px; height: 1080px; }
+      /* subtitles: readable, above player controls */
+      .cap { position: absolute; left: 0; right: 0; top: 842px; text-align: center; }
+      .cap span { display: inline-block; max-width: 1560px; font-family: var(--sans); font-size: 44px; line-height: 1.3; font-weight: 600; color: #ffffff; background: rgba(8, 24, 40, .82); padding: 12px 28px; border-radius: 12px; }
     </style>
   </head>
   <body>
     <div id="root" data-composition-id="main" data-start="0" data-duration="60" data-width="1920" data-height="1080">
 
-      <div id="s0" class="scene clip" data-start="0" data-duration="9.3" data-track-index="1">
+      <div id="s0" class="scene clip" data-start="0.0" data-duration="8.31" data-track-index="1">
         <img id="logo0" src="assets/logo-v8.png" alt="Theseus logo" />
         <div class="text">
           <div class="kicker">Theseus Control Plane</div>
@@ -63,43 +69,42 @@
         </div>
       </div>
 
-      <div id="s1" class="scene clip" data-start="9.3" data-duration="8.25" data-track-index="1">
+      <div id="s1" class="scene clip" data-start="8.31" data-duration="7.38" data-track-index="1">
         <div class="win"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">localhost · theseus / commit</span></div>
           <div class="body"><img src="assets/logo-v8.png" alt="" /><div class="frame">S01 · Commit</div><div class="title">Goals, principles, culture to protect</div><div class="hint">screen capture goes here</div></div></div>
-        <div class="cap">Theseus starts with a commitment: your goals, your principles, and the culture to protect.</div>
       </div>
 
-      <div id="s2" class="scene clip" data-start="17.55" data-duration="4.75" data-track-index="1">
+      <div id="sT" class="scene clip" data-start="15.69" data-duration="6.4" data-track-index="1">
+        <div id="chips"></div>
+        <img id="logoT" src="assets/logo-v8.png" alt="" />
+      </div>
+
+      <div id="s2" class="scene clip" data-start="22.09" data-duration="3.82" data-track-index="1">
         <div class="win"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">localhost · theseus / observe / culture</span></div>
           <div class="body"><img src="assets/logo-v8.png" alt="" /><div class="frame">S02 · Culture</div><div class="title">What agents and people actually do</div><div class="hint">screen capture goes here</div></div></div>
-        <div class="cap">It watches what agents and people actually do.</div>
       </div>
 
-      <div id="s3" class="scene clip" data-start="22.3" data-duration="5.9" data-track-index="1">
+      <div id="s3" class="scene clip" data-start="25.91" data-duration="4.86" data-track-index="1">
         <div class="win"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">localhost · theseus / observe / drift</span></div>
           <div class="body"><img src="assets/logo-v8.png" alt="" /><div class="frame">S03 · Drift</div><div class="title">Committed principle vs. behavior</div><div class="hint">screen capture goes here</div></div></div>
-        <div class="cap">And shows you where behavior drifts from what you committed to.</div>
       </div>
 
-      <div id="s4" class="scene clip" data-start="28.2" data-duration="7.95" data-track-index="1">
+      <div id="s4" class="scene clip" data-start="30.77" data-duration="7.08" data-track-index="1">
         <div class="win"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">localhost · theseus / decide / proposal</span></div>
           <div class="body"><img src="assets/logo-v8.png" alt="" /><div class="frame">S04 · Correction</div><div class="title">Agents · People · Environment</div><div class="hint">screen capture goes here</div></div></div>
-        <div class="cap">It proposes one fix on three levels: agent rules, people's onboarding, and the environment itself.</div>
       </div>
 
-      <div id="s5" class="scene clip" data-start="36.15" data-duration="5.85" data-track-index="1">
+      <div id="s5" class="scene clip" data-start="37.85" data-duration="4.78" data-track-index="1">
         <div class="win"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">localhost · theseus / decide / apply</span></div>
           <div class="body"><img src="assets/logo-v8.png" alt="" /><div class="frame">S05 · Decision</div><div class="title">Approve · check · apply</div><div class="hint">screen capture goes here</div></div></div>
-        <div class="cap">You approve. Checks run. The new rule applies.</div>
       </div>
 
-      <div id="s6" class="scene clip" data-start="42.0" data-duration="4.5" data-track-index="1">
+      <div id="s6" class="scene clip" data-start="42.63" data-duration="3.61" data-track-index="1">
         <div class="win"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">localhost · theseus / track</span></div>
           <div class="body"><img src="assets/logo-v8.png" alt="" /><div class="frame">S06 · Outcome · simulation</div><div class="title">Did the change actually work?</div><div class="hint">screen capture goes here</div></div></div>
-        <div class="cap">Then it tracks whether the change actually worked.</div>
       </div>
 
-      <div id="s7" class="scene clip" data-start="46.5" data-duration="6.7" data-track-index="1">
+      <div id="s7" class="scene clip" data-start="46.24" data-duration="5.99" data-track-index="1">
         <img id="logo7" src="assets/logo-v8.png" alt="Theseus logo" />
         <div class="text">
           <div class="headline">Let AI employees improve your company. <em>Keep your goals, rules, and culture.</em></div>
@@ -107,7 +112,22 @@
         </div>
       </div>
 
-      <img id="tech" class="clip" src="assets/tech-slide.png" alt="Models and tools behind Theseus" data-start="53.2" data-duration="6.8" data-track-index="2" />
+      <img id="tech" class="clip" src="assets/tech-slide.png" alt="Models and tools behind Theseus" data-start="52.23" data-duration="7.77" data-track-index="2" />
+
+      <!--CAPS-->
+        <div class="cap clip" data-start="8.61" data-duration="2.74" data-track-index="5"><span>Theseus starts with a commitment:</span></div>
+        <div class="cap clip" data-start="11.2" data-duration="4.54" data-track-index="6"><span>your goals, your principles, and the culture to protect.</span></div>
+        <div class="cap clip" data-start="15.99" data-duration="2.93" data-track-index="5"><span>From then on, hundreds of agents and people work at once.</span></div>
+        <div class="cap clip" data-start="18.77" data-duration="3.37" data-track-index="6"><span>And you no longer have to watch them by reading hundreds of chats.</span></div>
+        <div class="cap clip" data-start="22.39" data-duration="3.26" data-track-index="5"><span>It watches what agents and people actually do.</span></div>
+        <div class="cap clip" data-start="26.21" data-duration="4.31" data-track-index="6"><span>And shows you where behavior drifts from what you committed to.</span></div>
+        <div class="cap clip" data-start="31.07" data-duration="2.63" data-track-index="5"><span>It proposes one fix on three levels:</span></div>
+        <div class="cap clip" data-start="33.55" data-duration="4.35" data-track-index="6"><span>agent rules, people's onboarding, and the environment itself.</span></div>
+        <div class="cap clip" data-start="38.15" data-duration="1.26" data-track-index="5"><span>You approve.</span></div>
+        <div class="cap clip" data-start="39.26" data-duration="1.17" data-track-index="6"><span>Checks run.</span></div>
+        <div class="cap clip" data-start="40.28" data-duration="2.1" data-track-index="5"><span>The new rule applies.</span></div>
+        <div class="cap clip" data-start="42.93" data-duration="3.06" data-track-index="6"><span>Then it tracks whether the change actually worked.</span></div>
+        <!--/CAPS-->
 
       <audio id="vo" class="clip" src="assets/voiceover.wav" data-start="0" data-duration="60" data-track-index="9"></audio>
     </div>
@@ -115,22 +135,48 @@
     <script>
       window.__timelines = window.__timelines || {};
       const DUR = 60;
+      const SCENES = /*SCENES*/ [{"id": "s0", "start": 0.0, "dur": 8.31}, {"id": "s1", "start": 8.31, "dur": 7.38}, {"id": "sT", "start": 15.69, "dur": 6.4}, {"id": "s2", "start": 22.09, "dur": 3.82}, {"id": "s3", "start": 25.91, "dur": 4.86}, {"id": "s4", "start": 30.77, "dur": 7.08}, {"id": "s5", "start": 37.85, "dur": 4.78}, {"id": "s6", "start": 42.63, "dur": 3.61}, {"id": "s7", "start": 46.24, "dur": 5.99}, {"id": "tech", "start": 52.23, "dur": 7.77}] /*/SCENES*/;
+      const at = Object.fromEntries(SCENES.map(s => [s.id, s]));
+
+      // thesis chips: deterministic layout (seeded), built once at load
+      const labels = ["agent 041 · deal 2817", "seller · “too expensive?”", "agent 112 · discount 10%", "call · 14:02",
+        "chat · 38 new", "agent 007 · quote sent", "CRM · stage changed", "seller · follow-up", "agent 219 · retry",
+        "chat · 112 unread", "agent 088 · discount 15%", "seller · call back", "agent 301 · onboarding", "deal 3104 · lost?"];
+      let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+      const box = document.getElementById("chips");
+      for (let i = 0; i < 34; i++) {
+        const c = document.createElement("div");
+        c.className = "chip" + (i % 5 === 1 ? " amber" : "");
+        c.textContent = labels[i % labels.length];
+        c.style.left = Math.round(60 + rnd() * 1440) + "px";
+        c.style.top = Math.round(40 + rnd() * 720) + "px";
+        box.appendChild(c);
+      }
+
       const tl = gsap.timeline({ paused: true });
       tl.to({ t: 0 }, { t: DUR, duration: DUR, ease: "none" }, 0);
-      const inOut = (sel, at, len) => {
-        tl.fromTo(sel, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, at);
-        tl.to(sel, { opacity: 0, y: -16, duration: 0.4, ease: "power2.in" }, at + len - 0.4);
+      const inOut = (sel, start, len) => {
+        tl.fromTo(sel, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, start);
+        tl.to(sel, { opacity: 0, y: -16, duration: 0.35, ease: "power2.in" }, start + len - 0.35);
       };
-      inOut("#s0", 0, 9.3);
-      tl.fromTo("#logo0", { scale: 0.93 }, { scale: 1, duration: 8.8, ease: "none" }, 0);
-      [["#s1", 9.3, 8.25], ["#s2", 17.55, 4.75], ["#s3", 22.3, 5.9], ["#s4", 28.2, 7.95], ["#s5", 36.15, 5.85], ["#s6", 42.0, 4.5]].forEach(([sel, at, len]) => {
-        inOut(sel, at, len);
-        tl.fromTo(sel + " .body img", { scale: 0.9 }, { scale: 1, duration: len - 0.5, ease: "none" }, at);
-        tl.fromTo(sel + " .cap", { opacity: 0 }, { opacity: 1, duration: 0.4 }, at + 0.4);
+      SCENES.forEach(s => {
+        if (s.id === "tech") { tl.fromTo("#tech", { opacity: 0 }, { opacity: 1, duration: 0.6 }, s.start); return; }
+        inOut("#" + s.id, s.start, s.dur);
+        if (/^s[1-6]$/.test(s.id)) tl.fromTo("#" + s.id + " .body img", { scale: 0.9 }, { scale: 1, duration: s.dur - 0.4, ease: "none" }, s.start);
       });
-      inOut("#s7", 46.5, 6.7);
-      tl.fromTo("#logo7", { scale: 0.94 }, { scale: 1, duration: 6.2, ease: "none" }, 46.5);
-      tl.fromTo("#tech", { opacity: 0 }, { opacity: 1, duration: 0.6 }, 53.2);
+      if (at.s0) tl.fromTo("#logo0", { scale: 0.93 }, { scale: 1, duration: at.s0.dur - 0.4, ease: "none" }, 0);
+      if (at.s7) tl.fromTo("#logo7", { scale: 0.94 }, { scale: 1, duration: at.s7.dur - 0.4, ease: "none" }, at.s7.start);
+      if (at.sT) {
+        const T = at.sT;
+        tl.fromTo("#sT .chip", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.3, stagger: (T.dur * 0.45) / 34 }, T.start + 0.2);
+        tl.to("#sT .chip", { opacity: 0.12, duration: 0.8 }, T.start + T.dur * 0.6);
+        tl.fromTo("#logoT", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" }, T.start + T.dur * 0.6);
+      }
+      document.querySelectorAll(".cap").forEach(el => {
+        const s = parseFloat(el.dataset.start), d = parseFloat(el.dataset.duration);
+        tl.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.15 }, s);
+        tl.to(el, { opacity: 0, duration: 0.15 }, s + d - 0.15);
+      });
       window.__timelines["main"] = tl;
       tl.seek(0);
     </script>

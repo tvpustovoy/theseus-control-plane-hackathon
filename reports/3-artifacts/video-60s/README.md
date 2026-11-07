@@ -25,3 +25,13 @@ partner), ElevenLabs `eleven_v3` as backup; music optional. Keys come from a sec
 - Voice: `tts/tts.py`, Gemini 3.8 Flash TTS, female voice Kore, key from `cortex secret` → `assets/voiceover.wav`
   (not committed). Renders go to `renders/` (not committed).
 - The earlier explainer skeleton is in Git history (commit f46fd90).
+
+## Draft run 2 (owner, 15:0x)
+
+- Subtitles: «тот текст который и так внизу подписями показываешь … сделать просто читаемыми субтитрами как их обычно
+  делают». Big headlines on the opening and close stay. Screen scenes get sentence-level subtitles: white bold text on a
+  dark translucent box, raised above player controls.
+- New thesis after S01: "From then on, hundreds of agents and people work at once. And you no longer have to watch them
+  by reading hundreds of chats." Visual: a field of chat and agent-action chips that dims as the logo appears.
+- All lines sped up ×1.12 (pitch kept) to fit. `tts/build.py` now synthesizes missing lines, places them, mixes the
+  voice-over and rewrites scene timings, the SCENES block and subtitles in `index.html`; rerun it after any text change.
