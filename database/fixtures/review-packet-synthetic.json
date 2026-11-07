@@ -1,0 +1,76 @@
+{
+ "schema_version": 1,
+ "packet_version": "review-packet-v1",
+ "approved_rule_version": null,
+ "rule_status": "unapproved_training_norm",
+ "scope": {
+  "pilot": "synthetic-fixture",
+  "data": "synthetic"
+ },
+ "generated_from": [],
+ "claims": [
+  {
+   "claim_id": "C01-aaa",
+   "claim_kind": "observation",
+   "fact_type": "objection",
+   "knowledge_state": "known",
+   "source_kind": "sales",
+   "provenance_label": "Muse Code exploratory",
+   "source_ref": {
+    "source_id": "synthetic-sales-1",
+    "source_text_sha256": "t1",
+    "dump_id": null,
+    "src_file": null,
+    "src_row": null
+   },
+   "evidence_ref": {
+    "quote_sha256": "q1",
+    "char_start": 0,
+    "char_end": 20
+   }
+  },
+  {
+   "claim_id": "C02-bbb",
+   "claim_kind": "normative_rule",
+   "fact_type": "training_rule",
+   "knowledge_state": "known",
+   "source_kind": "training",
+   "provenance_label": "Muse Code exploratory",
+   "source_ref": {
+    "source_id": "synthetic-training-1",
+    "source_text_sha256": "t2",
+    "dump_id": null,
+    "src_file": null,
+    "src_row": null
+   },
+   "evidence_ref": {
+    "quote_sha256": "q2",
+    "char_start": 5,
+    "char_end": 40
+   }
+  }
+ ],
+ "pairs": [
+  {
+   "pair_id": "C01-aaa__C02-bbb",
+   "a": "C01-aaa",
+   "b": "C02-bbb",
+   "shared_topics": [
+    "reviews"
+   ],
+   "review_status": "possible_conflict",
+   "verdict": {
+    "label": "contradictory",
+    "probabilities": {
+     "consistent": 0.01,
+     "contradictory": 0.46,
+     "different_scope_time": 0.4,
+     "insufficient_evidence": 0.13
+    },
+    "confidence": 0.29,
+    "uncertainty": 0.71,
+    "model": "subq-snap-1.1"
+   }
+  }
+ ]
+}
