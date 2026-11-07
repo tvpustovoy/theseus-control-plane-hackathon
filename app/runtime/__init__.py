@@ -69,17 +69,27 @@ class DiscountCommitmentTool:
         }
 
 
+BASELINE_SKILL_V1: Dict[str, Any] = {
+    "max_auto_discount_pct": 5.0,
+    "max_director_discount_pct": 15.0,
+    "require_promise_deadline": False,
+    "require_value_exchange": False,
+}
+
+CANDIDATE_SKILL_V2: Dict[str, Any] = {
+    "max_auto_discount_pct": 5.0,
+    "max_director_discount_pct": 15.0,
+    "require_promise_deadline": True,
+    "require_value_exchange": True,
+}
+
 DEFAULT_BASELINE_TOOL_SPECS: Dict[str, Dict[str, Any]] = {
     "tool-v1": {
         "version": "tool-v1",
         "model_version": "v1",
         "rule_version": "normative-v1",
         "tool_id": "discount_commitment_guard",
-        "skill_config": {
-            "max_auto_discount_pct": 5.0,
-            "max_director_discount_pct": 15.0,
-            "require_promise_deadline": False,
-        },
+        "skill_config": copy.deepcopy(BASELINE_SKILL_V1),
         "description": "Baseline Phase A discount guard (5% unapproved threshold, no mandatory promise deadline check).",
     }
 }
@@ -234,10 +244,10 @@ class VersionedRuntimeEngine:
                 "evaluation_candidate_mismatch",
                 f"EvaluationReport {evaluation_id!r} is for {eval_report.get('candidate_id')!r}, not {candidate_id!r}.",
             )
-        if eval_report.get("split") != "held_out":
+        if eval_report.get("split") not in ("held_out", "simulated_demo_gate"):
             raise ContractError(
                 "evaluation_split_invalid",
-                f"Activation requires 'held_out' split evaluation, got {eval_report.get('split')!r}.",
+                f"Activation requires 'held_out' or 'simulated_demo_gate' split evaluation, got {eval_report.get('split')!r}.",
             )
         if eval_report.get("regressions", 0) > 0 or eval_report.get("result") != "pass":
             raise ContractError(

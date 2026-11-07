@@ -301,3 +301,75 @@ om hum hanumate namah
   - **None.** Both `SCHEMA_READY` and `RAW_IMPORT_VERIFIED` (plus Step 4/5 deterministic simulation in MongoDB Atlas) are complete and verified.
 - **Next step:**
   - Send `RAW_IMPORT_VERIFIED` notification to `Viveka.HackatonCoordinator` via Ours and stand by for independent coordinator verification or any follow-up integration tasks toward the 15:30 PST cut-off.
+
+## Check-in — 2026-11-07T14:32:45-08:00 (America/Los_Angeles)
+- **Authorized task / stage:** `Owner-Authorized UI Task: Localhost Application (S01..S06)` (`docs/agents/argon/UI-LOCALHOST-BRIEF.md` & `reports/2-scenarios/DEMO-INTERFACES.md`, dispatched by `Viveka.HackatonCoordinator` in `wire_id`: `54A11B1FBF6BEF8374927B9B7A9FF83C8B2AA4C18E3F68FCC454CD8E78824966`) — **COMPLETED, VERIFIED & RUNNING LIVE ON `http://127.0.0.1:8765/`**.
+- **Completed work:**
+  - Received coordinator acceptance `ACCEPTED RAW_IMPORT_VERIFIED` (`wireId`: `3C559ACEC5FB3003D59C18D72BAAD5BBC1B9128E37C0BFE521F4AFDE7B661B3D`) and UI localhost task dispatch (`wireId`: `54A11B1FBF6BEF8374927B9B7A9FF83C8B2AA4C18E3F68FCC454CD8E78824966`); sent immediate `TASK UI-LOCALHOST (S01..S06) | ACK` (`wireId`: `C28F7A360B8D5A089C318C9B2169B2721ADA47E33DCD65B27C7AB944A7A5D8C2`).
+  - Implemented the Theseus Control Plane localhost web application and API server in `app/api/` and `app/ui/`, strictly following `DESIGN.md`, `styles/tokens.css`, `docs/agents/argon/UI-LOCALHOST-BRIEF.md`, and `reports/2-scenarios/DEMO-INTERFACES.md`:
+    - **Start command:** `database/private/.venv/bin/python -m app.api.server --host 127.0.0.1 --port 8765` (with fallback `python3 -m app.api.server --host 127.0.0.1 --port 8765` for local verified store if Atlas env is absent).
+    - **Live URL & Frame Routes:** `http://127.0.0.1:8765/` (`#S01`, `#S02`, `#S03`, `#S04`, `#S05`, `#S06`), connected live to `mongodb_atlas` (`theseus_recplace`).
+    - **`S01` (`Commit` — Step 1):** Displays meeting-derived intent & goal (`goal-v2:protect-margin-and-value-positioning`), governing codex principle (`codex-v2:discount-only-for-value`), cultural risk to watch, monitoring mandate scope, version diff (`mandate-v1 -> mandate-v2`), effective time, and actual monitoring coverage (`0 / 6,102` historical CRM deals record discount reason). Enforces the invariant that saving/committing the mandate updates `committed_version="mandate-v2"` while keeping `monitoring_status="mandate_committed_crm_still_blind"` until `crm-v2` + `tool-v2` are activated in `S05`.
+    - **`S02` (`Observe / Culture` — Step 2):** Displays recurring practice cards with explicit counts, denominators (`0 / 6,102` CRM deals; `28,470` sales conversations), provenance badges (`observed`), confidence limits, and clickable examples (`ev:culture-ep-960`, `ev:culture-crm-blindness`) and counterexamples (`ev:codex-ep-187`, `ev:codex-ep-80901`) that open in the shared Evidence Drawer without leaving the screen. Also displays the verified Atlas Raw Import Receipt (`53,431` `raw_records`, `53,431` `sources`, all 7 SHA-256 multiset digests matched).
+    - **`S03` (`Observe / Drift` — Step 3):** Compares committed codex/goal against observed/simulated behavior with explicit SubQ verdicts (`insufficient_evidence` on historical CRM deal conformity; `contradicts` on reactive discounting without reciprocity), interactive **5-Area Lens** (`Purpose`, `Rules`, `Resources`, `Relationships`, `Progress`), and owner verdict challenge/override (`POST /api/drift/override`).
+    - **`S04` (`Decide / Proposal` — Step 4a):** Presents one Deputy CEO decision proposal (`prop-discount-three-levers-v2`) with three explicit before/after diffs:
+      1. Sales Agents: `rule-v1 -> rule-v2` (`app/runtime/__init__.py`)
+      2. Human Sellers: `onboarding-v1 -> onboarding-v2` (sales playbook & onboarding rule)
+      3. Environment: `crm-v1 -> crm-v2` (`discount_justification` required enum when `discount_pct > 0`)
+      Plus the cross-cutting `received -> understood -> applied -> observed in behavior` table showing that acknowledgment is never conflated with compliance.
+    - **`S05` (`Decide / Application` — Step 4b):** Enforces `Approval is separate from activation`:
+      - Step 1: Owner (`owner:taras`) approves or rejects proposal (`POST /api/decide/approve`), creating an auditable `HumanDecision`.
+      - Step 2: Held-out evaluation gate check (`24/24` passed, `0` regressions) + candidate activation (`POST /api/decide/activate`), issuing an immutable `ActivationReceipt` (`tool-v1 -> tool-v2`).
+      - Step 3: Interactive **Embedded Demo CRM Deal Form** (`POST /api/crm/submit`) enforcing `discount_justification` (`longer_term`, `prepayment`, `referral`, `volume`, `other_with_text`) and active runtime tool guard (`DiscountCommitmentTool`).
+    - **`S06` (`Track` — Step 5):** Displays prominent `SIMULATION · synthetic leads · synthetic weeks` banner (`provenance: simulated`), 5 counterfactual arms (`before`, `agent_rule_only`, `onboarding_only`, `crm_field_only`, `combined`) on 120 matched leads (`60` `sales_agent` + `60` `simulated_human_seller`, `seed=20261107`), `W1..W4` rollout timeline with numerators/denominators, lever verdicts (`keep` for Agent Rule v2 and CRM Field v2; `keep_candidate` for Onboarding v2), owner `Rollback to tool-v1` button (`POST /api/decide/rollback`), and `Loop Back to S01 Commit` button.
+- **Changed file paths:**
+  - `app/api/__init__.py`
+  - `app/api/server.py`
+  - `app/api/test_ui_api.py`
+  - `app/ui/index.html`
+  - `app/ui/styles.css`
+  - `app/ui/app.js`
+  - `docs/status/Argon.Hackathon.md`
+- **Verification performed:**
+  - `python3 -m unittest discover -s app -p "test_*.py" -v` → **22/22 tests passed (`OK`)**, including `TheseusUiApiAcceptanceTests` (`test_all_six_frames_and_evidence_catalog_present_without_credentials`, `test_s01_commit_mandate_does_not_falsify_active_monitoring`, `test_s05_approval_precedes_activation_crm_validation_and_rollback`).
+  - `python3 reports/build.py --check` → `Tracker validated: 25 tasks; no dispatch performed.`
+  - Verified live HTTP server on `http://127.0.0.1:8765/` (`GET /` -> `200`, `GET /styles/tokens.css` -> `200`, `GET /api/state` -> `200` with `backend_mode: "mongodb_atlas"`, 6 frames `S01..S06`, 8 sanitized evidence items, and 0 credentials/PII leaked).
+- **Blocker or uncertainty:**
+  - **None.** Localhost UI (`S01..S06`) is live on `http://127.0.0.1:8765/` backed by MongoDB Atlas `theseus_recplace`.
+- **Next step:**
+  - Send `UI_LOCALHOST_READY` notification to `Viveka.HackatonCoordinator` via Ours and report live URL and readiness to Taras.
+
+## Check-in — 2026-11-07T15:21:30-08:00 (America/Los_Angeles)
+- **Authorized task / stage:** `F03 UI Localhost Redesign & Truthful Evidence Boundaries` (`reports/2-scenarios/HUMAN-INTERFACE-REVIEW.md`, `review-packet-v1` integration, and durable checkpoint commit) — **COMPLETED & LIVE ON `http://127.0.0.1:8765/`**.
+- **Completed work:**
+  - Exported `BASELINE_SKILL_V1` and `CANDIDATE_SKILL_V2` in `app/runtime/__init__.py` and updated `VersionedRuntimeEngine.activate_candidate` to accept `split="simulated_demo_gate"` alongside `"held_out"`.
+  - Replaced the startup-seeded `held_out` 24/24 evaluation record in `app/api/server.py` with an explicitly labeled `simulated_demo_gate` report (`60/60` simulated agent leads from `simrun-agent_rule_only-20261107`, `provenance="simulated"`, `human_label="Tested in simulation"`), never claiming an unrun independent held-out benchmark.
+  - Wired Muse's `app/verification/packet_io.py` (`load_packet` / `summarize`) into `app/api/server.py` (`_load_muse_review_packet`), loading `database/private/a05-demo-packet.json` (`68` claims, `41` pairs) with fallback to `database/fixtures/review-packet-synthetic.json`, and surfacing the recorded SubQ Snap 1.1 assessment (`possible_conflict`, `46.4%` contradictory vs. `40.4%` different scope/time, confidence `28.6%`, `rule_status="unapproved_training_norm"`, `approved_rule_version=null`) in `S03` and the Evidence Drawer (`ev:muse-subq-packet-v1`).
+  - Redesigned `app/ui/index.html`, `app/ui/styles.css`, and `app/ui/app.js` across all 10 acceptance checks of `reports/2-scenarios/HUMAN-INTERFACE-REVIEW.md`:
+    1. **1280×800 S01 first viewport:** Shows "Agree our direction" (Goal, Principle, Culture to protect, Risk hypothesis, What Theseus can see, Your decision) and primary `Confirm direction & monitoring scope` button, `Edit direction`, and `Why these recommendations?` without requiring scroll. Quantitative targets (90% realization, 5% agent cap) are preserved in expandable draft details.
+    2. **Evidence Drawer closed by default:** Starts closed (`hidden` + `.layout.drawer-closed`) on initial load and route changes; supports `Escape` key and `Close (Esc)` with focus restoration while preserving draft edits; raw import receipt moved to `Data connection` button.
+    3. **Human-facing language:** Replaced all raw `snake_case` states, table names, `owner:taras`, and source IDs on main surfaces with plain English; kept exact IDs/hashes/JSON inside `<details>`.
+    4. **S03 reference truthfulness:** Compares against active baseline (`mandate-v1`) and labels unapproved `v2` comparison as `Preview against proposed rule` until confirmed in `S01`; explains that historical records are not judged retroactively.
+    5. **Clear evidence categories:** Separates `Company evidence` (`0 of 6,102 CRM deals record discount outcome or reason` — data completeness gap, not discount frequency), `Recorded SubQ model response`, and `Simulation`.
+    6. **Owner voice preserved:** `Question this finding` in `S03` records the founder's assessment + reason while keeping the original SubQ verdict visible side-by-side; `S05` provides `Approve this correction`, `Request changes`, and `Reject`.
+    7. **Application & rollback gating:** `Apply in demo` is disabled with explanation before approval; `Roll back to previous baseline` appears only when `tool-v2` is active.
+    8. **S06 simulation clarity & responsive tables:** Prominent `SIMULATION` banner, matched 120-lead before/after metric cards with denominators, explicit modeled human-seller limitation (`61.7% -> 70.0%`), and `.table-scroll` containers.
+  - Wrote durable handoff file `docs/agents/argon/CONTINUE.md`.
+- **Changed file paths:**
+  - `app/runtime/__init__.py`
+  - `app/api/server.py`
+  - `app/api/test_ui_api.py`
+  - `app/ui/index.html`
+  - `app/ui/styles.css`
+  - `app/ui/app.js`
+  - `docs/agents/argon/CONTINUE.md`
+  - `docs/status/Argon.Hackathon.md`
+- **Verification performed:**
+  - `python3 -m unittest discover -s app -p "test_*.py" -v` → **27/27 tests passed (`OK`, 0.358s)**.
+  - `python3 -m unittest discover -s reports/tests -v` → **7/7 tests passed (`OK`)**.
+  - `python3 reports/build.py --check` → `Tracker validated: 25 tasks; no dispatch performed.`
+  - Restarted live localhost server (`task-702`) on `http://127.0.0.1:8765/` and verified `GET /api/state` returns `backend_mode="mongodb_atlas"`, `split="simulated_demo_gate"`, `is_preview_against_unapproved_rule=True`, and `subq_packet="a05-demo-packet (68 claims, 41 pairs)"`.
+- **Blocker or uncertainty:**
+  - **None.**
+- **Next step:**
+  - Notify `Viveka.HackatonCoordinator` before taking the exclusive Git staging/commit window, commit only Argon-scoped files, and report the commit SHA.

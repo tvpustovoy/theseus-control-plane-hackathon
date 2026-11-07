@@ -1,0 +1,1223 @@
+/**
+ * Theseus Control Plane · Human-Facing Browser Application (S01..S06)
+ * Implements all 10 acceptance checks in reports/2-scenarios/HUMAN-INTERFACE-REVIEW.md
+ */
+
+const stateStore = {
+  data: null,
+  currentFrame: "S01",
+  selectedEvidenceId: null,
+  drawerOpen: false,
+  lastTriggerEl: null,
+  s01EditOpen: false,
+  s01Draft: {
+    goal_text: null,
+    principle_text: null,
+    risk_text: null,
+  },
+  openQuestionCardId: null,
+};
+
+const HUMAN_REASON_LABELS = {
+  longer_term: "Longer contract term",
+  prepayment: "Upfront prepayment",
+  referral: "Verified customer referral",
+  volume: "Higher committed volume",
+  other_with_text: "Other commitment (with written explanation)",
+};
+
+const HUMAN_VERDICT_LABELS = {
+  insufficient_evidence: "Not enough evidence to decide",
+  possible_conflict: "Possible conflict — low confidence (29%)",
+  contradicts: "Contradicts proposed rule (simulated preview)",
+  different_scope: "The rule applies to a different situation",
+  consistent: "Fits our agreement",
+};
+
+function esc(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function provenanceBadgeClass(cat) {
+  const s = String(cat || "").toLowerCase();
+  if (s.includes("simulation") || s.includes("prepared")) return "amber";
+  if (s.includes("company") || s.includes("source")) return "teal";
+  return "";
+}
+
+async function fetchState() {
+  const res = await fetch("/api/state");
+  const json = await res.json();
+  if (json.ok === false) throw new Error(json.message || "Failed to load state");
+  stateStore.data = json.state || json;
+  const c = stateStore.data.s01_commit;
+  if (stateStore.s01Draft.goal_text === null) {
+    stateStore.s01Draft.goal_text = c.intent_and_goal.proposed_text;
+  }
+  if (stateStore.s01Draft.principle_text === null) {
+    stateStore.s01Draft.principle_text = c.governing_principle.proposed_text;
+  }
+  if (stateStore.s01Draft.risk_text === null) {
+    stateStore.s01Draft.risk_text = c.culture_to_protect.risk_to_watch;
+  }
+  renderAll();
+}
+
+async function postApi(path, payload) {
+  const res = await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload || {}),
+  });
+  const json = await res.json();
+  if (json.state) {
+    stateStore.data = json.state;
+  }
+  if (!json.ok) {
+    const err = new Error(json.message || "Operation failed");
+    err.details = json.details;
+    err.error_code = json.error;
+    throw err;
+  }
+  return json;
+}
+
+function setFrameFromHash() {
+  const hash = (window.location.hash || "#S01").replace("#", "").toUpperCase();
+  const valid = ["S01", "S02", "S03", "S04", "S05", "S06"];
+  stateStore.currentFrame = valid.includes(hash) ? hash : "S01";
+  // Keep evidence drawer closed on fresh route navigation
+  closeEvidenceDrawer(false);
+  renderAll();
+}
+
+function navigateToFrame(frameId) {
+  window.location.hash = "#" + frameId;
+}
+
+function openEvidenceDrawer(evidenceId, triggerEl) {
+  if (!stateStore.data) return;
+  if (triggerEl) {
+    stateStore.lastTriggerEl = triggerEl;
+  }
+  stateStore.selectedEvidenceId = evidenceId;
+  stateStore.drawerOpen = true;
+  renderDrawer();
+  const closeBtn = document.getElementById("close-drawer-btn");
+  if (closeBtn) closeBtn.focus();
+}
+
+function closeEvidenceDrawer(restoreFocus = true) {
+  stateStore.drawerOpen = false;
+  renderDrawer();
+  if (restoreFocus && stateStore.lastTriggerEl && typeof stateStore.lastTriggerEl.focus === "function") {
+    stateStore.lastTriggerEl.focus();
+  }
+}
+
+function renderDrawer() {
+  const layoutEl = document.getElementById("app-layout");
+  const drawerEl = document.getElementById("evidence-drawer");
+  const titleEl = document.getElementById("drawer-title");
+  const kickerEl = document.getElementById("drawer-kicker");
+  const provEl = document.getElementById("drawer-provenance");
+  const bodyEl = document.getElementById("drawer-body");
+
+  if (!layoutEl || !drawerEl) return;
+
+  if (!stateStore.drawerOpen || !stateStore.data || !stateStore.selectedEvidenceId) {
+    layoutEl.classList.add("drawer-closed");
+    drawerEl.hidden = true;
+    return;
+  }
+
+  const catalog = stateStore.data.evidence_catalog || {};
+  const item = catalog[stateStore.selectedEvidenceId];
+  if (!item) {
+    layoutEl.classList.add("drawer-closed");
+    drawerEl.hidden = true;
+    return;
+  }
+
+  layoutEl.classList.remove("drawer-closed");
+  drawerEl.hidden = false;
+
+  const isDataConnection = item.evidence_id === "ev:import-live-20261107-full";
+  kickerEl.textContent = isDataConnection ? "Data Connection" : "Why this recommendation?";
+  titleEl.textContent = item.title;
+  const catLabel = item.evidence_category || "Company evidence";
+  provEl.textContent = catLabel;
+  provEl.className = "status-pill " + provenanceBadgeClass(catLabel);
+
+  bodyEl.innerHTML = `
+    <div class="subcard highlight-glacier" style="margin-bottom: 12px;">
+      <p style="margin: 0; font-size: 0.9rem; color: var(--theseus-ink);">${esc(item.summary)}</p>
+    </div>
+    <details style="margin-top: 10px;">
+      <summary style="cursor: pointer; font-weight: 600; font-size: 0.82rem; color: var(--theseus-ink);">
+        Technical details (IDs, hashes &amp; JSON)
+      </summary>
+      <div class="subcard" style="margin-top: 8px; font-size: 0.78rem;">
+        <div><strong>Evidence ID:</strong> <span class="mono">${esc(item.evidence_id)}</span></div>
+        <div><strong>Source reference:</strong> <span class="mono">${esc(item.source_id)}</span></div>
+        <div><strong>Version:</strong> <span class="mono">${esc(item.version)}</span></div>
+        <pre class="mono" style="background:#f4f7fa; padding:10px; border-radius:8px; overflow-x:auto; font-size:0.73rem; margin-top:8px;">${esc(JSON.stringify(item.details, null, 2))}</pre>
+      </div>
+    </details>
+  `;
+}
+
+function renderCiteButton(evidenceId, customLabel) {
+  const cat = (stateStore.data && stateStore.data.evidence_catalog) || {};
+  const item = cat[evidenceId];
+  const label = customLabel || (item && item.human_label) || "See source";
+  return `<button type="button" class="cite-btn" onclick="openEvidenceDrawer('${esc(evidenceId)}', this)">${esc(label)}</button>`;
+}
+
+function captureS01DraftInputs() {
+  const gEl = document.getElementById("s01-goal-input");
+  const pEl = document.getElementById("s01-principle-input");
+  const rEl = document.getElementById("s01-risk-input");
+  if (gEl) stateStore.s01Draft.goal_text = gEl.value;
+  if (pEl) stateStore.s01Draft.principle_text = pEl.value;
+  if (rEl) stateStore.s01Draft.risk_text = rEl.value;
+}
+
+/* =========================================================================
+   S01: Agree our direction (fits 1280x800 first viewport without scroll)
+   ========================================================================= */
+function renderS01(d) {
+  const c = d.s01_commit;
+  const sc = c.summary_copy || {};
+  const isCommitted = c.mandate_status === "committed_mandate";
+
+  const statusPill = isCommitted
+    ? `<span class="status-pill teal">Direction saved</span>`
+    : `<span class="status-pill amber">Pending your confirmation</span>`;
+
+  const monitoringPill = `<span class="status-pill ${c.monitoring_status.includes("active") ? "teal" : "amber"}">${esc(c.human_monitoring_status || "Monitoring is partial: discount outcomes are missing")}</span>`;
+
+  return `
+    <div class="card" style="padding: 18px 22px;">
+      <div class="card-header" style="margin-bottom: 10px; padding-bottom: 10px;">
+        <div>
+          <div class="card-kicker">Step 1 · Direction &amp; Monitoring Scope</div>
+          <h2 class="card-title" style="margin-bottom: 2px;">${esc(sc.heading || "Agree our direction")}</h2>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          ${statusPill}
+          ${monitoringPill}
+        </div>
+      </div>
+
+      <ul class="direction-summary-list">
+        <li>
+          <strong>Goal:</strong> ${esc(sc.goal_summary || "Protect margin while growing sales.")}
+          <span class="muted">(${esc(c.intent_and_goal.human_provenance || "Based on source evidence and your stated intent")})</span>
+        </li>
+        <li>
+          <strong>Principle:</strong> ${esc(sc.principle_summary || "Every discount should receive an explicit customer commitment in return.")}
+        </li>
+        <li>
+          <strong>Culture to protect:</strong> ${esc(c.culture_to_protect.protect)}
+        </li>
+        <li style="border-left: 4px solid var(--theseus-amber, #f5bf45); background: #fffdf8;">
+          <strong>Risk to watch — hypothesis:</strong> ${esc(sc.risk_hypothesis_summary || c.culture_to_protect.risk_to_watch)}
+        </li>
+        <li>
+          <strong>What Theseus can see:</strong> ${esc(sc.visibility_summary || "Sales conversations and CRM records. Discount outcomes and reasons are currently missing from the CRM.")}
+        </li>
+        <li style="border-left: 4px solid var(--theseus-glacier, #3fa6e8); background: #eef7fd;">
+          <strong>Your decision:</strong> ${esc(sc.decision_prompt || "Confirm this direction and the monitoring scope. Monitoring remains partial until the missing signal is connected.")}
+          ${isCommitted && c.effective_time ? `<div class="muted" style="margin-top:4px;">Confirmed today at ${esc(c.effective_time)} · Reference saved (does not guarantee active CRM monitoring until Step 5).</div>` : ""}
+        </li>
+      </ul>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top: 12px;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          <button type="button" class="btn btn-amber" id="btn-commit-mandate" onclick="handleCommitMandate()">
+            ${isCommitted ? "Update confirmed direction &amp; monitoring scope" : "Confirm direction &amp; monitoring scope"}
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="toggleS01Edit()">
+            ${stateStore.s01EditOpen ? "Hide edit fields" : "Edit direction"}
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="openEvidenceDrawer('ev:codex-ep-187', this)">
+            Why these recommendations?
+          </button>
+        </div>
+        ${isCommitted ? `<button type="button" class="btn btn-teal" onclick="navigateToFrame('S02')">Continue to Step 2: How We Work →</button>` : ""}
+      </div>
+
+      ${stateStore.s01EditOpen ? `
+        <div class="subcard" style="margin-top: 14px;">
+          <h4 style="margin-top:0;">Edit direction before confirming</h4>
+          <div class="form-field">
+            <label for="s01-goal-input">Goal &amp; quantitative target (draft until confirmed)</label>
+            <textarea id="s01-goal-input" rows="2" oninput="captureS01DraftInputs()">${esc(stateStore.s01Draft.goal_text)}</textarea>
+          </div>
+          <div class="form-field">
+            <label for="s01-principle-input">Principle &amp; agent autonomy boundary (draft until confirmed)</label>
+            <textarea id="s01-principle-input" rows="2" oninput="captureS01DraftInputs()">${esc(stateStore.s01Draft.principle_text)}</textarea>
+          </div>
+          <div class="form-field" style="margin-bottom:0;">
+            <label for="s01-risk-input">Cultural risk hypothesis to watch</label>
+            <textarea id="s01-risk-input" rows="2" oninput="captureS01DraftInputs()">${esc(stateStore.s01Draft.risk_text)}</textarea>
+          </div>
+        </div>
+      ` : ""}
+
+      <details style="margin-top: 12px;">
+        <summary style="cursor:pointer; font-weight:600; font-size:0.84rem; color:var(--theseus-ink);">
+          Proposed quantitative terms, before/after comparison &amp; source links (draft until confirmed)
+        </summary>
+        <div class="grid-2" style="margin-top: 10px;">
+          <div class="subcard">
+            <h4>What changes from the previous agreement</h4>
+            <div class="diff-box diff-old"><strong>Previous goal:</strong> ${esc(c.intent_and_goal.previous_text)}</div>
+            <div class="diff-box diff-new"><strong>Proposed goal (draft terms):</strong> ${esc(c.intent_and_goal.proposed_text)}</div>
+            <div class="diff-box diff-old" style="margin-top:8px;"><strong>Previous principle:</strong> ${esc(c.governing_principle.previous_text)}</div>
+            <div class="diff-box diff-new"><strong>Proposed principle (draft terms):</strong> ${esc(c.governing_principle.proposed_text)}</div>
+            <p class="muted" style="margin: 8px 0 0;"><strong>Authority boundary:</strong> ${esc(c.governing_principle.authority_boundary)}</p>
+          </div>
+          <div class="subcard">
+            <h4>Sources, attribution notes &amp; technical details</h4>
+            <p class="muted" style="margin-top:0;">${esc(c.governing_principle.provenance_note)}</p>
+            <div style="margin-bottom: 10px;">
+              ${renderCiteButton("ev:codex-ep-187", "See source: discount conditions")}
+              ${renderCiteButton("ev:codex-ep-80901", "See source: founder direction & value framing")}
+              ${renderCiteButton("ev:codex-ep-78324", "See source: training guidance (attribution review)")}
+              ${renderCiteButton("ev:culture-crm-blindness", "See source: CRM data completeness check")}
+            </div>
+            <div class="mono muted" style="font-size:0.74rem;">
+              Active version ID: ${esc(c.committed_version)} · Draft ID: ${esc(c.draft_version)} · Goal ID: ${esc(c.intent_and_goal.id)} · Rule ID: ${esc(c.governing_principle.id)}
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+  `;
+}
+
+function toggleS01Edit() {
+  captureS01DraftInputs();
+  stateStore.s01EditOpen = !stateStore.s01EditOpen;
+  renderAll();
+}
+
+async function handleCommitMandate() {
+  captureS01DraftInputs();
+  const btn = document.getElementById("btn-commit-mandate");
+  if (btn) btn.disabled = true;
+  try {
+    await postApi("/api/commit", {
+      goal_text: stateStore.s01Draft.goal_text,
+      principle_text: stateStore.s01Draft.principle_text,
+      risk_text: stateStore.s01Draft.risk_text,
+    });
+    renderAll();
+  } catch (err) {
+    alert("Could not save direction: " + err.message);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+/* =========================================================================
+   S02: Culture — How we are working (Separates Company Evidence from Simulation)
+   ========================================================================= */
+function renderS02(d) {
+  const s02 = d.s02_culture;
+  const companyPatterns = s02.patterns.filter((p) => p.provenance === "observed");
+  const simPatterns = s02.patterns.filter((p) => p.provenance === "simulated");
+
+  const renderPatternCard = (p, isSim) => `
+    <div class="subcard ${isSim ? "highlight-amber" : "highlight-teal"}" style="margin-bottom: 14px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+        <h4 style="margin:0; font-size:1.02rem;">${esc(p.title)}</h4>
+        <span class="status-pill ${isSim ? "amber" : "teal"}">${isSim ? "Simulation" : "Company evidence"}</span>
+      </div>
+
+      <div style="margin: 10px 0; padding: 10px 12px; background:#ffffff; border-radius:8px; border:1px solid var(--theseus-ice);">
+        <div style="font-weight:700; font-size:0.95rem;">${esc(p.frequency_label)}</div>
+        <div class="muted" style="margin-top:2px;">Scope inspected: ${esc(p.distinct_actors)}</div>
+      </div>
+
+      <p class="muted" style="margin: 8px 0;">
+        <strong>What is known vs. unknown:</strong> ${esc(p.confidence_limit)}
+      </p>
+
+      <div class="grid-2" style="margin-top:10px;">
+        <div style="background:#ffffff; padding:10px 12px; border-radius:8px; border:1px solid var(--theseus-ice);">
+          <div style="font-size:0.78rem; font-weight:700; margin-bottom:6px;">Supporting examples</div>
+          ${p.examples.map((ex) => `<div>${renderCiteButton(ex.evidence_id, ex.label)}</div>`).join("")}
+        </div>
+        <div style="background:#ffffff; padding:10px 12px; border-radius:8px; border:1px solid var(--theseus-ice);">
+          <div style="font-size:0.78rem; font-weight:700; margin-bottom:6px;">Counterexamples / conditions</div>
+          ${p.counterexamples.map((cx) => `<div>${renderCiteButton(cx.evidence_id, cx.label)}</div>`).join("")}
+        </div>
+      </div>
+
+      <details style="margin-top: 8px;">
+        <summary class="muted" style="cursor:pointer; font-size:0.78rem;">Technical details (pattern ID &amp; denominator)</summary>
+        <div class="mono muted" style="margin-top:4px; font-size:0.74rem;">
+          Pattern ID: ${esc(p.pattern_id)} · Numerator/Denominator: ${p.numerator} / ${p.denominator} · Provenance: ${esc(p.provenance)}
+        </div>
+      </details>
+    </div>
+  `;
+
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-kicker">Step 2 · Observe Recurring Practices</div>
+          <h2 class="card-title">How we are working</h2>
+          <p class="muted" style="margin:0;">
+            Which recurring practices are supported by company evidence, and what remains unknown?
+            <strong>Discount request</strong> (customer asks), <strong>offer</strong> (seller proposes), and <strong>granted discount</strong> (recorded deal outcome) are kept strictly distinct.
+          </p>
+        </div>
+        <span class="status-pill">${esc(s02.human_reference_label)}</span>
+      </div>
+
+      <h3 style="font-size:1rem; margin: 0 0 8px;">1. Observed company evidence (from sales conversations &amp; CRM records)</h3>
+      ${companyPatterns.map((p) => renderPatternCard(p, false)).join("")}
+
+      <h3 style="font-size:1rem; margin: 18px 0 8px;">2. Simulated scenario (modeling the risk hypothesis across 120 synthetic leads)</h3>
+      ${simPatterns.map((p) => renderPatternCard(p, true)).join("")}
+
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top: 14px;">
+        <button type="button" class="btn btn-secondary" onclick="openEvidenceDrawer('ev:culture-crm-blindness', this)">
+          See examples
+        </button>
+        <button type="button" class="btn btn-amber" onclick="navigateToFrame('S03')">
+          Review possible drift →
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+/* =========================================================================
+   S03: Drift — Does this fit our agreement?
+   ========================================================================= */
+function renderS03(d) {
+  const s03 = d.s03_drift;
+  const isPreview = s03.is_preview_against_unapproved_rule;
+
+  const cardsHtml = s03.cards.map((card) => {
+    const originalHumanVerdict = card.human_verdict || HUMAN_VERDICT_LABELS[card.subq_verdict] || card.subq_verdict;
+    const hasQuestion = Boolean(card.owner_override_verdict);
+    const isQuestionOpen = stateStore.openQuestionCardId === card.card_id;
+
+    let probHtml = "";
+    if (card.subq_probabilities) {
+      const p = card.subq_probabilities;
+      probHtml = `
+        <div class="subcard" style="margin-top:8px; background:#ffffff; font-size:0.82rem;">
+          <strong>Recorded SubQ Snap 1.1 score breakdown:</strong>
+          Contradictory: <strong>${Math.round(p.contradictory * 1000) / 10}%</strong> ·
+          Different situation/scope: <strong>${Math.round(p.different_scope_time * 1000) / 10}%</strong> ·
+          Not enough evidence: <strong>${Math.round(p.insufficient_evidence * 1000) / 10}%</strong> ·
+          Confidence: <strong>${Math.round((card.subq_confidence || 0.286) * 1000) / 10}%</strong> (Uncertainty: ${Math.round((card.subq_uncertainty || 0.714) * 1000) / 10}%)
+        </div>
+      `;
+    }
+
+    return `
+      <div class="subcard ${card.provenance === "simulated" ? "highlight-amber" : "highlight-glacier"}" style="margin-bottom: 14px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
+          <div>
+            <span class="status-pill ${provenanceBadgeClass(card.evidence_category)}">${esc(card.evidence_category)}</span>
+            <h4 style="margin:6px 0 4px; font-size:1.04rem;">${esc(card.title)}</h4>
+          </div>
+          <div style="text-align:right;">
+            <div class="muted" style="font-size:0.74rem;">Model assessment</div>
+            <span class="status-pill ${card.subq_verdict === "contradicts" || card.subq_verdict === "possible_conflict" ? "amber" : ""}">
+              ${esc(originalHumanVerdict)}
+            </span>
+          </div>
+        </div>
+
+        <p style="margin: 8px 0; font-size:0.9rem;">${esc(card.what_is_at_stake)}</p>
+        <div class="muted" style="font-size:0.82rem;">
+          <strong>Rule compared:</strong> ${esc(card.rule_ref)} · <strong>Observed/tested scope:</strong> ${esc(card.pattern_ref)}
+        </div>
+        ${probHtml}
+
+        ${hasQuestion ? `
+          <div class="subcard highlight-teal" style="margin-top:10px; background:#ffffff;">
+            <div style="font-size:0.84rem;">
+              <strong>Your recorded review decision:</strong>
+              <span class="status-pill teal">${esc(card.owner_override_human_label || card.owner_override_verdict)}</span>
+              <span class="muted" style="margin-left:6px;">(Original model assessment "${esc(originalHumanVerdict)}" is preserved above for audit)</span>
+            </div>
+            <div class="muted" style="margin-top:4px;"><strong>Your reason:</strong> ${esc(card.owner_override_reason)}</div>
+          </div>
+        ` : ""}
+
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:10px;">
+          <div>
+            ${card.evidence_ids.map((eid) => renderCiteButton(eid)).join("")}
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="toggleQuestionFinding('${esc(card.card_id)}')">
+            ${isQuestionOpen ? "Cancel" : "Question this finding"}
+          </button>
+        </div>
+
+        ${isQuestionOpen ? `
+          <div class="subcard" style="margin-top:10px; background:#ffffff;">
+            <h4 style="margin-top:0; font-size:0.9rem;">Question this finding (preserves original model assessment)</h4>
+            <div class="grid-2">
+              <div class="form-field" style="margin-bottom:8px;">
+                <label for="q-verdict-${esc(card.card_id)}">Your assessment</label>
+                <select id="q-verdict-${esc(card.card_id)}">
+                  <option value="insufficient_evidence">Not enough evidence to decide</option>
+                  <option value="different_scope">The rule applies to a different situation</option>
+                  <option value="consistent">Fits our agreement</option>
+                  <option value="contradicts">Contradicts our agreement</option>
+                </select>
+              </div>
+              <div class="form-field" style="margin-bottom:8px;">
+                <label for="q-reason-${esc(card.card_id)}">Reason for questioning</label>
+                <input type="text" id="q-reason-${esc(card.card_id)}" placeholder="e.g., Training norm was never approved as company rule" value="Training norm was not confirmed as a binding rule; CRM outcome data is missing." />
+              </div>
+            </div>
+            <button type="button" class="btn btn-sm" onclick="submitQuestionFinding('${esc(card.card_id)}')">
+              Save my review note
+            </button>
+          </div>
+        ` : ""}
+
+        <details style="margin-top:8px;">
+          <summary class="muted" style="cursor:pointer; font-size:0.78rem;">Technical details (card ID, rule ID &amp; rubric)</summary>
+          <div class="mono muted" style="margin-top:4px; font-size:0.74rem;">
+            Card ID: ${esc(card.card_id)} · Rule ID: ${esc(card.technical_rule_id)} · Raw verdict: ${esc(card.subq_verdict)}
+          </div>
+        </details>
+      </div>
+    `;
+  }).join("");
+
+  const fiveArea = s03.five_area_reading || {};
+  const fiveHtml = Object.entries(fiveArea).map(([area, text]) => `
+    <div class="subcard">
+      <div class="card-kicker">${esc(area)}</div>
+      <p style="margin:6px 0 0; font-size:0.82rem;">${esc(text)}</p>
+    </div>
+  `).join("");
+
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-kicker">Step 3 · Alignment &amp; Drift Review</div>
+          <h2 class="card-title">Does this fit our agreement?</h2>
+          <p class="muted" style="margin:0;">${esc(s03.historical_scope_note)}</p>
+        </div>
+        <span class="status-pill ${isPreview ? "amber" : "teal"}">
+          ${isPreview ? "Preview against proposed rule" : "Compared against confirmed direction"}
+        </span>
+      </div>
+
+      <div class="subcard ${isPreview ? "highlight-amber" : "highlight-teal"}" style="margin-bottom: 14px;">
+        <div><strong>${esc(s03.active_reference_label)}</strong></div>
+        <div class="muted" style="margin-top:2px;">${esc(s03.proposed_reference_label)}</div>
+      </div>
+
+      ${cardsHtml}
+
+      <div class="card" style="margin-bottom:0; background:#f8fbfe;">
+        <h3 style="margin:0 0 10px; font-size:1rem;">What this means across five areas of the business</h3>
+        <div class="grid-5">
+          ${fiveHtml}
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; margin-top: 14px;">
+        <button type="button" class="btn btn-amber" onclick="navigateToFrame('S04')">
+          Review a correction →
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function toggleQuestionFinding(cardId) {
+  stateStore.openQuestionCardId = stateStore.openQuestionCardId === cardId ? null : cardId;
+  renderAll();
+}
+
+async function submitQuestionFinding(cardId) {
+  const sel = document.getElementById("q-verdict-" + cardId);
+  const rsn = document.getElementById("q-reason-" + cardId);
+  const verdict = sel ? sel.value : "different_scope";
+  const reason = rsn ? rsn.value : "Founder recorded a review note.";
+  try {
+    await postApi("/api/drift/override", { card_id: cardId, verdict, reason });
+    stateStore.openQuestionCardId = null;
+    renderAll();
+  } catch (err) {
+    alert("Could not save review note: " + err.message);
+  }
+}
+
+/* =========================================================================
+   S04: Correction — Change how work happens
+   ========================================================================= */
+function renderS04(d) {
+  const s04 = d.s04_proposal;
+  const diffs = s04.three_lever_diffs || {};
+  const cc = d.s05_application.cross_cutting_states || {};
+
+  const leverCards = [
+    {
+      num: "Change 1 · Automated Sales Agents",
+      title: "Agent discount rule: 5% ceiling + required customer commitment",
+      affected: "Automated sales agents (3 modeled agents)",
+      authority: "Requires founder approval before updating active agent runtime",
+      readiness: (cc.sales_agents_rule_v2 && cc.sales_agents_rule_v2.applied) || "Proposed change — not applied",
+      before: (diffs.sales_agents && diffs.sales_agents.before_summary) || "Up to 5% automatic discount without checking whether the customer offered any commitment in return.",
+      after: (diffs.sales_agents && diffs.sales_agents.after_summary) || "Any discount (even up to 5%) requires a verified customer commitment (longer term, prepayment, referral, or volume); >5% escalates to a human.",
+      cost: "Ready in sandbox (0 extra LLM calls)",
+      tech: "rule-v1 → rule-v2 · app/runtime/__init__.py",
+    },
+    {
+      num: "Change 2 · Human Sales Team",
+      title: "Seller guidance: value-first objection handling before price concessions",
+      affected: "Human account executives (3 modeled sellers in simulation)",
+      authority: "Sales leadership rollout following founder approval",
+      readiness: (cc.human_sellers_onboarding_v2 && cc.human_sellers_onboarding_v2.applied) || "Proposed change — not applied",
+      before: (diffs.human_sellers && diffs.human_sellers.before_summary) || "Sellers frequently offer 10–15% discounts on the first price objection to keep deals moving.",
+      after: (diffs.human_sellers && diffs.human_sellers.after_summary) || "Confirm customer need and value first; offer a discount only in exchange for term, prepayment, volume, or referral, and record the reason in CRM.",
+      cost: "Team enablement & coaching effort: Not estimated",
+      tech: "onboarding-v1 → onboarding-v2 · Sales Playbook",
+    },
+    {
+      num: "Change 3 · CRM Environment",
+      title: "Required CRM field: Reason for discount",
+      affected: "Every discounted deal saved in the CRM",
+      authority: "Requires founder approval before enabling in CRM",
+      readiness: (cc.environment_crm && cc.environment_crm.applied) || "Proposed change — not applied",
+      before: (diffs.environment_crm && diffs.environment_crm.before_summary) || "0 of 6,102 CRM deals record a discount reason; discounted deals can be saved with no explanation.",
+      after: (diffs.environment_crm && diffs.environment_crm.after_summary) || "Whenever a discount is above 0%, the CRM requires a 'Reason for discount' (Longer contract term, Upfront prepayment, Verified customer referral, Higher committed volume, or Other with written explanation).",
+      cost: "Ready in Demo CRM sandbox · Production CRM migration effort/budget: Not estimated",
+      tech: "crm-v1 → crm-v2 · discount_justification required field",
+    },
+  ];
+
+  const rowsHtml = Object.values(cc).map((row) => `
+    <tr>
+      <td><strong>${esc(row.lever)}</strong><div class="muted">${esc(row.actor_scope)}</div></td>
+      <td>${esc(row.received)}</td>
+      <td>${esc(row.understood)}</td>
+      <td><span class="status-pill ${row.applied.includes("Active") || row.applied.includes("Applied") ? "teal" : "amber"}">${esc(row.applied)}</span></td>
+      <td>${esc(row.observed_in_behavior)}</td>
+    </tr>
+  `).join("");
+
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-kicker">Step 4 · Deputy Briefing &amp; Proposed Correction</div>
+          <h2 class="card-title">Change how work happens</h2>
+          <p class="muted" style="margin:0;">
+            What changes, who is affected, and what it requires across agents, human sellers, and the CRM environment.
+          </p>
+        </div>
+        <span class="status-pill">${esc(s04.fetch_bridge_status.human_label)}</span>
+      </div>
+
+      <div class="grid-3">
+        ${leverCards.map((c) => `
+          <div class="subcard highlight-glacier">
+            <div class="card-kicker">${esc(c.num)}</div>
+            <h4 style="margin-top:4px;">${esc(c.title)}</h4>
+            <div class="muted" style="font-size:0.8rem; margin-bottom:6px;">
+              <strong>Who is affected:</strong> ${esc(c.affected)}<br/>
+              <strong>Readiness:</strong> ${esc(c.readiness)}<br/>
+              <strong>Effort / cost:</strong> ${esc(c.cost)}
+            </div>
+            <div class="diff-box diff-old"><strong>Before:</strong> ${esc(c.before)}</div>
+            <div class="diff-box diff-new"><strong>After:</strong> ${esc(c.after)}</div>
+            <details style="margin-top:8px;">
+              <summary class="muted" style="cursor:pointer; font-size:0.76rem;">Technical diff ID</summary>
+              <div class="mono muted" style="font-size:0.73rem; margin-top:4px;">${esc(c.tech)}</div>
+            </details>
+          </div>
+        `).join("")}
+      </div>
+
+      <details style="margin-top: 14px;">
+        <summary style="cursor:pointer; font-weight:600; font-size:0.86rem; color:var(--theseus-ink);">
+          Rollout stage breakdown (Proposed → Tested in simulation → Approved → Applied in demo → Observed)
+        </summary>
+        <div class="table-scroll" style="margin-top:10px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Change Lever &amp; Affected Group</th>
+                <th>Proposed</th>
+                <th>Tested / Understood</th>
+                <th>Applied Status</th>
+                <th>Observed after Application</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top: 16px;">
+        <div>
+          ${renderCiteButton("ev:codex-ep-80901", "See source: founder direction")}
+          ${renderCiteButton("ev:culture-crm-blindness", "See source: CRM data completeness check")}
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn btn-secondary" onclick="navigateToFrame('S05')">
+            Request changes
+          </button>
+          <button type="button" class="btn btn-amber" onclick="navigateToFrame('S05')">
+            Review decision →
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* =========================================================================
+   S05: Apply — Your decision, then execution + Embedded Demo CRM
+   ========================================================================= */
+function renderS05(d) {
+  const s05 = d.s05_application;
+  const dec = s05.decision_record;
+  const evalRep = s05.evaluation_report;
+  const act = s05.activation_receipt;
+  const rb = s05.rollback_receipt;
+  const isApproved = dec && dec.action === "approve";
+  const isApplied = s05.active_runtime_version === "tool-v2";
+
+  let decisionBanner = `<span class="status-pill amber">Awaiting your decision</span>`;
+  if (dec) {
+    const pillClass = dec.action === "approve" ? "teal" : (dec.action === "reject" ? "danger" : "amber");
+    decisionBanner = `<span class="status-pill ${pillClass}">${esc(dec.human_decision_label || dec.action)}</span>`;
+  }
+
+  const subRows = (s05.crm_submissions || []).map((s) => `
+    <tr>
+      <td class="mono">${esc(s.deal_id)}</td>
+      <td>${s.actor_type === "sales_agent" ? "Automated sales agent" : "Human seller"}</td>
+      <td>${Number(s.list_amount_rub).toLocaleString()} → <strong>${Number(s.final_amount_rub).toLocaleString()} RUB</strong></td>
+      <td><strong>${s.discount_pct}%</strong></td>
+      <td><span class="status-pill teal">${esc(HUMAN_REASON_LABELS[s.discount_justification] || s.discount_justification || "None")}</span></td>
+      <td>
+        <span class="status-pill ${s.tool_allowed ? "teal" : "amber"}">
+          ${s.tool_allowed ? "Allowed by active rule" : "Escalated: " + esc((s.tool_reasons || []).join(", "))}
+        </span>
+      </td>
+    </tr>
+  `).join("");
+
+  return `
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-kicker">Step 5 · Founder Decision &amp; Controlled Execution</div>
+          <h2 class="card-title">Your decision, then execution</h2>
+          <p class="muted" style="margin:0;">
+            Approval and application are separate steps: first record your decision, then apply the approved change in the demo environment.
+          </p>
+        </div>
+        <span class="status-pill ${isApplied ? "teal" : "amber"}">
+          ${esc(s05.human_active_runtime_label)}
+        </span>
+      </div>
+
+      <div class="grid-2">
+        <div class="subcard highlight-amber">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h4 style="margin:0;">1. Your decision on the three-part correction</h4>
+            ${decisionBanner}
+          </div>
+          <p class="muted" style="margin: 8px 0;">
+            Decide whether to approve the agent discount rule (5% cap + customer commitment), seller guidance, and the required "Reason for discount" CRM field.
+          </p>
+          <div class="form-field">
+            <label for="decide-rationale">Decision note (saved in audit log)</label>
+            <input type="text" id="decide-rationale" value="${esc(dec ? dec.rationale : "Approve agent discount rule, seller guidance, and required Reason for discount field in CRM.")}" />
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn btn-amber" onclick="handleProposalDecision('approve')">
+              Approve this correction
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="handleProposalDecision('request_clarification')">
+              Request changes
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="handleProposalDecision('reject')">
+              Reject
+            </button>
+          </div>
+          ${dec ? `
+            <div style="margin-top:10px; font-size:0.84rem;">
+              <strong>Saved decision:</strong> ${esc(dec.human_decision_label || dec.action)} · <span class="muted">${esc(dec.rationale)}</span>
+            </div>
+          ` : ""}
+        </div>
+
+        <div class="subcard highlight-teal">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h4 style="margin:0;">2. Simulation check &amp; application</h4>
+            <span class="status-pill ${isApplied ? "teal" : "amber"}">
+              ${isApplied ? "Applied in demo" : (isApproved ? "Ready to apply in demo" : "Locked until approved")}
+            </span>
+          </div>
+          <div style="margin: 10px 0; padding: 10px; background:#ffffff; border-radius:8px; border:1px solid var(--theseus-ice); font-size:0.84rem;">
+            <div><strong>Pre-application check:</strong> <span class="status-pill amber">Tested in simulation</span></div>
+            <div style="margin-top:4px;">60 of 60 simulated agent leads matched the proposed rule with 0 regressions.</div>
+            <div class="muted" style="margin-top:2px; font-size:0.78rem;">${esc(evalRep.limitations || "Prepared simulation gate on 60 synthetic agent leads; not an independent held-out real-world benchmark.")}</div>
+          </div>
+
+          ${!isApproved ? `
+            <p class="muted" style="margin: 8px 0;">
+              <strong>Why application is unavailable:</strong> Please click <strong>Approve this correction</strong> in Step 1 on the left before applying the change in the demo environment.
+            </p>
+          ` : ""}
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+            <button type="button" class="btn btn-teal" onclick="handleActivateCandidate()" ${!isApproved || isApplied ? "disabled" : ""}>
+              ${isApplied ? "Applied in demo ✓" : "Apply in demo"}
+            </button>
+            ${isApplied ? `
+              <button type="button" class="btn btn-secondary" onclick="handleRollbackCandidate()">
+                Roll back to previous baseline
+              </button>
+            ` : ""}
+          </div>
+
+          ${act && isApplied ? `
+            <div style="margin-top:10px; font-size:0.84rem; color:#14594f;">
+              <strong>Active in demo:</strong> Agent rule and required CRM field are now active (applied at ${esc(act.applied_at)}).
+            </div>
+          ` : ""}
+          ${rb && !isApplied ? `
+            <div style="margin-top:10px; font-size:0.84rem; color:#8a1f1f;">
+              <strong>Rolled back:</strong> Restored previous baseline rule at ${esc(rb.applied_at)}.
+            </div>
+          ` : ""}
+        </div>
+      </div>
+
+      <details style="margin-top:10px;">
+        <summary class="muted" style="cursor:pointer; font-size:0.8rem;">Technical details (decision &amp; activation receipt IDs)</summary>
+        <div class="mono muted" style="margin-top:4px; font-size:0.74rem;">
+          Active runtime ID: ${esc(s05.active_runtime_version)} ·
+          Decision ID: ${esc(dec ? dec.decision_id : "none")} ·
+          Evaluation ID: ${esc(evalRep.evaluation_id)} (${esc(evalRep.split)}) ·
+          Activation receipt: ${esc(act ? act.receipt_id : "none")}
+        </div>
+      </details>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-kicker">Interactive Verification · Demo CRM Deal Entry</div>
+          <h3 class="card-title" style="font-size:1.15rem;">Test the required "Reason for discount" field in Demo CRM</h3>
+          <p class="muted" style="margin:0;">
+            Try saving a discounted deal without a reason (it will be blocked), then select a customer commitment reason to see it pass.
+          </p>
+        </div>
+        <span class="status-pill teal">Required field: Reason for discount</span>
+      </div>
+
+      <div class="grid-3">
+        <div class="form-field">
+          <label for="crm-deal-code">Deal reference</label>
+          <input type="text" id="crm-deal-code" value="DEMO-${101 + (s05.crm_submissions || []).length}" />
+        </div>
+        <div class="form-field">
+          <label for="crm-actor-type">Seller type</label>
+          <select id="crm-actor-type">
+            <option value="sales_agent">Automated sales agent (5% cap)</option>
+            <option value="simulated_human_seller">Human seller</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="crm-list-amount">List amount (RUB)</label>
+          <input type="number" id="crm-list-amount" value="300000" step="10000" />
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="form-field">
+          <label for="crm-discount-pct">Proposed discount (%)</label>
+          <input type="number" id="crm-discount-pct" value="5" min="0" max="50" step="1" />
+        </div>
+        <div class="form-field">
+          <label for="crm-justification">Reason for discount (required when discount &gt; 0%)</label>
+          <select id="crm-justification">
+            <option value="">-- Select customer commitment (leave blank to test rejection) --</option>
+            <option value="longer_term" selected>Longer contract term</option>
+            <option value="prepayment">Upfront prepayment</option>
+            <option value="referral">Verified customer referral</option>
+            <option value="volume">Higher committed volume</option>
+            <option value="other_with_text">Other commitment (requires written explanation)</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="crm-justification-text">Written explanation (required if "Other commitment")</label>
+          <input type="text" id="crm-justification-text" placeholder="Customer commitment details..." />
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+          <button type="button" class="btn" onclick="handleSubmitCrmDeal()">
+            Save deal in Demo CRM
+          </button>
+          <span id="crm-feedback" style="font-size:0.85rem; font-weight:600;"></span>
+        </div>
+        <button type="button" class="btn btn-amber" onclick="navigateToFrame('S06')">
+          See simulated outcome (Step 6) →
+        </button>
+      </div>
+
+      ${subRows ? `
+        <div class="table-scroll" style="margin-top:14px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Deal</th>
+                <th>Seller Type</th>
+                <th>Amount</th>
+                <th>Discount</th>
+                <th>Reason for Discount</th>
+                <th>Rule Check</th>
+              </tr>
+            </thead>
+            <tbody>${subRows}</tbody>
+          </table>
+        </div>
+      ` : ""}
+    </div>
+  `;
+}
+
+async function handleProposalDecision(decision) {
+  const rEl = document.getElementById("decide-rationale");
+  const rationale = rEl ? rEl.value : "";
+  try {
+    await postApi("/api/decide/approve", { decision, rationale });
+    renderAll();
+  } catch (err) {
+    alert("Could not record decision: " + err.message);
+  }
+}
+
+async function handleActivateCandidate() {
+  try {
+    await postApi("/api/decide/activate", {});
+    renderAll();
+  } catch (err) {
+    alert("Application blocked: " + err.message);
+  }
+}
+
+async function handleRollbackCandidate() {
+  try {
+    await postApi("/api/decide/rollback", {
+      rationale: "Founder rolled back from updated rule to previous baseline.",
+    });
+    renderAll();
+  } catch (err) {
+    alert("Rollback failed: " + err.message);
+  }
+}
+
+async function handleSubmitCrmDeal() {
+  const feedbackEl = document.getElementById("crm-feedback");
+  const payload = {
+    deal_code: document.getElementById("crm-deal-code").value,
+    actor_type: document.getElementById("crm-actor-type").value,
+    list_amount_rub: Number(document.getElementById("crm-list-amount").value || 300000),
+    discount_pct: Number(document.getElementById("crm-discount-pct").value || 0),
+    discount_justification: document.getElementById("crm-justification").value || null,
+    justification_text: document.getElementById("crm-justification-text").value || null,
+  };
+  try {
+    const res = await postApi("/api/crm/submit", payload);
+    renderAll();
+    const fb = document.getElementById("crm-feedback");
+    if (fb) {
+      fb.style.color = "#14594f";
+      fb.textContent = `✓ Saved ${res.deal.deal_id} with reason "${HUMAN_REASON_LABELS[res.deal.discount_justification] || "No discount"}"`;
+    }
+  } catch (err) {
+    if (feedbackEl) {
+      feedbackEl.style.color = "#8a1f1f";
+      feedbackEl.textContent = `✗ Blocked by CRM: ${err.message}`;
+    }
+  }
+}
+
+/* =========================================================================
+   S06: Outcome — Did the change help? (Simulation clearly labeled)
+   ========================================================================= */
+function renderS06(d) {
+  const s06 = d.s06_track;
+  const rep = s06.report;
+  const arms = rep.arms || {};
+  const before = (arms.before && arms.before.overall) || {};
+  const combined = (arms.combined && arms.combined.overall) || {};
+  const isApplied = Boolean(s06.is_candidate_active_in_runtime);
+
+  const armDisplayNames = {
+    before: "Baseline (before changes)",
+    agent_rule_only: "Agent rule change only",
+    onboarding_only: "Seller guidance change only",
+    crm_field_only: "Required CRM field only",
+    combined: "All three changes combined",
+  };
+
+  const armRows = ["before", "agent_rule_only", "onboarding_only", "crm_field_only", "combined"].map((k) => {
+    const m = (arms[k] && arms[k].overall) || {};
+    const rec = k === "before"
+      ? "Baseline reference"
+      : (k === "onboarding_only" ? "Recommendation: Keep candidate (needs real-team observation)" : "Recommendation: Keep");
+    return `
+      <tr>
+        <td><strong>${esc(armDisplayNames[k] || k)}</strong></td>
+        <td>${m.discounted_Count || m.discounted_count} / ${m.leads_total} (${m.discount_Offer_rate_pct || m.discount_offer_rate_pct}%)</td>
+        <td><strong>${m.justified_discount_count} / ${m.discounted_count}</strong> (${m.justified_discount_share_pct}%)</td>
+        <td><strong>${m.value_exchange_discount_count} / ${m.discounted_count}</strong> (${m.value_exchange_share_pct}%)</td>
+        <td><strong>${m.codex_consistent_count} / ${m.leads_total}</strong> (${m.codex_consistency_rate_pct}%)</td>
+        <td>${m.avg_discount_pct_when_offered}%</td>
+        <td><span class="status-pill ${k === "before" ? "" : (k === "onboarding_only" ? "amber" : "teal")}">${esc(rec)}</span></td>
+      </tr>
+    `;
+  }).join("");
+
+  const tl = rep.staged_rollout_timeline || {};
+  const weekRows = ["W1", "W2", "W3", "W4"].map((w) => {
+    const wk = tl[w] || {};
+    const all = wk.overall || {};
+    return `
+      <tr>
+        <td><strong>${esc(w)}</strong> · ${esc(wk.stage_label)}</td>
+        <td><strong>${all.justified_discount_count} / ${all.discounted_count}</strong> (${all.justified_discount_share_pct}%)</td>
+        <td><strong>${all.value_exchange_discount_count} / ${all.discounted_count}</strong> (${all.value_exchange_share_pct}%)</td>
+        <td><strong>${all.codex_consistent_count} / ${all.leads_total}</strong> (${all.codex_consistency_rate_pct}%)</td>
+      </tr>
+    `;
+  }).join("");
+
+  return `
+    <div class="sim-banner">
+      <span>SIMULATION · Matched 120-lead synthetic cohort across 4 synthetic weeks (seed ${esc(rep.seed)})</span>
+      <span class="status-pill ${isApplied ? "teal" : "amber"}">
+        ${isApplied ? "Candidate currently applied in demo" : "Evaluated in simulation only — baseline rule is still active in demo"}
+      </span>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-kicker">Step 6 · Simulated Outcome Comparison</div>
+          <h2 class="card-title">Did the change help?</h2>
+          <p class="muted" style="margin:0;">
+            Matched comparison on the same 120 synthetic leads (60 automated sales agent leads + 60 modeled human seller leads).
+          </p>
+        </div>
+        <span class="status-pill amber">Simulation</span>
+      </div>
+
+      <div class="grid-3">
+        <div class="subcard highlight-teal">
+          <div class="card-kicker">Metric 1 · Customer Commitment for Discounts</div>
+          <h4 style="margin:6px 0; font-size:1.15rem;">
+            ${before.value_exchange_discount_count}/${before.discounted_count} (${before.value_exchange_share_pct}%)
+            → <strong>${combined.value_exchange_discount_count}/${combined.discounted_count} (${combined.value_exchange_share_pct}%)</strong>
+          </h4>
+          <p class="muted" style="margin:0;">
+            Share of offered discounts backed by longer term, prepayment, volume, or referral across the 120-lead simulated cohort.
+          </p>
+        </div>
+
+        <div class="subcard highlight-glacier">
+          <div class="card-kicker">Metric 2 · Deals Matching Agreed Direction</div>
+          <h4 style="margin:6px 0; font-size:1.15rem;">
+            ${before.codex_consistent_count}/${before.leads_total} (${before.codex_consistency_rate_pct}%)
+            → <strong>${combined.codex_consistent_count}/${combined.leads_total} (${combined.codex_consistency_rate_pct}%)</strong>
+          </h4>
+          <p class="muted" style="margin:0;">
+            Automated sales agents reach 60/60 (100%) immediately when the rule is updated; required CRM field blocks unreasoned deal entry.
+          </p>
+        </div>
+
+        <div class="subcard highlight-amber">
+          <div class="card-kicker">Metric 3 · Average Discount When Offered</div>
+          <h4 style="margin:6px 0; font-size:1.15rem;">
+            ${before.avg_discount_pct_when_offered}% → <strong>${combined.avg_discount_pct_when_offered}%</strong>
+          </h4>
+          <p class="muted" style="margin:0;">
+            <strong>What remains uncertain:</strong> Human seller guidance improves modeled consistency from 61.7% (37/60) to 70.0% (42/60), but real human compliance has not yet been observed in production.
+          </p>
+        </div>
+      </div>
+
+      <div class="subcard" style="margin-top: 14px;">
+        <h4 style="margin-top:0;">Conclusion &amp; recommendation from simulation</h4>
+        <p style="margin: 4px 0; font-size:0.9rem;">
+          In simulation, combining the <strong>agent discount rule</strong> (Recommendation: <strong>Keep</strong>) and the <strong>required CRM "Reason for discount" field</strong> (Recommendation: <strong>Keep</strong>) eliminates unrecorded discounts (66/66 recorded with reason). <strong>Seller guidance alone</strong> (Recommendation: <strong>Keep candidate — monitor real team</strong>) helps gradually but cannot replace the structural CRM requirement.
+        </p>
+        <p class="muted" style="margin: 4px 0 0;">
+          ${isApplied
+            ? "The three-part correction is currently applied in the demo runtime. You can keep it active and return to direction review, or roll back to the previous baseline below."
+            : "Note: The proposed correction has not been applied to the active demo runtime yet (baseline rule is still active). To apply it in the demo, use Step 5."}
+        </p>
+      </div>
+
+      <details style="margin-top: 14px;">
+        <summary style="cursor:pointer; font-weight:600; font-size:0.86rem; color:var(--theseus-ink);">
+          Full 5-arm counterfactual comparison &amp; W1–W4 synthetic weekly rollout tables (Simulation details)
+        </summary>
+        <div class="table-scroll" style="margin-top:10px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Simulation Cohort Arm (120 leads each)</th>
+                <th>Discounts Offered</th>
+                <th>CRM Reason Recorded</th>
+                <th>Backed by Customer Commitment</th>
+                <th>Fits Agreed Direction</th>
+                <th>Avg Discount</th>
+                <th>Simulation Recommendation</th>
+              </tr>
+            </thead>
+            <tbody>${armRows}</tbody>
+          </table>
+        </div>
+
+        <div class="table-scroll" style="margin-top:14px;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Synthetic Week &amp; Stage</th>
+                <th>CRM Reason Recorded</th>
+                <th>Backed by Customer Commitment</th>
+                <th>Fits Agreed Direction</th>
+              </tr>
+            </thead>
+            <tbody>${weekRows}</tbody>
+          </table>
+        </div>
+      </details>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top: 16px;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          ${!isApplied ? `
+            <button type="button" class="btn btn-secondary" onclick="navigateToFrame('S05')">
+              Go to Step 5 to approve &amp; apply in demo
+            </button>
+          ` : `
+            <button type="button" class="btn btn-secondary" onclick="handleRollbackCandidate()">
+              Roll back to previous baseline
+            </button>
+          `}
+        </div>
+        <button type="button" class="btn btn-amber" onclick="navigateToFrame('S01')">
+          Return to direction review (Step 1) ↻
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderAll() {
+  const d = stateStore.data;
+  if (!d) return;
+
+  // Update active nav button
+  document.querySelectorAll("#frame-nav .nav-btn").forEach((btn) => {
+    const f = btn.getAttribute("data-frame");
+    if (f === stateStore.currentFrame) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  });
+
+  // Update header badge with human-friendly label
+  const badge = document.getElementById("backend-badge");
+  if (badge) {
+    badge.textContent = d.backend_mode === "mongodb_atlas" ? "Data connection: Verified" : "Data connection: Local snapshot";
+  }
+
+  const stage = document.getElementById("main-stage");
+  if (!stage) return;
+
+  switch (stateStore.currentFrame) {
+    case "S01":
+      stage.innerHTML = renderS01(d);
+      break;
+    case "S02":
+      stage.innerHTML = renderS02(d);
+      break;
+    case "S03":
+      stage.innerHTML = renderS03(d);
+      break;
+    case "S04":
+      stage.innerHTML = renderS04(d);
+      break;
+    case "S05":
+      stage.innerHTML = renderS05(d);
+      break;
+    case "S06":
+      stage.innerHTML = renderS06(d);
+      break;
+    default:
+      stage.innerHTML = renderS01(d);
+  }
+
+  renderDrawer();
+}
+
+window.addEventListener("hashchange", setFrameFromHash);
+window.addEventListener("keydown", (ev) => {
+  if (ev.key === "Escape" && stateStore.drawerOpen) {
+    closeEvidenceDrawer(true);
+  }
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  const receiptBtn = document.getElementById("open-import-receipt-btn");
+  if (receiptBtn) {
+    receiptBtn.addEventListener("click", () => {
+      openEvidenceDrawer("ev:import-live-20261107-full", receiptBtn);
+    });
+  }
+  const closeBtn = document.getElementById("close-drawer-btn");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      closeEvidenceDrawer(true);
+    });
+  }
+  const hash = (window.location.hash || "#S01").replace("#", "").toUpperCase();
+  const valid = ["S01", "S02", "S03", "S04", "S05", "S06"];
+  stateStore.currentFrame = valid.includes(hash) ? hash : "S01";
+  fetchState().catch((err) => {
+    const stage = document.getElementById("main-stage");
+    if (stage) {
+      stage.innerHTML = `<div class="card"><h3>Error loading state</h3><p class="muted">${esc(err.message)}</p></div>`;
+    }
+  });
+});
