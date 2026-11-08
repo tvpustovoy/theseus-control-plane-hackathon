@@ -91,6 +91,32 @@
       #s4 .fld { margin: 26px 18px 0; background: #fffaf0; border: 3px solid var(--amber); border-radius: 12px; padding: 14px 16px; font-size: 26px; font-weight: 700; color: var(--ink); }
       #s4 .fld b { color: #a3473b; }
       .shot { position: absolute; left: 352px; top: 34px; width: 1216px; height: 760px; border-radius: 16px; border: 2px solid var(--ice); box-shadow: 0 24px 60px rgba(11,58,94,.14); }
+      /* drawn S03 / S05 / S06 (verified facts only) */
+      .dr { position: absolute; left: 160px; top: 40px; width: 1600px; height: 760px; }
+      .drk { font-family: var(--mono); font-size: 28px; letter-spacing: .12em; text-transform: uppercase; color: var(--glacier); text-align: center; margin-bottom: 22px; }
+      .two { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+      .cd { background: #fff; border: 3px solid var(--ice); border-radius: 18px; padding: 24px 28px; box-shadow: 0 12px 30px rgba(11,58,94,.08); min-height: 300px; }
+      .cd.nv { border-color: var(--ink); } .cd.am { border-color: var(--amber); }
+      .cl { font-family: var(--mono); font-size: 24px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+      .ct { font-family: var(--serif); font-size: 54px; line-height: 1.08; color: var(--ink); }
+      .cs { margin-top: 14px; font-size: 28px; line-height: 1.3; color: var(--muted); }
+      .sq { margin-top: 30px; display: flex; gap: 14px; justify-content: center; align-items: center; flex-wrap: wrap; }
+      .sql { font-family: var(--mono); font-size: 26px; color: var(--ink); margin-right: 8px; }
+      .vc { font-size: 28px; font-weight: 600; padding: 8px 16px; border-radius: 999px; background: #fff4d6; border: 2px solid var(--amber); color: #6b4a00; }
+      .gap { margin-top: 22px; text-align: center; font-size: 34px; font-weight: 600; color: var(--ink); }
+      .db2 { margin-top: 18px; display: flex; gap: 12px; } .db2 .bt { font-size: 26px; font-weight: 600; padding: 8px 18px; border-radius: 10px; border: 2px solid var(--ice); color: var(--muted); } .db2 .bt.ok { background: var(--ink); border-color: var(--ink); color: #fff; }
+      .ck { font-size: 32px; line-height: 1.5; color: #2f7a5c; font-weight: 600; } .ck.st { color: var(--muted); font-weight: 500; font-size: 28px; margin-top: 6px; }
+      .fld2 { margin: 34px auto 0; width: 900px; background: #fffaf0; border: 3px solid var(--amber); border-radius: 14px; padding: 18px 22px; font-size: 32px; font-weight: 700; color: var(--ink); text-align: center; }
+      .fld2 b { color: #a3473b; } .fld2 span { font-family: var(--mono); font-size: 24px; font-weight: 500; color: var(--muted); margin-left: 14px; }
+      .simb { margin: 0 auto 26px; width: fit-content; font-family: var(--mono); font-size: 26px; padding: 8px 18px; border-radius: 10px; background: #fff4d6; border: 2px solid var(--amber); color: #6b4a00; }
+      .bars { display: flex; flex-direction: column; gap: 22px; }
+      .br { display: grid; grid-template-columns: 560px 1fr 330px; align-items: center; gap: 22px; }
+      .bn { font-size: 30px; font-weight: 600; color: var(--ink); text-align: right; }
+      .bb { position: relative; height: 46px; background: var(--ice); border-radius: 10px; overflow: hidden; }
+      .bb i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 10px; }
+      .bb .b0 { background: #9fb6c8; z-index: 2; height: 46px; } .bb .b1 { background: var(--glacier); width: 0; }
+      .br.tot .bb .b1 { background: var(--amber); }
+      .bv { font-family: var(--mono); font-size: 28px; color: var(--ink); }
       /* close */
       #logo7 { position: absolute; left: 700px; top: 30px; width: 520px; height: 520px; }
       #s7 .text { position: absolute; left: 140px; right: 140px; top: 560px; text-align: center; }
@@ -141,8 +167,13 @@
       </div>
 
       <div id="s3" class="scene clip" data-start="24.67" data-duration="5.23" data-track-index="1">
-        <div class="win"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">localhost · theseus / observe / drift</span></div>
-          <div class="body"><img src="assets/logo-v8.png" alt="" /><div class="frame">S03 · Drift</div><div class="title">Committed principle vs. behavior</div><div class="hint">screen capture goes here</div></div></div>
+        <div class="dr"><div class="drk">S03 · Does behavior fit the commitment?</div>
+          <div class="two">
+            <div class="cd nv"><div class="cl">Committed · mandate v1 (active)</div><div class="ct">Discounts are flexible, case by case.</div><div class="cs">Proposed v2, not approved: a discount must buy a customer commitment.</div></div>
+            <div class="cd am"><div class="cl">Observed practice</div><div class="ct">Case-by-case discounts, sometimes immediate.</div><div class="cs">Commitment in return: not recorded · firm minimum-price refusals also occur.</div></div>
+          </div>
+          <div class="sq"><span class="sql">SubQ Snap 1.1 · 5 comparisons</span><span class="vc">1 · different scope / time</span><span class="vc">3 · insufficient evidence</span><span class="vc">1 · consistent, low confidence</span></div>
+          <div class="gap">No proven contradiction. Gap: discount outcomes and reasons are not captured.</div></div>
       </div>
 
       <div id="s4" class="scene clip" data-start="29.9" data-duration="7.92" data-track-index="1">
@@ -174,13 +205,23 @@
       </div>
 
       <div id="s5" class="scene clip" data-start="37.82" data-duration="3.98" data-track-index="1">
-        <div class="win"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">localhost · theseus / decide / apply</span></div>
-          <div class="body"><img src="assets/logo-v8.png" alt="" /><div class="frame">S05 · Decision</div><div class="title">Approve · check · apply</div><div class="hint">screen capture goes here</div></div></div>
+        <div class="dr"><div class="drk">S05 · Decision · demo environment</div>
+          <div class="two">
+            <div class="cd nv"><div class="cl">Founder decision</div><div class="ct">Discount tool v2</div><div class="db2"><span class="bt ok">Approved</span><span class="bt">exact version v2</span></div></div>
+            <div class="cd"><div class="cl">Checks before anything applies</div><div class="ck">✓ approval bound to v2</div><div class="ck">✓ owner permission</div><div class="ck">✓ evaluation report attached</div><div class="ck st">Activation: separate step, after checks</div></div>
+          </div>
+          <div class="fld2">CRM · Discount justification <b>*</b> <span>required in v2</span></div></div>
       </div>
 
       <div id="s6" class="scene clip" data-start="41.8" data-duration="4.2" data-track-index="1">
-        <div class="win"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">localhost · theseus / track</span></div>
-          <div class="body"><img src="assets/logo-v8.png" alt="" /><div class="frame">S06 · Outcome · simulation</div><div class="title">Did the change actually work?</div><div class="hint">screen capture goes here</div></div></div>
+        <div class="dr"><div class="drk">S06 · Outcome · share of discounts that buy value</div>
+          <div class="simb">SIMULATION · 120 synthetic leads · 4 synthetic weeks · deterministic actors</div>
+          <div class="bars">
+            <div class="br"><div class="bn">Sales agents · rule v2</div><div class="bb"><i class="b0" style="width:18.6%"></i><i class="b1" data-w="100"></i></div><div class="bv">19% → 100% · keep</div></div>
+            <div class="br"><div class="bn">Human sellers (modeled) · onboarding v2</div><div class="bb"><i class="b0" style="width:43.9%"></i><i class="b1" data-w="55"></i></div><div class="bv">44% → 55% · candidate</div></div>
+            <div class="br"><div class="bn">Environment · CRM field</div><div class="bb"><i class="b0" style="width:30.95%"></i><i class="b1" data-w="91.4"></i></div><div class="bv">31% → 91% · keep</div></div>
+            <div class="br tot"><div class="bn">All three · 26/84 → 64/68 discounts</div><div class="bb"><i class="b0" style="width:30.95%"></i><i class="b1" data-w="94.1"></i></div><div class="bv">31% → 94%</div></div>
+          </div></div>
       </div>
 
       <div id="s7" class="scene clip" data-start="46.0" data-duration="4.61" data-track-index="1">
@@ -284,7 +325,7 @@
       SCENES.forEach(s => {
         if (s.id === "tech") { tl.fromTo("#tech", { opacity: 0 }, { opacity: 1, duration: 0.6 }, s.start); return; }
         inOut("#" + s.id, s.start, s.dur);
-        if (/^s[356]$/.test(s.id)) tl.fromTo("#" + s.id + " .body img", { scale: 0.9 }, { scale: 1, duration: s.dur - 0.4, ease: "none" }, s.start);
+        if (false) tl.fromTo("#" + s.id + " .body img", { scale: 0.9 }, { scale: 1, duration: s.dur - 0.4, ease: "none" }, s.start);
       });
       if (at.s0) tl.fromTo("#logo0", { scale: 0.93 }, { scale: 1, duration: at.s0.dur - 0.4, ease: "none" }, 0);
       if (at.s7) tl.fromTo("#logo7", { scale: 0.94 }, { scale: 1, duration: at.s7.dur - 0.4, ease: "none" }, at.s7.start);
@@ -295,6 +336,9 @@
         tl.fromTo("#logoT", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" }, T.start + T.dur * 0.62);
       }
       ["s1", "s2"].forEach(id => { if (at[id]) tl.fromTo("#" + id + " .shot", { scale: 1 }, { scale: 1.03, duration: at[id].dur, ease: "none" }, at[id].start); });
+      if (at.s3) { const F = at.s3.start; tl.fromTo("#s3 .cd", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.4, stagger: 0.35 }, F + 0.3); tl.fromTo("#s3 .vc", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.3, stagger: 0.25 }, F + 1.4); tl.fromTo("#s3 .gap", { opacity: 0 }, { opacity: 1, duration: 0.4 }, F + 2.4); }
+      if (at.s5) { const F = at.s5.start; tl.fromTo("#s5 .cd", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.35, stagger: 0.3 }, F + 0.2); tl.fromTo("#s5 .ck", { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.25, stagger: 0.3 }, F + 0.9); tl.fromTo("#s5 .fld2", { opacity: 0 }, { opacity: 1, duration: 0.4 }, F + 2.2); }
+      if (at.s6) { const F = at.s6.start; document.querySelectorAll("#s6 .b1").forEach((b, k) => tl.fromTo(b, { width: "0%" }, { width: b.dataset.w + "%", duration: 1.0, ease: "power2.out" }, F + 0.6 + k * 0.35)); }
       if (at.s4) {
         const F = at.s4.start;
         tl.fromTo("#dec", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5 }, F + 0.2);
