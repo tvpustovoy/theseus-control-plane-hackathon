@@ -1,6 +1,7 @@
 import json
 import re
 from datetime import datetime
+from difflib import get_close_matches
 from uuid import uuid4
 from urllib.parse import quote, urlsplit
 
@@ -147,10 +148,18 @@ def commit_metadata():
     }
 
 
+def has_navigation_keyword(user_text, keywords):
+    """Tolerate spelling slips in long navigation words, never in action IDs or authority."""
+    return any(get_close_matches(word, keywords, n=1, cutoff=0.86)
+               for word in re.findall(r"[a-z]{6,}", user_text.lower()))
+
+
 def wants_direction_card(user_text):
     """Known demo navigation intent; this does not approve a policy."""
-    topic = re.search(r"discount|скид", user_text, re.IGNORECASE)
-    direction = re.search(r"strateg|polic|rule|direction|propos|стратег|правил|предлож|политик", user_text, re.IGNORECASE)
+    topic = (re.search(r"discount|скид", user_text, re.IGNORECASE)
+             or has_navigation_keyword(user_text, ("discount", "discounts", "discounting")))
+    direction = (re.search(r"strateg|polic|rule|direction|propos|стратег|правил|предлож|политик", user_text, re.IGNORECASE)
+                 or has_navigation_keyword(user_text, ("strategy", "policy", "direction", "proposal")))
     explicit = re.search(r"(?:show|open|review|покажи|открой).{0,30}(?:decision card|direction|карточк|плашк)", user_text, re.IGNORECASE)
     return bool((topic and direction) or explicit or wants_commit_overview(user_text))
 
@@ -161,6 +170,21 @@ def wants_workflow_brief(user_text):
         r"(?:show|open|review).{0,30}(?:alignment|evidence|proposed change|next step|decision card)|"
         r"что.{0,25}(?:дальше|предлага|рекоменду)|(?:покажи|открой).{0,25}(?:проверк|изменени|плашк)",
         user_text, re.IGNORECASE))
+
+
+def margin_risk_response(user_text, memory):
+    """Prepared opening for the discount scenario; a risk, not a measured loss ranking."""
+    asks_where = re.search(r"\b(?:where|biggest|mostly|main)\b", user_text, re.I)
+    money_loss = re.search(r"\b(?:lose|losing|leak|leaking|waste|wasting)\b.{0,25}\bmoney\b|\bmoney\s+(?:loss|leak)", user_text, re.I)
+    states = memory.get("current_state_records") or []
+    if not (asks_where and money_loss and memory.get("connected") and states):
+        return None
+    state = states[0]
+    if state.get("active_crm_schema_version") != "crm-v1" or state.get("scenario_key", "discount-demo") != "discount-demo":
+        return None
+    return ("**The clearest margin risk to investigate is uncontrolled discounting.**\n\n"
+            "Sales conversations show case-by-case discounts, while the CRM does not record why they were given. "
+            "We have not measured the losses, so I cannot rank them yet. Let’s review our discount strategy.", None)
 
 
 def wants_approval_review(user_text):
@@ -447,9 +471,12 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
 
     try:
         memory = read_memory()
+        risk_reply = margin_risk_response(user_text, memory)
         count_reply = crm_count_reply(user_text, memory)
         guided_reply = workflow_response(user_text, memory)
-        if count_reply is not None:
+        if risk_reply is not None:
+            response, metadata = risk_reply
+        elif count_reply is not None:
             response, metadata = count_reply, None
         elif guided_reply is not None:
             response, metadata = guided_reply

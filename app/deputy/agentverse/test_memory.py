@@ -4,6 +4,7 @@ import ast
 import json
 import os
 import re
+from difflib import get_close_matches
 from pathlib import Path
 import sys
 import types
@@ -22,18 +23,58 @@ spec.loader.exec_module(module)
 
 def card_namespace(memory=None):
     tree = ast.parse(Path(__file__).with_name("protocols.py").read_text())
-    names = {"wants_direction_card", "wants_workflow_brief", "wants_approval_review", "decision_card_for", "workflow_metadata",
+    names = {"margin_risk_response", "has_navigation_keyword", "wants_direction_card", "wants_workflow_brief", "wants_approval_review", "decision_card_for", "workflow_metadata",
              "workflow_response", "card_response", "commit_metadata", "validated_chat_url",
              "chat_return_context", "with_chat_return", "with_card_links", "wants_commit_overview", "commit_overview_response"}
     constants = {"WORKFLOW_LINKS", "RECORD_ID", "RECORD_VERSION", "COMMIT_ROWS", "COMMIT_URL", "COMMITMENTS_URL", "SNAPSHOT_DATE"}
     nodes = [n for n in tree.body if (isinstance(n, ast.FunctionDef) and n.name in names)
              or (isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id in constants for t in n.targets))]
-    namespace = {"re": re, "json": json, "quote": quote, "urlsplit": urlsplit, "read_memory": lambda: memory}
+    namespace = {"re": re, "get_close_matches": get_close_matches, "json": json, "quote": quote, "urlsplit": urlsplit, "read_memory": lambda: memory}
     exec(compile(ast.Module(body=nodes, type_ignores=[]), "card-contract", "exec"), namespace)
     return namespace
 
 
 class MemoryContract(unittest.TestCase):
+    def test_margin_opening_is_a_risk_not_a_measured_loss_ranking(self):
+        state = {"active_crm_schema_version": "crm-v1", "scenario_key": "discount-demo"}
+        memory = {"connected": True, "current_state_records": [state]}
+        ns = card_namespace(memory)
+        for question in ("where we are losing money mostly?", "Where are we losing money?", "Where does money leak?"):
+            reply, card = ns["margin_risk_response"](question, memory)
+            self.assertIn("**The clearest margin risk", reply)
+            self.assertIn("cannot rank", reply)
+            self.assertIsNone(card)
+        self.assertIsNone(ns["margin_risk_response"]("How much money did we lose?", memory))
+        memory["connected"] = False
+        self.assertIsNone(ns["margin_risk_response"]("Where are we losing money?", memory))
+        memory["connected"] = True
+        state["active_crm_schema_version"] = "crm-v2"
+        self.assertIsNone(ns["margin_risk_response"]("Where are we losing money?", memory))
+        state.update(active_crm_schema_version="crm-v1", scenario_key="another-goal")
+        self.assertIsNone(ns["margin_risk_response"]("Where are we losing money?", memory))
+
+    def test_strategy_spelling_slips_keep_the_card_after_reset(self):
+        state = {"demo_session_id": "fresh-session", "mandate_status": "draft_pending_owner_commit",
+                 "active_runtime_version": "tool-v1", "decision_record": None}
+        memory = {"connected": True, "current_state_records": [state]}
+        ns = card_namespace(memory)
+        questions = ("what is in our dicounts strategy?", "What is our dicsount strategy?",
+                     "Show our discouts policy", "What is our discount stratgey?",
+                     "What is our discount strategy?")
+        for question in questions:
+            with self.subTest(question=question):
+                metadata = ns["decision_card_for"](question, memory)
+                self.assertEqual(json.loads(metadata["card_payload"])["title"], "Commit · Set our course")
+                self.assertIn("#S01)", ns["with_card_links"]("Draft awaits review.", metadata))
+        for question in ("How many accounts are in the CRM?", "What is our accounting strategy?",
+                         "What is the current country policy?", "How many discounts were given?"):
+            self.assertIsNone(ns["decision_card_for"](question, memory))
+        state["mandate_status"] = "committed_mandate"
+        self.assertIn("Review evidence", ns["decision_card_for"](questions[0], memory)["card_payload"])
+        self.assertIsNone(state["decision_record"])
+        memory["connected"] = False
+        self.assertIsNone(ns["decision_card_for"](questions[0], memory))
+
     def test_current_commits_have_live_status_card_and_clickable_return_links(self):
         state = {"demo_session_id": "session-current", "mandate_status": "committed_mandate",
                  "active_runtime_version": "tool-v1", "decision_record": None}
