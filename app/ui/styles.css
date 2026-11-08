@@ -39,7 +39,9 @@
 .commitment-reference summary { cursor:pointer; }
 .commitment-reference p { margin:8px 0 0; font-size:.78rem; }
 .commitment-row-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:14px; }
-.commitment-row-actions a { font-size:.8rem; padding:6px 10px; text-decoration:none; }
+.commitment-row-actions a { font-size:.8rem; padding:6px 10px; text-decoration:none; background:#126b9e; border-color:#126b9e; color:#fff; }
+.commitment-row-actions a:hover { background:#0b527d; border-color:#0b527d; color:#fff; }
+.commitment-row-actions a:focus-visible { outline:2px solid #126b9e; outline-offset:3px; }
 .commitment-change { display:inline-block; color:#14594f; background:#d9eee8; padding:1px 7px; margin-left:8px; border-radius:4px; }
 .commitment-item.has-change { background:#f0faf6; }
 .commitments-footer { margin-top:22px; }
