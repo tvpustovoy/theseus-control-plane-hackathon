@@ -3,12 +3,17 @@
 ॐ हुं हनुमते नमः  
 `om hum hanumate namah`
 
-- **Updated at:** `2026-11-07T15:21:30-08:00 (America/Los_Angeles)`
+- **Updated at:** `2026-11-07T16:24:30-08:00 (America/Los_Angeles)`
 - **Role / Identity:** `Argon.Hackathon` (`cid`: `9E0BE0F07C11F4628287FCF77B76F4485D92E0FDCD1BCA5183E9E3B7698F22B5`)
 - **Write Area:** `database/` (except `database/fixtures/`), `app/model/`, `app/runtime/`, `app/control/`, `app/deputy/` (excluding reserved `app/deputy/agentverse/`), `app/ui/`, `app/api/`, `docs/status/Argon.Hackathon.md`, `docs/agents/argon/CONTINUE.md`.
 
 ## NOW
-- Completed the full **Human-Facing Interface Review redesign (`reports/2-scenarios/HUMAN-INTERFACE-REVIEW.md`, all 10 acceptance checks)**, truthful `S03`/`S05` evidence boundaries (`simulated_demo_gate` instead of any claimed independent held-out benchmark), and live `review-packet-v1` integration (`app/verification/packet_io.py` on `a05-demo-packet.json` with fallback to `database/fixtures/review-packet-synthetic.json`).
+- Completed all **5 P0 critical-path items** from `HUMAN-INTERFACE-RECHECK.md` / `LIVE-DEMO-RESET-CONTRACT.md` (`seq 84..101`):
+  1. **Same-input CRM `v1` vs `v2` gate (`DiscountCommitmentTool` + `submit_demo_crm_deal`)**: 5% discount without customer commitment passes in `tool-v1` / `crm-v1`, is blocked in `tool-v2` / `crm-v2` (recording a rejected `RunEvent` with `missing_value_exchange_commitment` and writing zero CRM deals), and passes when `prepayment` is supplied.
+  2. **`S06` data contract (`ui_metrics`)**: Normalized `simulation.py` `overall.all` and `staged_rollout_timeline` (`W1..W4`) so `S06` renders clean integers and percentages with **zero** `undefined` values, plus `POST /api/simulate/run`.
+  3. **`S03` five-SubQ discount packet**: Wired `database/fixtures/review-packet-subq-discount.json` (`9` claims, `5` pairs, `rule_status="mixed_reference_statuses_see_per_claim"`, `0` proven contradictions, per-claim `mandate_status` & `stage`) and `database/fixtures/culture-rules-brief.json`.
+  4. **`S04` `Simulation` badge on human-seller `Before` (`10–15%`)**: Explicit adjacent `Simulation` badge and modeled-baseline wording.
+  5. **Idempotent reset (`POST /api/reset` / `Start fresh demo ↺`)**: Resets mutable `S01..S06` state to `C0` with a fresh `demo_session_id` without mutating raw sources or deleting historical audit records.
 - Running live on **`http://127.0.0.1:8765/`** (`#S01`..`#S06`) connected to **MongoDB Atlas (`theseus_recplace`)**.
 - Command to start/restart server:
   ```bash

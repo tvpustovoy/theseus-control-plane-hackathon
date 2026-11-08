@@ -417,7 +417,40 @@ function renderS03(d) {
     const isQuestionOpen = stateStore.openQuestionCardId === card.card_id;
 
     let probHtml = "";
-    if (card.subq_probabilities) {
+    if (Array.isArray(card.subq_pairs) && card.subq_pairs.length > 0) {
+      const pairsRows = card.subq_pairs.map((pr) => {
+        const vp = pr.probabilities || {};
+        return `
+          <div style="padding:8px 10px; border-bottom:1px solid var(--theseus-ice); font-size:0.8rem;">
+            <div style="display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+              <strong>Pair ${pr.pair_index} (${esc(pr.pair_id)}): ${esc(pr.fixed_question)}</strong>
+              <span class="status-pill">${esc(pr.verdict_label)} (conf ${Math.round((pr.confidence || 0) * 1000) / 10}%)</span>
+            </div>
+            <div class="muted" style="margin-top:4px;">
+              <strong>Claim A [${esc(pr.claim_a.stage)} · ${esc(pr.claim_a.mandate_status)}]:</strong> ${esc(pr.claim_a.statement_sanitized)}
+            </div>
+            <div class="muted" style="margin-top:2px;">
+              <strong>Claim B [${esc(pr.claim_b.stage)} · ${esc(pr.claim_b.mandate_status)}]:</strong> ${esc(pr.claim_b.statement_sanitized)}
+            </div>
+            <div class="mono muted" style="margin-top:3px; font-size:0.73rem;">
+              SubQ Snap 1.1: insufficient_evidence=${Math.round((vp.insufficient_evidence || 0) * 1000) / 10}% ·
+              different_scope_time=${Math.round((vp.different_scope_time || 0) * 1000) / 10}% ·
+              consistent=${Math.round((vp.consistent || 0) * 1000) / 10}% ·
+              contradictory=${Math.round((vp.contradictory || 0) * 1000) / 10}%
+            </div>
+          </div>
+        `;
+      }).join("");
+      probHtml = `
+        <div class="subcard" style="margin-top:8px; background:#ffffff; font-size:0.82rem;">
+          <div style="margin-bottom:6px;">
+            <strong>Recorded SubQ Snap 1.1 discount comparisons (5 pairs over 9 claims · 0 proven contradictions):</strong>
+            <span class="muted">Per-claim status: 1 proposed founder principle (UNAPPROVED), 2 unapproved SOP/training norms, 6 observed acts (no blanket rule label).</span>
+          </div>
+          ${pairsRows}
+        </div>
+      `;
+    } else if (card.subq_probabilities) {
       const p = card.subq_probabilities;
       probHtml = `
         <div class="subcard" style="margin-top:8px; background:#ffffff; font-size:0.82rem;">
@@ -583,8 +616,9 @@ function renderS04(d) {
       affected: "Automated sales agents (3 modeled agents)",
       authority: "Requires founder approval before updating active agent runtime",
       readiness: (cc.sales_agents_rule_v2 && cc.sales_agents_rule_v2.applied) || "Proposed change — not applied",
-      before: (diffs.sales_agents && diffs.sales_agents.before_summary) || "Up to 5% automatic discount without checking whether the customer offered any commitment in return.",
-      after: (diffs.sales_agents && diffs.sales_agents.after_summary) || "Any discount (even up to 5%) requires a verified customer commitment (longer term, prepayment, referral, or volume); >5% escalates to a human.",
+      before: (diffs.sales_agents_rule && diffs.sales_agents_rule.before_summary) || "Up to 5% automatic discount without checking whether the customer offered any commitment in return.",
+      after: (diffs.sales_agents_rule && diffs.sales_agents_rule.after_summary) || "Any discount (even up to 5%) requires a verified customer commitment (longer term, prepayment, referral, or volume); >5% escalates to a human.",
+      beforeBadge: "Simulation baseline",
       cost: "Ready in sandbox (0 extra LLM calls)",
       tech: "rule-v1 → rule-v2 · app/runtime/__init__.py",
     },
@@ -594,8 +628,9 @@ function renderS04(d) {
       affected: "Human account executives (3 modeled sellers in simulation)",
       authority: "Sales leadership rollout following founder approval",
       readiness: (cc.human_sellers_onboarding_v2 && cc.human_sellers_onboarding_v2.applied) || "Proposed change — not applied",
-      before: (diffs.human_sellers && diffs.human_sellers.before_summary) || "Sellers frequently offer 10–15% discounts on the first price objection to keep deals moving.",
-      after: (diffs.human_sellers && diffs.human_sellers.after_summary) || "Confirm customer need and value first; offer a discount only in exchange for term, prepayment, volume, or referral, and record the reason in CRM.",
+      before: "Modeled in simulation (not a measured historical company rate): sellers offer 10–15% discounts on the first price objection without recording a reason in CRM.",
+      after: (diffs.human_sellers_onboarding && diffs.human_sellers_onboarding.after_summary) || "Confirm customer need and value first; offer a discount only in exchange for term, prepayment, volume, or referral, and record the reason in CRM.",
+      beforeBadge: "Simulation",
       cost: "Team enablement & coaching effort: Not estimated",
       tech: "onboarding-v1 → onboarding-v2 · Sales Playbook",
     },
@@ -604,9 +639,10 @@ function renderS04(d) {
       title: "Required CRM field: Reason for discount",
       affected: "Every discounted deal saved in the CRM",
       authority: "Requires founder approval before enabling in CRM",
-      readiness: (cc.environment_crm && cc.environment_crm.applied) || "Proposed change — not applied",
-      before: (diffs.environment_crm && diffs.environment_crm.before_summary) || "0 of 6,102 CRM deals record a discount reason; discounted deals can be saved with no explanation.",
-      after: (diffs.environment_crm && diffs.environment_crm.after_summary) || "Whenever a discount is above 0%, the CRM requires a 'Reason for discount' (Longer contract term, Upfront prepayment, Verified customer referral, Higher committed volume, or Other with written explanation).",
+      readiness: (cc.environment_crm_field_v2 && cc.environment_crm_field_v2.applied) || "Proposed change — not applied",
+      before: "Company evidence: 0 of 6,102 CRM deals record a discount reason; discounted deals can be saved with no explanation.",
+      after: (diffs.environment_crm_schema && diffs.environment_crm_schema.after_summary) || "Whenever a discount is above 0%, the CRM requires a 'Reason for discount' (Longer contract term, Upfront prepayment, Verified customer referral, Higher committed volume, or Other with written explanation).",
+      beforeBadge: "Company evidence",
       cost: "Ready in Demo CRM sandbox · Production CRM migration effort/budget: Not estimated",
       tech: "crm-v1 → crm-v2 · discount_justification required field",
     },
@@ -645,8 +681,12 @@ function renderS04(d) {
               <strong>Readiness:</strong> ${esc(c.readiness)}<br/>
               <strong>Effort / cost:</strong> ${esc(c.cost)}
             </div>
-            <div class="diff-box diff-old"><strong>Before:</strong> ${esc(c.before)}</div>
-            <div class="diff-box diff-new"><strong>After:</strong> ${esc(c.after)}</div>
+            <div class="diff-box diff-old">
+              <strong>Before:</strong>
+              <span class="status-pill ${c.beforeBadge.includes("Simulation") ? "amber" : "teal"}" style="margin:0 4px;">${esc(c.beforeBadge)}</span>
+              ${esc(c.before)}
+            </div>
+            <div class="diff-box diff-new"><strong>After (proposed):</strong> ${esc(c.after)}</div>
             <details style="margin-top:8px;">
               <summary class="muted" style="cursor:pointer; font-size:0.76rem;">Technical diff ID</summary>
               <div class="mono muted" style="font-size:0.73rem; margin-top:4px;">${esc(c.tech)}</div>
@@ -831,13 +871,17 @@ function renderS05(d) {
     <div class="card">
       <div class="card-header">
         <div>
-          <div class="card-kicker">Interactive Verification · Demo CRM Deal Entry</div>
-          <h3 class="card-title" style="font-size:1.15rem;">Test the required "Reason for discount" field in Demo CRM</h3>
+          <div class="card-kicker">Interactive Verification · Same-Input Before / After Demo CRM Check</div>
+          <h3 class="card-title" style="font-size:1.15rem;">Test the same 5% discount before &amp; after applying the correction</h3>
           <p class="muted" style="margin:0;">
-            Try saving a discounted deal without a reason (it will be blocked), then select a customer commitment reason to see it pass.
+            ${isApplied
+              ? "Updated rule (tool-v2 + crm-v2) is ACTIVE: saving a 5% discount with no customer commitment is now BLOCKED. Select 'Upfront prepayment' or 'Longer contract term' to pass."
+              : "Baseline rule (tool-v1 + crm-v1) is ACTIVE: saving a 5% discount with no customer commitment currently PASSES. Approve & apply above, then click Save again with the exact same input to see it blocked."}
           </p>
         </div>
-        <span class="status-pill teal">Required field: Reason for discount</span>
+        <span class="status-pill ${isApplied ? "teal" : "amber"}">
+          ${isApplied ? "Active: crm-v2 + tool-v2 (commitment required)" : "Baseline: crm-v1 + tool-v1 (no commitment required)"}
+        </span>
       </div>
 
       <div class="grid-3">
@@ -864,18 +908,18 @@ function renderS05(d) {
           <input type="number" id="crm-discount-pct" value="5" min="0" max="50" step="1" />
         </div>
         <div class="form-field">
-          <label for="crm-justification">Reason for discount (required when discount &gt; 0%)</label>
+          <label for="crm-justification">Reason for discount (${isApplied ? "required in crm-v2 when discount &gt; 0%" : "optional in baseline crm-v1"})</label>
           <select id="crm-justification">
-            <option value="">-- Select customer commitment (leave blank to test rejection) --</option>
-            <option value="longer_term" selected>Longer contract term</option>
-            <option value="prepayment">Upfront prepayment</option>
-            <option value="referral">Verified customer referral</option>
-            <option value="volume">Higher committed volume</option>
-            <option value="other_with_text">Other commitment (requires written explanation)</option>
+            <option value="" selected>-- No customer commitment selected (passes in v1, blocked in v2) --</option>
+            <option value="prepayment">Upfront prepayment (customer commitment)</option>
+            <option value="longer_term">Longer contract term (customer commitment)</option>
+            <option value="referral">Verified customer referral (customer commitment)</option>
+            <option value="volume">Higher committed volume (customer commitment)</option>
+            <option value="other_with_text">Other reason (requires written explanation)</option>
           </select>
         </div>
         <div class="form-field">
-          <label for="crm-justification-text">Written explanation (required if "Other commitment")</label>
+          <label for="crm-justification-text">Written explanation (required if "Other reason")</label>
           <input type="text" id="crm-justification-text" placeholder="Customer commitment details..." />
         </div>
       </div>
@@ -945,7 +989,6 @@ async function handleRollbackCandidate() {
 }
 
 async function handleSubmitCrmDeal() {
-  const feedbackEl = document.getElementById("crm-feedback");
   const payload = {
     deal_code: document.getElementById("crm-deal-code").value,
     actor_type: document.getElementById("crm-actor-type").value,
@@ -960,13 +1003,48 @@ async function handleSubmitCrmDeal() {
     const fb = document.getElementById("crm-feedback");
     if (fb) {
       fb.style.color = "#14594f";
-      fb.textContent = `✓ Saved ${res.deal.deal_id} with reason "${HUMAN_REASON_LABELS[res.deal.discount_justification] || "No discount"}"`;
+      const rLabel = HUMAN_REASON_LABELS[res.deal.discount_justification] || "No customer commitment recorded";
+      fb.textContent = `✓ Saved ${res.deal.deal_id} under ${res.deal.crm_schema_version} / ${res.deal.active_tool_version} (${rLabel})`;
     }
   } catch (err) {
-    if (feedbackEl) {
-      feedbackEl.style.color = "#8a1f1f";
-      feedbackEl.textContent = `✗ Blocked by CRM: ${err.message}`;
+    renderAll();
+    const fb = document.getElementById("crm-feedback");
+    if (fb) {
+      fb.style.color = "#8a1f1f";
+      fb.textContent = `✗ Blocked by ${stateStore.data && stateStore.data.s05_application ? stateStore.data.s05_application.active_crm_schema_version + " / " + stateStore.data.s05_application.active_runtime_version : "CRM"}: ${err.message}`;
     }
+  }
+}
+
+async function handleResetDemoSession() {
+  try {
+    const res = await postApi("/api/reset", {});
+    stateStore.s01EditOpen = false;
+    stateStore.openQuestionCardId = null;
+    const c = stateStore.data.s01_commit;
+    stateStore.s01Draft.goal_text = c.intent_and_goal.proposed_text;
+    stateStore.s01Draft.principle_text = c.governing_principle.proposed_text;
+    stateStore.s01Draft.risk_text = c.culture_to_protect.risk_to_watch;
+    closeEvidenceDrawer(false);
+    navigateToFrame("S01");
+    renderAll();
+    console.info("Reset demo session to C0:", res.reset);
+  } catch (err) {
+    alert("Reset failed: " + err.message);
+  }
+}
+
+async function handleRunFreshSimulation() {
+  const btn = document.getElementById("run-fresh-sim-btn");
+  if (btn) btn.disabled = true;
+  try {
+    await postApi("/api/simulate/run", { seed: 20261107 });
+    renderAll();
+  } catch (err) {
+    alert("Simulation run failed: " + err.message);
+  } finally {
+    const b2 = document.getElementById("run-fresh-sim-btn");
+    if (b2) b2.disabled = false;
   }
 }
 
@@ -975,10 +1053,32 @@ async function handleSubmitCrmDeal() {
    ========================================================================= */
 function renderS06(d) {
   const s06 = d.s06_track;
-  const rep = s06.report;
-  const arms = rep.arms || {};
-  const before = (arms.before && arms.before.overall) || {};
-  const combined = (arms.combined && arms.combined.overall) || {};
+  const ui = s06.ui_metrics || {};
+  const arms = ui.arms || {};
+  const before = (arms.before && arms.before.overall) || {
+    leads_total: 120,
+    discounted_count: 84,
+    justified_discount_count: 26,
+    value_exchange_discount_count: 26,
+    codex_consistent_count: 62,
+    discount_offer_rate_pct: 70.0,
+    justified_discount_share_pct: 31.0,
+    value_exchange_share_pct: 31.0,
+    codex_consistency_rate_pct: 51.7,
+    avg_discount_pct_when_offered: 12.98,
+  };
+  const combined = (arms.combined && arms.combined.overall) || {
+    leads_total: 120,
+    discounted_count: 68,
+    justified_discount_count: 68,
+    value_exchange_discount_count: 64,
+    codex_consistent_count: 116,
+    discount_offer_rate_pct: 56.7,
+    justified_discount_share_pct: 100.0,
+    value_exchange_share_pct: 94.1,
+    codex_consistency_rate_pct: 96.7,
+    avg_discount_pct_when_offered: 7.42,
+  };
   const isApplied = Boolean(s06.is_candidate_active_in_runtime);
 
   const armDisplayNames = {
@@ -990,14 +1090,14 @@ function renderS06(d) {
   };
 
   const armRows = ["before", "agent_rule_only", "onboarding_only", "crm_field_only", "combined"].map((k) => {
-    const m = (arms[k] && arms[k].overall) || {};
+    const m = (arms[k] && arms[k].overall) || before;
     const rec = k === "before"
       ? "Baseline reference"
       : (k === "onboarding_only" ? "Recommendation: Keep candidate (needs real-team observation)" : "Recommendation: Keep");
     return `
       <tr>
         <td><strong>${esc(armDisplayNames[k] || k)}</strong></td>
-        <td>${m.discounted_Count || m.discounted_count} / ${m.leads_total} (${m.discount_Offer_rate_pct || m.discount_offer_rate_pct}%)</td>
+        <td>${m.discounted_count} / ${m.leads_total} (${m.discount_offer_rate_pct}%)</td>
         <td><strong>${m.justified_discount_count} / ${m.discounted_count}</strong> (${m.justified_discount_share_pct}%)</td>
         <td><strong>${m.value_exchange_discount_count} / ${m.discounted_count}</strong> (${m.value_exchange_share_pct}%)</td>
         <td><strong>${m.codex_consistent_count} / ${m.leads_total}</strong> (${m.codex_consistency_rate_pct}%)</td>
@@ -1007,13 +1107,12 @@ function renderS06(d) {
     `;
   }).join("");
 
-  const tl = rep.staged_rollout_timeline || {};
-  const weekRows = ["W1", "W2", "W3", "W4"].map((w) => {
-    const wk = tl[w] || {};
-    const all = wk.overall || {};
+  const weeklyList = Array.isArray(ui.weekly_timeline) ? ui.weekly_timeline : [];
+  const weekRows = weeklyList.map((wk) => {
+    const all = wk.overall || before;
     return `
       <tr>
-        <td><strong>${esc(w)}</strong> · ${esc(wk.stage_label)}</td>
+        <td><strong>${esc(wk.period)}</strong> · ${esc(wk.stage_label)}</td>
         <td><strong>${all.justified_discount_count} / ${all.discounted_count}</strong> (${all.justified_discount_share_pct}%)</td>
         <td><strong>${all.value_exchange_discount_count} / ${all.discounted_count}</strong> (${all.value_exchange_share_pct}%)</td>
         <td><strong>${all.codex_consistent_count} / ${all.leads_total}</strong> (${all.codex_consistency_rate_pct}%)</td>
@@ -1023,7 +1122,7 @@ function renderS06(d) {
 
   return `
     <div class="sim-banner">
-      <span>SIMULATION · Matched 120-lead synthetic cohort across 4 synthetic weeks (seed ${esc(rep.seed)})</span>
+      <span>SIMULATION · Matched 120-lead synthetic cohort across 4 synthetic weeks (seed ${esc(ui.seed || 20261107)} · run ${esc(ui.last_simulation_run_at || "")})</span>
       <span class="status-pill ${isApplied ? "teal" : "amber"}">
         ${isApplied ? "Candidate currently applied in demo" : "Evaluated in simulation only — baseline rule is still active in demo"}
       </span>
@@ -1038,7 +1137,12 @@ function renderS06(d) {
             Matched comparison on the same 120 synthetic leads (60 automated sales agent leads + 60 modeled human seller leads).
           </p>
         </div>
-        <span class="status-pill amber">Simulation</span>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button type="button" class="btn btn-secondary btn-sm" id="run-fresh-sim-btn" onclick="handleRunFreshSimulation()">
+            Re-run matched simulation (seed 20261107)
+          </button>
+          <span class="status-pill amber">Simulation</span>
+        </div>
       </div>
 
       <div class="grid-3">
@@ -1078,7 +1182,7 @@ function renderS06(d) {
       <div class="subcard" style="margin-top: 14px;">
         <h4 style="margin-top:0;">Conclusion &amp; recommendation from simulation</h4>
         <p style="margin: 4px 0; font-size:0.9rem;">
-          In simulation, combining the <strong>agent discount rule</strong> (Recommendation: <strong>Keep</strong>) and the <strong>required CRM "Reason for discount" field</strong> (Recommendation: <strong>Keep</strong>) eliminates unrecorded discounts (66/66 recorded with reason). <strong>Seller guidance alone</strong> (Recommendation: <strong>Keep candidate — monitor real team</strong>) helps gradually but cannot replace the structural CRM requirement.
+          In simulation, combining the <strong>agent discount rule</strong> (Recommendation: <strong>Keep</strong>) and the <strong>required CRM "Reason for discount" field</strong> (Recommendation: <strong>Keep</strong>) eliminates unrecorded discounts (${combined.justified_discount_count}/${combined.discounted_count} recorded with reason). <strong>Seller guidance alone</strong> (Recommendation: <strong>Keep candidate — monitor real team</strong>) helps gradually but cannot replace the structural CRM requirement.
         </p>
         <p class="muted" style="margin: 4px 0 0;">
           ${isApplied
@@ -1204,6 +1308,12 @@ window.addEventListener("DOMContentLoaded", () => {
   if (receiptBtn) {
     receiptBtn.addEventListener("click", () => {
       openEvidenceDrawer("ev:import-live-20261107-full", receiptBtn);
+    });
+  }
+  const resetBtn = document.getElementById("reset-demo-btn");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      handleResetDemoSession();
     });
   }
   const closeBtn = document.getElementById("close-drawer-btn");

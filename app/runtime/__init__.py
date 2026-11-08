@@ -30,11 +30,13 @@ class DiscountCommitmentTool:
     def evaluate_deal_commitment(self, request: Dict[str, Any]) -> Dict[str, Any]:
         discount_pct = float(request.get("discount_pct") or 0.0)
         has_director_approval = bool(request.get("has_director_approval", False))
+        has_value_exchange = bool(request.get("has_value_exchange", False))
         promise_deadline = request.get("promise_deadline")
         amount = request.get("amount")
 
         max_auto = float(self.skill_config.get("max_auto_discount_pct", 5.0))
         require_deadline = bool(self.skill_config.get("require_promise_deadline", False))
+        require_value_exchange = bool(self.skill_config.get("require_value_exchange", False))
         max_director_cap = float(self.skill_config.get("max_director_discount_pct", 15.0))
 
         reasons: List[str] = []
@@ -48,6 +50,10 @@ class DiscountCommitmentTool:
         if require_deadline and not promise_deadline:
             allowed = False
             reasons.append("missing_promise_deadline")
+
+        if discount_pct > 0.0 and require_value_exchange and not has_value_exchange:
+            allowed = False
+            reasons.append("missing_value_exchange_commitment")
 
         if discount_pct > max_director_cap:
             allowed = False
@@ -64,6 +70,7 @@ class DiscountCommitmentTool:
             "allowed": allowed,
             "discount_pct": discount_pct,
             "max_auto_discount_pct": max_auto,
+            "has_value_exchange": has_value_exchange,
             "required_authority": required_authority,
             "reasons": reasons,
         }

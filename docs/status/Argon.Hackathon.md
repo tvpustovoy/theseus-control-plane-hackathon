@@ -373,3 +373,32 @@ om hum hanumate namah
   - **None.**
 - **Next step:**
   - Notify `Viveka.HackatonCoordinator` before taking the exclusive Git staging/commit window, commit only Argon-scoped files, and report the commit SHA.
+
+## Check-in — 2026-11-07T16:24:30-08:00 (America/Los_Angeles)
+- **Authorized task / stage:** `P0 Critical-Path Live-Demo & Rehearsal Readiness (`seq 84..101`, `HUMAN-INTERFACE-RECHECK.md`, `LIVE-DEMO-RESET-CONTRACT.md`)` — **COMPLETED, VERIFIED & LIVE ON `http://127.0.0.1:8765/`**.
+- **Completed work:**
+  1. **Same-input CRM `v1` vs `v2` gate (`app/runtime/__init__.py`, `app/api/server.py`, `app/ui/app.js`):**
+     - Enforced `require_value_exchange` in `DiscountCommitmentTool.evaluate_deal_commitment` when `discount_pct > 0.0`.
+     - Updated `submit_demo_crm_deal` so under `tool-v1` (`crm-v1`, before S05 activation), a 5% discount without customer commitment **passes** (`crm_schema_version="crm-v1"`, `tool_allowed=True`, `is_value_exchange=False`), whereas after S05 activation (`tool-v2` + `crm-v2`), the **exact same input** is **blocked** (`ContractError("crm_validation_failed")` + rejected `RunEvent` with `reasons=["missing_value_exchange_commitment"]`, writing zero successful CRM records while preserving the rejected tool event). Supplying `prepayment` (or `longer_term`, `referral`, `volume`) on the same 5% discount passes under `tool-v2` + `crm-v2`.
+  2. **`S06` data contract (`undefined` fix in `app/api/server.py` & `app/ui/app.js`):**
+     - Added `_normalize_metric_slice` and `_format_s06_metrics_view` (`s06_track.ui_metrics`), normalizing `simulation.py`'s nested `overall.all` (`total_leads`, `discounts_offered_count`, `discounts_with_justification_count`, `discounts_with_value_exchange_count`, `codex_consistent_decisions_count`, `*_share`) and `staged_rollout_timeline` list (`W1..W4`) at a single boundary so `S06` renders clean integers and percentages (`26/84 (31%) -> 64/68 (94.1%)`, `62/120 (51.7%) -> 116/120 (96.7%)`, `12.98% -> 7.42%`) with **zero** `undefined` values. Also added `POST /api/simulate/run` and a `Re-run matched simulation (seed 20261107)` button.
+  3. **`S03` five-SubQ discount packet (`database/fixtures/review-packet-subq-discount.json` & `database/fixtures/culture-rules-brief.json`):**
+     - Wired `_load_muse_review_packet` to `database/fixtures/review-packet-subq-discount.json` (`9` claims, `5` recorded SubQ Snap 1.1 discount pairs, `rule_status="mixed_reference_statuses_see_per_claim"`, `0` proven contradictions: `1× different_scope_time 80.3%`, `3× insufficient_evidence 92.6% / 52.6% / 81.2%`, `1× consistent 54.4% low-conf`) with per-claim `mandate_status` and `stage` rendered in `S03` and `ev:muse-subq-packet-v1`, plus `ev:culture-rules-brief` (`database/fixtures/culture-rules-brief.json`). Preserved the earlier `a05-demo-packet` only under `earlier_review_replies_pilot_reference` in evidence details.
+  4. **`S04` explicit `Simulation` badge on human-seller `Before` (`app/ui/app.js`):**
+     - Added adjacent `<span class="status-pill amber">Simulation</span>` badge and explicit wording (`"Modeled in simulation (not a measured historical company rate): sellers offer 10–15% discounts on the first price objection without recording a reason in CRM"`).
+  5. **Idempotent rehearsal/live-demo reset (`POST /api/reset` / `reset_demo_session` / `#reset-demo-btn`):**
+     - Added `demo_session_id`, `POST /api/reset`, and a top-bar `Start fresh demo ↺` button that creates a fresh `demo_session_id` and fresh `VersionedRuntimeEngine` (`tool-v1`, `mandate-v1`, 0 session run events/submissions) at checkpoint `C0` without mutating `raw_records`/`sources` or deleting prior historical `decisions` / `crm_deals_demo` audit records.
+- **Changed file paths:**
+  - `app/runtime/__init__.py`
+  - `app/api/server.py`
+  - `app/api/test_ui_api.py`
+  - `app/ui/index.html`
+  - `app/ui/app.js`
+  - `docs/agents/argon/CONTINUE.md`
+  - `docs/status/Argon.Hackathon.md`
+- **Verification performed:**
+  - `database/private/.venv/bin/python -m unittest discover -s app -p "test_*.py" -v` → **32/32 tests passed (`OK`, 0.420s)**, including `test_s05_same_input_v1_vs_v2_gate_and_rollback` and `test_s06_metrics_contract_has_zero_undefined_fields_and_reset_restores_c0`.
+- **Blocker or uncertainty:**
+  - **None.**
+- **Next step:**
+  - Commit Argon-owned files, notify `Viveka.HackatonCoordinator`, `Viveka.Hackathon`, and `Setu.Hackathon` via Ours with the new commit SHA, and start a background Ours watcher so incoming messages trigger an immediate wakeup.

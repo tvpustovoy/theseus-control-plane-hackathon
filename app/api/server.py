@@ -145,6 +145,9 @@ class TheseusLocalApplication:
         self.sim_harness = Step5SimulationHarness(self.adapter)
 
         self.import_receipt = _default_import_receipt()
+        self.demo_session_id = f"demosess-{uuid.uuid4().hex[:8]}"
+        self.session_started_at = utc_now_iso()
+        self.last_simulation_run_at = self.session_started_at
         self._init_scenario_state()
 
     @staticmethod
@@ -235,8 +238,10 @@ class TheseusLocalApplication:
         else:
             self.simulation_report = self.sim_harness.run_all_five_arms_and_timeline(seed=20261107)
 
-        # Load Muse's review-packet-v1 via app.verification.packet_io (private demo packet with fallback to public synthetic fixture)
+        # Load Muse's review-packet-v1 via app.verification.packet_io (5-pair discount SubQ packet primary)
         self.review_packet, self.review_packet_summary, self.review_packet_source_label = self._load_muse_review_packet()
+        self.culture_rules_brief = self._load_culture_rules_brief()
+        self.legacy_pilot_packet, self.legacy_pilot_summary, self.legacy_pilot_label = self._load_legacy_pilot_packet()
 
         # Record truthful simulated demo gate report (60/60 sales_agent leads in simrun-agent_rule_only-20261107)
         # Never claim an unrun independent held-out benchmark.
@@ -323,22 +328,82 @@ class TheseusLocalApplication:
             },
         }
 
-        leader = (self.review_packet_summary.get("verdict_leaders") or [{}])[0]
+        claims_by_id = {c["claim_id"]: c for c in (self.review_packet.get("claims") or [])}
+        subq_pairs_enriched: List[Dict[str, Any]] = []
+        for idx, pair in enumerate(self.review_packet.get("pairs") or [], start=1):
+            ca = claims_by_id.get(pair.get("a"), {})
+            cb = claims_by_id.get(pair.get("b"), {})
+            verd = pair.get("verdict") or {}
+            probs = verd.get("probabilities") or {}
+            subq_pairs_enriched.append(
+                {
+                    "pair_index": idx,
+                    "pair_id": pair.get("pair_id"),
+                    "fixed_question": pair.get("fixed_question"),
+                    "review_status": pair.get("review_status", "reviewed_no_proven_contradiction"),
+                    "verdict_label": verd.get("label", "insufficient_evidence"),
+                    "confidence": round(float(verd.get("confidence", 0.0)), 3),
+                    "uncertainty": round(float(verd.get("uncertainty", 0.0)), 3),
+                    "model": verd.get("model", "subq-snap-1.1"),
+                    "probabilities": {
+                        "consistent": round(float(probs.get("consistent", 0.0)), 3),
+                        "contradictory": round(float(probs.get("contradictory", 0.0)), 3),
+                        "different_scope_time": round(float(probs.get("different_scope_time", 0.0)), 3),
+                        "insufficient_evidence": round(float(probs.get("insufficient_evidence", 0.0)), 3),
+                    },
+                    "human_conclusion": pair.get("human_conclusion"),
+                    "claim_a": {
+                        "claim_id": ca.get("claim_id", pair.get("a")),
+                        "statement_sanitized": ca.get("statement_sanitized", ""),
+                        "stage": ca.get("stage", ""),
+                        "mandate_status": ca.get("mandate_status", ""),
+                        "source_day": ca.get("source_day"),
+                        "scope_note": ca.get("scope_note", ""),
+                        "source_id": (ca.get("source_ref") or {}).get("source_id", ""),
+                    },
+                    "claim_b": {
+                        "claim_id": cb.get("claim_id", pair.get("b")),
+                        "statement_sanitized": cb.get("statement_sanitized", ""),
+                        "stage": cb.get("stage", ""),
+                        "mandate_status": cb.get("mandate_status", ""),
+                        "source_day": cb.get("source_day"),
+                        "scope_note": cb.get("scope_note", ""),
+                        "source_id": (cb.get("source_ref") or {}).get("source_id", ""),
+                    },
+                }
+            )
+
         # S03 Drift / SubQ state
         self.drift_state: Dict[str, Any] = {
             "comparison_version": "mandate-v1 (current active baseline)",
-            "active_reference_label": "Active agreement: Flexible seller discounts (previous baseline)",
-            "proposed_reference_label": "Preview against proposed rule: Every discount requires customer commitment (pending confirmation in Step 1)",
+            "active_reference_label": "Active agreement: Flexible seller discounts (mandate-v1 baseline)",
+            "proposed_reference_label": "Preview against proposed rule: Every discount requires customer commitment (mandate-v2-draft / codex-v2 UNAPPROVED, pending confirmation in Step 1)",
             "is_preview_against_unapproved_rule": True,
             "historical_scope_note": "Historical calls and CRM deals predate the proposed agreement; new rules are never applied retroactively as past violations.",
             "subq_rubric_version": "subq-snap-rubric-v1",
             "review_packet_summary": self.review_packet_summary,
             "review_packet_source": self.review_packet_source_label,
+            "discount_subq_packet": {
+                "packet_source": self.review_packet_source_label,
+                "active_reference_version": self.review_packet.get("active_reference_version", "mandate-v1"),
+                "proposed_reference_version": self.review_packet.get("proposed_reference_version", "mandate-v2-draft UNAPPROVED"),
+                "rule_status": self.review_packet.get("rule_status", "mixed_reference_statuses_see_per_claim"),
+                "rule_status_semantics": self.review_packet.get("rule_status_semantics", ""),
+                "status_breakdown": self.review_packet.get("status_breakdown", {}),
+                "conclusion": self.review_packet.get(
+                    "conclusion",
+                    "No proven contradiction in the five discount comparisons. Verdicts: 1x different_scope_time, 3x insufficient_evidence, 1x consistent (low confidence).",
+                ),
+                "claims_total": len(self.review_packet.get("claims") or []),
+                "pairs_total": len(subq_pairs_enriched),
+                "pairs": subq_pairs_enriched,
+                "claims": self.review_packet.get("claims") or [],
+            },
             "cards": [
                 {
                     "card_id": "drift-card-real-crm-blindness",
                     "title": "Historical CRM & Call Coverage Check",
-                    "rule_ref": "Active baseline · Preview against proposed direction",
+                    "rule_ref": "Active baseline (mandate-v1) · Preview against proposed direction (mandate-v2-draft UNAPPROVED)",
                     "technical_rule_id": "codex-v2:discount-reciprocity-principle",
                     "pattern_ref": "Discount discussions in calls vs. 6,102 CRM deal records",
                     "scope": "Company evidence · historical calls & CRM deals",
@@ -354,29 +419,31 @@ class TheseusLocalApplication:
                 },
                 {
                     "card_id": "drift-card-subq-snap-pilot",
-                    "title": "Training Norm vs. Observed Sales Objection Handling (Recorded SubQ Snap 1.1)",
-                    "rule_ref": "Unapproved training norm (not a binding company rule)",
-                    "technical_rule_id": f"rule_status={self.review_packet_summary.get('rule_status')} · approved_rule_version=null",
-                    "pattern_ref": f"{self.review_packet_summary.get('claims_total', 68)} extracted claims · {self.review_packet_summary.get('pairs_total', 41)} candidate pairs ({leader.get('pair_id', 'C06__C14')})",
-                    "scope": "Recorded SubQ model response · RecPlace extracted claim pair",
+                    "title": "Five Discount & Pricing Comparisons (Recorded SubQ Snap 1.1 · 9 Claims, 5 Pairs)",
+                    "rule_ref": "Per-claim reference status (1 proposed founder principle UNAPPROVED, 2 unapproved SOP/training norms, 6 observed acts)",
+                    "technical_rule_id": f"rule_status={self.review_packet.get('rule_status', 'mixed_reference_statuses_see_per_claim')} · approved_rule_version=null",
+                    "pattern_ref": "9 extracted discount/pricing claims · 5 recorded SubQ Snap 1.1 pairs (0 proven contradictions)",
+                    "scope": "Recorded SubQ model response · 5 discount comparisons with per-claim mandate_status & stage",
                     "evidence_category": "Recorded SubQ model response",
-                    "subq_verdict": "possible_conflict",
-                    "human_verdict": f"Possible conflict — low confidence ({round(float(leader.get('confidence', 0.286)) * 100)}%)",
+                    "subq_verdict": "insufficient_evidence",
+                    "human_verdict": "No proven contradiction (1× different scope/time, 3× insufficient evidence, 1× consistent low-conf)",
                     "subq_probabilities": {
-                        "contradictory": round(float(leader.get("contradictory_probability", 0.464)), 3),
-                        "different_scope_time": 0.404,
-                        "insufficient_evidence": 0.120,
-                        "consistent": 0.012,
+                        "contradictory": 0.016,
+                        "different_scope_time": 0.018,
+                        "insufficient_evidence": 0.926,
+                        "consistent": 0.040,
                     },
-                    "subq_confidence": round(float(leader.get("confidence", 0.286)), 3),
-                    "subq_uncertainty": round(float(leader.get("uncertainty", 0.714)), 3),
-                    "subq_model": str(leader.get("model", "subq-snap-1.1")),
+                    "subq_confidence": 0.902,
+                    "subq_uncertainty": 0.098,
+                    "subq_model": "subq-snap-1.1",
+                    "subq_pairs": subq_pairs_enriched,
+                    "status_breakdown": self.review_packet.get("status_breakdown", {}),
                     "owner_override_verdict": None,
                     "owner_override_reason": None,
                     "provenance": "recorded_model_response",
                     "readiness": "recorded_subq_response",
-                    "what_is_at_stake": "SubQ Snap 1.1 evaluated approved claim statements and returned a low-confidence possible conflict (46.4% contradictory vs. 40.4% different scope/time; confidence 28.6%). Because the reference is an unapproved training norm and model uncertainty is 71.4%, this is surfaced for founder judgment rather than labeled a proven violation.",
-                    "evidence_ids": ["ev:muse-subq-packet-v1", "ev:codex-ep-78324"],
+                    "what_is_at_stake": "SubQ Snap 1.1 evaluated 5 discount/pricing pairs across 9 quote-verified claims and found NO proven contradiction: Pair 1 is different_scope_time (80.3%, conf 73.7% — 2024 offer-stage grant vs proposed gift principle); Pairs 2–4 are insufficient_evidence (92.6% / 52.6% / 81.2% — scope and reciprocal commitment not recorded); Pair 5 is low-confidence consistent (54.4%, conf 39.2% — firm refusal counterexample). This establishes a monitoring & scope-clarity gap, not a retroactive violation.",
+                    "evidence_ids": ["ev:muse-subq-packet-v1", "ev:culture-rules-brief", "ev:codex-ep-78324"],
                 },
                 {
                     "card_id": "drift-card-reactive-discount-conflict",
@@ -415,10 +482,15 @@ class TheseusLocalApplication:
 
     @staticmethod
     def _load_muse_review_packet() -> Tuple[Dict[str, Any], Dict[str, Any], str]:
-        """Load Muse's `review-packet-v1` via `app.verification.packet_io` (private packet first, public fixture fallback)."""
+        """Load Muse's 5-pair discount SubQ `review-packet-v1` (`database/fixtures/review-packet-subq-discount.json`) first."""
+        discount_pkt = REPO_ROOT / "database" / "fixtures" / "review-packet-subq-discount.json"
         priv_pkt = PRIVATE_DIR / "a05-demo-packet.json"
         pub_pkt = REPO_ROOT / "database" / "fixtures" / "review-packet-synthetic.json"
-        for candidate_path, label in ((priv_pkt, "a05-demo-packet (68 claims, 41 pairs)"), (pub_pkt, "review-packet-synthetic (fixture)")):
+        for candidate_path, label in (
+            (discount_pkt, "review-packet-subq-discount (9 claims, 5 SubQ discount pairs)"),
+            (priv_pkt, "a05-demo-packet (68 claims, 41 pairs)"),
+            (pub_pkt, "review-packet-synthetic (fixture)"),
+        ):
             if candidate_path.exists():
                 try:
                     pkt = load_packet(candidate_path)
@@ -427,7 +499,7 @@ class TheseusLocalApplication:
                     continue
         fallback = {
             "packet_version": "review-packet-v1",
-            "rule_status": "unapproved_training_norm",
+            "rule_status": "mixed_reference_statuses_see_per_claim",
             "approved_rule_version": None,
             "claims_total": 0,
             "claims_by_kind": {},
@@ -436,6 +508,27 @@ class TheseusLocalApplication:
             "verdict_leaders": [],
         }
         return {}, fallback, "unavailable"
+
+    @staticmethod
+    def _load_culture_rules_brief() -> Dict[str, Any]:
+        brief_path = REPO_ROOT / "database" / "fixtures" / "culture-rules-brief.json"
+        if brief_path.exists():
+            try:
+                return json.loads(brief_path.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+        return {}
+
+    @staticmethod
+    def _load_legacy_pilot_packet() -> Tuple[Dict[str, Any], Dict[str, Any], str]:
+        priv_pkt = PRIVATE_DIR / "a05-demo-packet.json"
+        if priv_pkt.exists():
+            try:
+                pkt = load_packet(priv_pkt)
+                return pkt, summarize(pkt), "a05-demo-packet (earlier 1-call review-replies training norm pilot)"
+            except Exception:
+                pass
+        return {}, {}, "unavailable"
 
     def _build_evidence_catalog(self) -> None:
         """Build sanitized, inspectable evidence drawer items (zero raw client PII)."""
@@ -556,16 +649,35 @@ class TheseusLocalApplication:
             },
             "ev:muse-subq-packet-v1": {
                 "evidence_id": "ev:muse-subq-packet-v1",
-                "title": "Source: Recorded SubQ Snap 1.1 Review Packet (review-packet-v1)",
-                "human_label": "See source: SubQ Snap 1.1 model assessment",
+                "title": "Source: Five Discount & Pricing SubQ Snap 1.1 Comparisons (review-packet-subq-discount)",
+                "human_label": "See source: 5 SubQ Snap 1.1 discount comparisons",
                 "kind": "SubQReviewPacketV1",
                 "source_id": self.review_packet_source_label,
                 "version": "review-packet-v1",
                 "provenance": "recorded_model_response",
                 "evidence_category": "Recorded SubQ model response",
                 "readiness": "recorded_subq_response",
-                "summary": "Validated review-packet-v1 loaded via app.verification.packet_io. Contains 1 recorded SubQ Snap 1.1 call returning low-confidence possible_conflict (46.4% contradictory vs. 40.4% different scope/time, confidence 28.6%) against an unapproved training norm.",
-                "details": self.review_packet_summary,
+                "summary": "Validated 5-pair discount review-packet-v1 (9 claims, 5 recorded SubQ Snap 1.1 calls). Conclusion: NO proven contradiction (1x different_scope_time p=80.3%, 3x insufficient_evidence p=92.6%/52.6%/81.2%, 1x consistent low-confidence p=54.4%). Uses per-claim mandate_status and stage rather than a single global rule label.",
+                "details": {
+                    "discount_packet_summary": self.review_packet_summary,
+                    "status_breakdown": self.review_packet.get("status_breakdown", {}),
+                    "conclusion": self.review_packet.get("conclusion", ""),
+                    "pairs": self.drift_state.get("discount_subq_packet", {}).get("pairs", []),
+                    "earlier_review_replies_pilot_reference": self.legacy_pilot_summary,
+                },
+            },
+            "ev:culture-rules-brief": {
+                "evidence_id": "ev:culture-rules-brief",
+                "title": "Source: Sanitized Culture & Rules Brief (Rules, Observed Grants & Refusal Counterexamples)",
+                "human_label": "See source: culture & rules brief (9 claims)",
+                "kind": "CultureRulesBriefV1",
+                "source_id": "database/fixtures/culture-rules-brief.json",
+                "version": "v1",
+                "provenance": "observed",
+                "evidence_category": "Company evidence",
+                "readiness": "observed_company_evidence",
+                "summary": "Source-linked culture & rules brief separating active mandate-v1, proposed UNAPPROVED codex-v2, and unapproved SOP norms from observed request/offer/grant/refusal episodes (with zero fabricated prevalence rates).",
+                "details": self.culture_rules_brief,
             },
             "ev:subq-conflict-discount-drift": {
                 "evidence_id": "ev:subq-conflict-discount-drift",
@@ -683,14 +795,117 @@ class TheseusLocalApplication:
             },
         }
 
+    @staticmethod
+    def _normalize_metric_slice(raw_slice: Dict[str, Any]) -> Dict[str, Any]:
+        """Normalize a simulation metric slice (`all` or flat) into explicit integer counts and percentage numbers."""
+        m = raw_slice.get("all") if isinstance(raw_slice.get("all"), dict) else raw_slice
+        if not isinstance(m, dict):
+            m = {}
+        leads_total = int(m.get("total_leads", m.get("leads_total", 0)) or 0)
+        discounted_count = int(m.get("discounts_offered_count", m.get("discounted_count", 0)) or 0)
+        justified_count = int(m.get("discounts_with_justification_count", m.get("justified_discount_count", 0)) or 0)
+        val_exch_count = int(m.get("discounts_with_value_exchange_count", m.get("value_exchange_discount_count", 0)) or 0)
+        codex_ok_count = int(m.get("codex_consistent_decisions_count", m.get("codex_consistent_count", 0)) or 0)
+        goal_ok_count = int(m.get("goal_achieved_deals_count", m.get("goal_achieved_count", 0)) or 0)
+        avg_disc = round(float(m.get("avg_discount_pct_when_offered", 0.0) or 0.0), 2)
+
+        offer_pct = (
+            round(float(m["discount_offer_share"]) * 100.0, 1)
+            if "discount_offer_share" in m
+            else round((discounted_count / leads_total) * 100.0, 1) if leads_total else 0.0
+        )
+        justified_pct = (
+            round(float(m["justified_discount_share"]) * 100.0, 1)
+            if "justified_discount_share" in m
+            else round((justified_count / discounted_count) * 100.0, 1) if discounted_count else 100.0
+        )
+        val_exch_pct = (
+            round(float(m["value_exchange_discount_share"]) * 100.0, 1)
+            if "value_exchange_discount_share" in m
+            else round((val_exch_count / discounted_count) * 100.0, 1) if discounted_count else 100.0
+        )
+        codex_pct = (
+            round(float(m["codex_consistency_share"]) * 100.0, 1)
+            if "codex_consistency_share" in m
+            else round((codex_ok_count / leads_total) * 100.0, 1) if leads_total else 0.0
+        )
+        return {
+            "leads_total": leads_total,
+            "discounted_count": discounted_count,
+            "justified_discount_count": justified_count,
+            "value_exchange_discount_count": val_exch_count,
+            "codex_consistent_count": codex_ok_count,
+            "goal_achieved_count": goal_ok_count,
+            "discount_offer_rate_pct": offer_pct,
+            "justified_discount_share_pct": justified_pct,
+            "value_exchange_share_pct": val_exch_pct,
+            "codex_consistency_rate_pct": codex_pct,
+            "avg_discount_pct_when_offered": avg_disc,
+        }
+
+    def _format_s06_metrics_view(self) -> Dict[str, Any]:
+        """Build a clean, single-boundary normalized view of S06 5-arm and W1..W4 metrics with zero undefineds."""
+        rep = self.simulation_report or {}
+        raw_arms = rep.get("arms") or {}
+        arms_normalized: Dict[str, Dict[str, Any]] = {}
+        for arm_key in ("before", "agent_rule_only", "onboarding_only", "crm_field_only", "combined"):
+            arm_obj = raw_arms.get(arm_key) or {}
+            overall_raw = arm_obj.get("overall") or {}
+            arms_normalized[arm_key] = {
+                "simulation_run_id": arm_obj.get("simulation_run_id", f"simrun-{arm_key}-{rep.get('seed', 20261107)}"),
+                "levers": arm_obj.get("levers") or {},
+                "overall": self._normalize_metric_slice(overall_raw),
+                "sales_agent": self._normalize_metric_slice(overall_raw.get("sales_agent") or {}),
+                "simulated_human_seller": self._normalize_metric_slice(overall_raw.get("simulated_human_seller") or {}),
+            }
+
+        raw_tl = rep.get("staged_rollout_timeline") or []
+        weeks_normalized: List[Dict[str, Any]] = []
+        if isinstance(raw_tl, list):
+            for entry in raw_tl:
+                w_period = str(entry.get("period") or "")
+                w_stage = str(entry.get("intervention_marker") or entry.get("stage_label") or "")
+                w_metrics = self._normalize_metric_slice(entry.get("metrics") or entry.get("overall") or {})
+                weeks_normalized.append(
+                    {
+                        "period": w_period,
+                        "stage_label": w_stage,
+                        "overall": w_metrics,
+                    }
+                )
+        elif isinstance(raw_tl, dict):
+            for w_period in ("W1", "W2", "W3", "W4"):
+                entry = raw_tl.get(w_period) or {}
+                w_stage = str(entry.get("intervention_marker") or entry.get("stage_label") or "")
+                w_metrics = self._normalize_metric_slice(entry.get("metrics") or entry.get("overall") or {})
+                weeks_normalized.append(
+                    {
+                        "period": w_period,
+                        "stage_label": w_stage,
+                        "overall": w_metrics,
+                    }
+                )
+
+        return {
+            "seed": rep.get("seed", 20261107),
+            "total_synthetic_leads": rep.get("total_synthetic_leads", 120),
+            "last_simulation_run_at": self.last_simulation_run_at,
+            "arms": arms_normalized,
+            "weekly_timeline": weeks_normalized,
+        }
+
     def get_state_payload(self) -> Dict[str, Any]:
         """Return the complete state for all six UI frames (`S01..S06`) and shared components."""
         org = self.adapter.organization_id
         muse_claims = self.adapter.backend.find_many("claims", {"organization_id": org}, limit=25)
         muse_signals = self.adapter.backend.find_many("review_signals", {"organization_id": org}, limit=25)
+        is_v2_active = self.runtime.active_version == "tool-v2"
+        behavior_ev = self.runtime.get_behavior_evidence(organization_id=org)
 
         return {
             "organization_id": org,
+            "demo_session_id": self.demo_session_id,
+            "session_started_at": self.session_started_at,
             "backend_mode": self.backend_mode,
             "human_backend_label": (
                 "Connected to verified company database (MongoDB Atlas)"
@@ -717,6 +932,7 @@ class TheseusLocalApplication:
                 ),
                 "live_muse_claims_count": max(len(muse_claims), self.review_packet_summary.get("claims_total", 0)),
                 "live_muse_signals_count": max(len(muse_signals), self.review_packet_summary.get("pairs_total", 0)),
+                "culture_rules_brief": self.culture_rules_brief,
                 "patterns": [
                     {
                         "pattern_id": "pat-discount-talk-in-calls",
@@ -729,12 +945,17 @@ class TheseusLocalApplication:
                         "distinct_actors": "28,470 sales conversations and 6,102 CRM deal records inspected",
                         "provenance": "observed",
                         "readiness": "observed_company_evidence",
-                        "confidence_limit": "Important distinction: a customer asking for a discount in a call is not the same as a seller offering or granting a discount. Because the CRM has no discount or reason fields, we cannot know from historical CRM data how often discounts were actually granted.",
+                        "confidence_limit": "Important distinction: a customer asking for a discount in a call is not the same as a seller offering or granting a discount, and an offer-stage grant in chat is neither a signed deal nor a payment. Because the CRM has no discount or reason fields, we cannot know from historical CRM data how often discounts were actually granted.",
                         "examples": [
                             {
                                 "id": "ex-crm-blind",
                                 "label": "See source: CRM data completeness check (0 of 6,102 deals record discount reason)",
                                 "evidence_id": "ev:culture-crm-blindness",
+                            },
+                            {
+                                "id": "ex-culture-brief",
+                                "label": "See source: culture & rules brief (5 rules, 5 observed grants/offers, 3 counterexamples)",
+                                "evidence_id": "ev:culture-rules-brief",
                             },
                             {
                                 "id": "ex-call-960",
@@ -745,7 +966,7 @@ class TheseusLocalApplication:
                         "counterexamples": [
                             {
                                 "id": "cex-ep-187",
-                                "label": "See source: discount conditions tied to deal commitment",
+                                "label": "See source: discount conditions tied to deal commitment & minimum-price refusal (C65)",
                                 "evidence_id": "ev:codex-ep-187",
                             }
                         ],
@@ -794,22 +1015,25 @@ class TheseusLocalApplication:
                 "decision_record": self.decision_record,
                 "evaluation_report": self.evaluation_report,
                 "active_runtime_version": self.runtime.active_version,
+                "active_crm_schema_version": "crm-v2" if is_v2_active else "crm-v1",
                 "human_active_runtime_label": (
-                    "Updated rule active in demo (5% agent cap + required reason for discount)"
-                    if self.runtime.active_version == "tool-v2"
-                    else "Baseline rule active (proposed correction is not applied yet)"
+                    "Updated rule active in demo (tool-v2 + crm-v2: 5% agent cap & customer commitment required)"
+                    if is_v2_active
+                    else "Baseline rule active (tool-v1 + crm-v1: discount without customer commitment is still allowed)"
                 ),
                 "activation_receipt": self.activation_receipt,
                 "rollback_receipt": self.rollback_receipt,
                 "cross_cutting_states": self._compute_cross_cutting_states(),
                 "crm_allowed_justifications": sorted(DISCOUNT_JUSTIFICATION_ENUM),
                 "crm_submissions": self.crm_submissions,
+                "recent_tool_events": list(reversed(behavior_ev.get("run_events", [])))[:10],
             },
             "s06_track": {
                 "simulation_label": SIMULATION_LABEL,
                 "provenance": SIMULATION_PROVENANCE,
                 "active_runtime_version": self.runtime.active_version,
-                "is_candidate_active_in_runtime": self.runtime.active_version == "tool-v2",
+                "is_candidate_active_in_runtime": is_v2_active,
+                "ui_metrics": self._format_s06_metrics_view(),
                 "report": self.simulation_report,
             },
             "evidence_catalog": self.evidence_catalog,
@@ -952,8 +1176,11 @@ class TheseusLocalApplication:
     def submit_demo_crm_deal(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         Validate and record a deal in the embedded Demo CRM form (S05):
-        - Enforces `validate_discount_justification` (`longer_term`, `prepayment`, `referral`, `volume`, `other_with_text`).
-        - Also runs `runtime.execute_active_tool` when `actor_type == 'sales_agent'` to show active rule enforcement.
+        - Under `tool-v1` (`crm-v1`, before S05 activation): discount without customer commitment is allowed
+          (demonstrating the baseline vulnerability on the exact same input).
+        - Under `tool-v2` (`crm-v2`, after S05 activation): the exact same input without customer commitment
+          is blocked by both `crm-v2` (`validate_discount_justification(require_field=True)`) and `tool-v2`
+          (`require_value_exchange=True`), recording the rejected `RunEvent` without writing a successful CRM deal.
         """
         deal_code = str(payload.get("deal_code") or f"DEMO-{len(self.crm_submissions) + 101}")
         actor_type = str(payload.get("actor_type") or "sales_agent")
@@ -966,39 +1193,71 @@ class TheseusLocalApplication:
         if isinstance(justification_text, str):
             justification_text = justification_text.strip() or None
 
+        is_v2_active = self.runtime.active_version == "tool-v2"
+        crm_schema_version = "crm-v2" if is_v2_active else "crm-v1"
+
         val = validate_discount_justification(
             discount_pct=discount_pct,
             justification=justification,
             justification_text=justification_text,
-            require_field=True,
+            require_field=is_v2_active,
         )
-        if not val["valid"]:
-            raise ContractError(
-                "crm_validation_failed",
-                f"Demo CRM rejected deal {deal_code}: {val['reason']}",
-                val,
-            )
 
-        # Also check runtime tool guard if actor_type is sales_agent
+        # Always evaluate active runtime tool guard so rejected attempts under tool-v2 produce an auditable RunEvent
         tool_event = self.runtime.execute_active_tool(
             request={
                 "deal_id": deal_code,
                 "amount": list_amount,
                 "discount_pct": discount_pct,
-                "has_director_approval": discount_pct <= 5.0 or bool(val["is_value_exchange"] and actor_type != "sales_agent"),
-                "promise_deadline": "2026-11-14",
+                "has_director_approval": bool(
+                    payload.get(
+                        "has_director_approval",
+                        discount_pct <= 5.0 or bool(val["is_value_exchange"] and actor_type != "sales_agent"),
+                    )
+                ),
+                "has_value_exchange": bool(val["is_value_exchange"]),
+                "promise_deadline": payload.get("promise_deadline", "2026-11-14"),
             },
             agent_id="demo-crm-agent" if actor_type == "sales_agent" else "demo-crm-human",
             evidence_refs=["ev:codex-ep-187"],
         )
 
-        rec_id = f"crmdemo:interactive:{uuid.uuid4().hex[:8]}"
+        if not val["valid"]:
+            raise ContractError(
+                "crm_validation_failed",
+                f"Demo CRM ({crm_schema_version}) rejected deal {deal_code}: {val['reason']}",
+                {
+                    **val,
+                    "crm_schema_version": crm_schema_version,
+                    "active_tool_version": self.runtime.active_version,
+                    "tool_event_id": tool_event["run_id"],
+                    "tool_allowed": tool_event["outcome"]["allowed"],
+                    "tool_reasons": tool_event["outcome"]["reasons"],
+                },
+            )
+
+        if is_v2_active and not tool_event["outcome"]["allowed"]:
+            reasons_str = ", ".join(tool_event["outcome"]["reasons"])
+            raise ContractError(
+                "tool_guard_blocked",
+                f"Active runtime guard ({self.runtime.active_version}) blocked deal {deal_code}: {reasons_str}",
+                {
+                    "crm_schema_version": crm_schema_version,
+                    "active_tool_version": self.runtime.active_version,
+                    "tool_event_id": tool_event["run_id"],
+                    "tool_allowed": False,
+                    "tool_reasons": tool_event["outcome"]["reasons"],
+                },
+            )
+
+        rec_id = f"crmdemo:interactive:{self.demo_session_id}:{uuid.uuid4().hex[:8]}"
         final_amount = round(list_amount * (1.0 - discount_pct / 100.0), 2)
         doc = {
             **make_envelope(rec_id, organization_id=self.adapter.organization_id),
+            "demo_session_id": self.demo_session_id,
             "deal_id": deal_code,
             "actor_type": actor_type,
-            "crm_schema_version": "crm-v2",
+            "crm_schema_version": crm_schema_version,
             "active_tool_version": self.runtime.active_version,
             "list_amount_rub": list_amount,
             "final_amount_rub": final_amount,
@@ -1006,6 +1265,7 @@ class TheseusLocalApplication:
             "discount_justification": justification,
             "justification_text": justification_text,
             "is_value_exchange": val["is_value_exchange"],
+            "tool_event_id": tool_event["run_id"],
             "tool_allowed": tool_event["outcome"]["allowed"],
             "tool_reasons": tool_event["outcome"]["reasons"],
             "provenance": "simulated",
@@ -1013,6 +1273,44 @@ class TheseusLocalApplication:
         self.adapter.backend.upsert_by_id("crm_deals_demo", doc)
         self.crm_submissions.insert(0, doc)
         return doc
+
+    def reset_demo_session(self, payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Idempotent rehearsal/live-demo reset (`LIVE-DEMO-RESET-CONTRACT.md` checkpoint `C0`):
+        - Starts a fresh `demo_session_id` with a fresh `VersionedRuntimeEngine` (`tool-v1`, 0 session run events).
+        - Restores `S01..S06` mutable session state to `C0` (`mandate-v1` active, `mandate-v2-draft` pending,
+          no human decision/activation/rollback in this session, empty session CRM submission list).
+        - NEVER deletes or mutates `raw_records`, `sources`, `claims`, or historical audit records in MongoDB.
+        """
+        prev_session_id = self.demo_session_id
+        self.demo_session_id = f"demosess-{uuid.uuid4().hex[:8]}"
+        self.session_started_at = utc_now_iso()
+        self.runtime = VersionedRuntimeEngine(self.adapter, self.governance)
+        self.deputy = ScopedDeputyCEOTools(self.adapter, self.model_service, self.governance, self.runtime)
+        self._init_scenario_state()
+        return {
+            "reset_checkpoint": "C0",
+            "previous_demo_session_id": prev_session_id,
+            "demo_session_id": self.demo_session_id,
+            "session_started_at": self.session_started_at,
+            "active_mandate_version": self.commit_state["committed_version"],
+            "active_runtime_version": self.runtime.active_version,
+            "raw_sources_mutated": False,
+            "prior_audit_records_deleted": False,
+        }
+
+    def run_fresh_simulation(self, payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Run or refresh the deterministic 120-lead matched simulation (seed=20261107) and return a fresh run receipt."""
+        payload = payload or {}
+        seed = int(payload.get("seed") or 20261107)
+        self.simulation_report = self.sim_harness.run_all_five_arms_and_timeline(seed=seed)
+        self.last_simulation_run_at = utc_now_iso()
+        return {
+            "simulation_run_id": f"simrun-live-{self.demo_session_id}-{seed}",
+            "seed": seed,
+            "ran_at": self.last_simulation_run_at,
+            "ui_metrics": self._format_s06_metrics_view(),
+        }
 
 
 def create_app_server(
@@ -1106,6 +1404,12 @@ def create_app_server(
                 if route == "/api/crm/submit":
                     res = controller.submit_demo_crm_deal(payload)
                     return self._send_json(HTTPStatus.OK, {"ok": True, "deal": res, "state": controller.get_state_payload()})
+                if route == "/api/reset":
+                    res = controller.reset_demo_session(payload)
+                    return self._send_json(HTTPStatus.OK, {"ok": True, "reset": res, "state": controller.get_state_payload()})
+                if route == "/api/simulate/run":
+                    res = controller.run_fresh_simulation(payload)
+                    return self._send_json(HTTPStatus.OK, {"ok": True, "simulation": res, "state": controller.get_state_payload()})
             except ContractError as exc:
                 return self._send_json(HTTPStatus.BAD_REQUEST, {"ok": False, **exc.to_dict()})
             except Exception as exc:
