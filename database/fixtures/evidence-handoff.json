@@ -1,0 +1,133 @@
+{
+ "artifact": "FINAL evidence handoff v1 - one goal: protect value and margin while growing sales (discount rules/culture loop)",
+ "content_class": "sanitized, source-linked; no raw text, no names, no CRM money figures",
+ "evidence_classes": {
+  "verified_external_review": "Five owner-approved SubQ Snap 1.1 pair reviews (below) + one earlier SubQ pilot pair on a reviews norm. Verdicts are signals, not proofs.",
+  "verified_quote_gate": "Every claim in the private packet passed a code-enforced exact-quote gate against full source texts (span + SHA-256). This verifies provenance, not semantic truth.",
+  "context_reviewed": "Demo-ready rules/examples/counterexamples in culture-rules-brief.json: each re-read by the central reviewer with surrounding context (date, subject, amount basis, offer-vs-sale stage).",
+  "candidate_grade": "3,351 merged fan-out claims (Spark drafts, central quote gate, deterministic semantic samples per batch with flagged items annotated/excluded from demo). NOT exhaustively semantic-reviewed; never cite as verified facts or frequencies.",
+  "internal_secondary": "Internal analytical summaries and archive digests (e.g. the 45-branch price-scatter episode note; a 2025 paid-with-discount episode surviving only as a 359-char archive summary). Attribution-level only.",
+  "simulated": "Synthetic demo pipeline data and rule-preview simulations (including the proposed reciprocity rule preview and any synthetic review packets). Product demonstration, not company evidence."
+ },
+ "rules_and_culture_refs": {
+  "brief": "database/fixtures/culture-rules-brief.json (5 reviewed rules, 5 observed examples, 3 counterexamples, claim+source+quote refs inside)",
+  "discount_packet": "database/fixtures/review-packet-subq-discount.json (9 claims, 5 SubQ pairs, mixed per-claim mandate status)",
+  "episode_note": "database/fixtures/episode-price-consistency-note.json (internal secondary, unverified outcome)",
+  "synthesis_private": "database/private/a07-culture-synthesis.json (denominator + validity caveats)",
+  "rule_status": {
+   "active": "mandate-v1 (flexible seller discounts)",
+   "proposed_unapproved": "mandate-v2-draft / codex-v2 discount-reciprocity (preview only)",
+   "training_norms": "unapproved"
+  }
+ },
+ "subq_statuses": {
+  "pilot_pair_reviews_norm": {
+   "model": "subq-snap-1.1",
+   "label": "contradictory",
+   "probabilities": {
+    "consistent": 0.005070986691862345,
+    "contradictory": 0.4642253518104553,
+    "different_scope_time": 0.40391990542411804,
+    "insufficient_evidence": 0.1267838031053543
+   },
+   "confidence": 0.28563380241394043,
+   "framing": "possible_conflict signal only, low confidence; different topic (reviews), not a discount comparison"
+  },
+  "discount_pairs": [
+   {
+    "pair": [
+     "C30-85b1dbab4c",
+     "C33-3024412d9f"
+    ],
+    "label": "different_scope_time",
+    "probabilities": {
+     "consistent": 0.006758181843906641,
+     "contradictory": 0.07496672868728638,
+     "different_scope_time": 0.8030493259429932,
+     "insufficient_evidence": 0.11522577702999115
+    },
+    "confidence": 0.7373991012573242,
+    "input_tokens": 277,
+    "model": "subq-snap-1.1"
+   },
+   {
+    "pair": [
+     "C43-fe7cfc0d51",
+     "C41-58ceac2f04"
+    ],
+    "label": "insufficient_evidence",
+    "probabilities": {
+     "consistent": 0.03961094468832016,
+     "contradictory": 0.015959009528160095,
+     "different_scope_time": 0.018213268369436264,
+     "insufficient_evidence": 0.926216721534729
+    },
+    "confidence": 0.9016222953796387,
+    "input_tokens": 265,
+    "model": "subq-snap-1.1"
+   },
+   {
+    "pair": [
+     "C572-a694d24aa4",
+     "C495-cab3643af9"
+    ],
+    "label": "insufficient_evidence",
+    "probabilities": {
+     "consistent": 0.010189732536673546,
+     "contradictory": 0.02568744122982025,
+     "different_scope_time": 0.438097208738327,
+     "insufficient_evidence": 0.5260255932807922
+    },
+    "confidence": 0.36803412437438965,
+    "input_tokens": 279,
+    "model": "subq-snap-1.1"
+   },
+   {
+    "pair": [
+     "C228-2b8eb61aeb",
+     "C43-fe7cfc0d51"
+    ],
+    "label": "insufficient_evidence",
+    "probabilities": {
+     "consistent": 0.008830193430185318,
+     "contradictory": 0.010665259324014187,
+     "different_scope_time": 0.16863131523132324,
+     "insufficient_evidence": 0.8118732571601868
+    },
+    "confidence": 0.749164342880249,
+    "input_tokens": 263,
+    "model": "subq-snap-1.1"
+   },
+   {
+    "pair": [
+     "C398-8df541a2b3",
+     "C65-3888ae4342"
+    ],
+    "label": "consistent",
+    "probabilities": {
+     "consistent": 0.5443557500839233,
+     "contradictory": 0.03827306255698204,
+     "different_scope_time": 0.37034815549850464,
+     "insufficient_evidence": 0.0470229871571064
+    },
+    "confidence": 0.39247433344523114,
+    "input_tokens": 268,
+    "model": "subq-snap-1.1"
+   }
+  ],
+  "conclusion": "NO proven contradiction in the five discount comparisons."
+ },
+ "cannot_claim": [
+  "Prevalence or frequency of discounts/grants/refusals (keyword-selected, claim-capped pool; not a representative sample).",
+  "Causality: that price scatter caused a specific lost deal (internal secondary attribution only), or that any norm caused any outcome.",
+  "That chat grants became accepted deals or payments (CRM linkage unestablished; the one paid-with-discount episode is archive-summary only).",
+  "CRM revenue, totals, or client counts (semantics unverified, frozen).",
+  "Comprehensive monitoring of the organization (one concrete goal only).",
+  "Retroactive violations of the proposed rule by historical episodes.",
+  "That the corpus is fully distilled (3,351 candidate claims over 994 of 7,697 candidate sources; chunk-level bounded slices)."
+ ],
+ "demo_pointers": {
+  "packet_private": "database/private/a05-demo-packet.json (3,351 claims; validation clean)",
+  "status": "docs/status/Muse.Hackathon.md"
+ }
+}
