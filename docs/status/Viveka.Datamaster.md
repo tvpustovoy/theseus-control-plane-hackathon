@@ -30,6 +30,8 @@
 
 ### Compact list revision
 
+- Owner clarified unit of record: the existing mandate is ONE commitment, not four. Fallback now renders one numbered collapsed row with shared confirmation date/status; expanding shows Goal, Rule/principle, Culture, Monitoring. Section edits mark the package Updated. New review-key namespace avoids mislabeling this presentation migration as a newly accepted commitment. Live browser verified one row and four expanded sections.
+
 - Replaced long nested cards with a text/date/status list, expandable details and newest/changed items first. Preserved exact saved wording; hidden details retain IDs, targets and evidence gaps. Unknown dates remain explicit.
 - Added per-browser reviewed fingerprints (no copies of commitment text in localStorage), distinct New/Updated badges, explicit Mark as reviewed, manual refresh and read-only refresh on focus/every 15 seconds while the page is visible.
 - Supports additive `state.commitments` rows (`id`, `kind`, `text`, `version`, `status`, `confirmed_at`, `updated_at`, optional `source_chat_url`). Existing backend only overwrites four snapshot categories, so fallback labels dates Last confirmed and explains it is not historical acceptance data. Additive chat storage integration requested from Viveka.Hackathon; not yet confirmed.

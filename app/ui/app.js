@@ -1431,19 +1431,24 @@ function commitmentList(d) {
     changedAt: row.updated_at || row.confirmed_at || row.accepted_at || null,
     confirmed: row.status === 'confirmed', pending: row.status === 'proposed',
   }));
-  return commitmentRows(d).map(row => ({
-    ...row, key: 'snapshot:' + row.kind,
-    confirmedAt: row.confirmed ? row.confirmedAt : null,
-    changedAt: row.confirmed ? row.confirmedAt : null,
-  }));
+  const c = d.s01_commit;
+  const confirmed = c.mandate_status === 'committed_mandate';
+  const sections = commitmentRows(d);
+  return [{
+    id: 'mandate:' + d.organization_id, key: 'snapshot:mandate', kind: 'Agreement',
+    text: sections[0].text?.split(/(?<=[.!?])\s/)[0] || 'Current direction',
+    version: c.committed_version, confirmed, approvedBy: c.approved_by,
+    confirmedAt: confirmed ? c.effective_time : null,
+    changedAt: confirmed ? c.effective_time : null, sections,
+  }];
 }
 
 function commitmentSeenKey(d) {
-  return 'theseus.commitments.reviewed.' + d.organization_id + '.' + d.demo_session_id;
+  return 'theseus.commitments.reviewed.packages.' + d.organization_id + '.' + d.demo_session_id;
 }
 
 function commitmentFingerprint(row) {
-  const value = JSON.stringify([row.text, row.target, row.version, row.confirmed, row.pending, row.changedAt]);
+  const value = JSON.stringify([row.text, row.target, row.version, row.confirmed, row.pending, row.changedAt, row.sections]);
   let hash = 2166136261;
   for (let i = 0; i < value.length; i++) hash = Math.imul(hash ^ value.charCodeAt(i), 16777619);
   return (hash >>> 0).toString(16);
@@ -1510,7 +1515,7 @@ function renderCommitments(d) {
     <p>${Array.isArray(d.commitments) ? 'What we agreed, and when.' : 'One agreement · One goal, with a rule, a cultural principle and monitoring.'}</p></div>
     <a class="btn btn-secondary" href="#S01">Review direction</a></header>
     <div class="commitments-toolbar">
-      <span role="status">${changedCount ? `<strong>${changedCount} new or updated since your last review</strong>` : `${rows.length} items · Latest first`}</span>
+      <span role="status">${changedCount ? `<strong>${changedCount} new or updated since your last review</strong>` : `${rows.length} ${rows.length === 1 ? 'commitment' : 'commitments'} · Latest first`}</span>
       <div><button class="btn btn-secondary" onclick="refreshCommitments()">Refresh</button>
       ${changedCount ? '<button class="btn btn-secondary" onclick="markCommitmentsReviewed()">Mark as reviewed</button>' : ''}</div>
     </div>
@@ -1525,6 +1530,8 @@ function renderCommitments(d) {
         <span class="commitment-date">${esc(commitmentDate(row.confirmedAt))}</span>
         <span class="commitment-status">${esc(status)}<span class="commitment-expand" aria-hidden="true"></span></span></summary>
         <div class="commitment-detail">
+          ${(row.sections || []).map(section => `<section><h3>${esc(section.kind)}${section.pending ? ' · Proposed' : ''}</h3><p>${esc(section.text)}</p>
+            <details><summary>Target and evidence</summary><p>${esc(section.target)}</p><p class="muted">${esc(section.gap)}</p></details></section>`).join('')}
           ${row.target ? `<p><strong>Target / constraint</strong><br>${esc(row.target)}</p>` : ''}
           ${row.gap ? `<p><strong>Evidence still needed</strong><br>${esc(row.gap)}</p>` : ''}
           <p class="muted">Reference: ${esc(row.id)} · ${esc(row.version || c.committed_version)}<br>
