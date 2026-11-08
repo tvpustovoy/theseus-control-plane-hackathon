@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theseus Models and Tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Third slide for the live demo: the models-and-tools slide that closes the 60 s video (#tech in ../video-60s/index.html),
+     same rows and wording. Setu.Hackathon, 07.11.2026. F or double-click = full screen; ← back to the loop slide. -->
+<style>
+  :root { --ink: #0b3a5e; --muted: #5a7389; --sans: "Geist", -apple-system, "Segoe UI", sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: #f3f7fa; overflow: hidden; font-family: var(--sans); }
+  .stage { position: fixed; left: 50%; top: 50%; width: 1920px; height: 1080px; padding: 64px 96px; background: #f3f7fa;
+           transform-origin: 50% 50%; transform: translate(-50%, -50%) scale(var(--s, .5)); }
+  .tlogo { position: absolute; right: 96px; top: 40px; width: 190px; height: 190px; object-fit: contain; }
+  .th1 { font-size: 64px; font-weight: 700; color: var(--ink); }
+  .th2 { margin-top: 10px; font-size: 32px; color: var(--muted); }
+  table { margin-top: 40px; width: 100%; border-collapse: collapse; background: #fff; border: 2px solid #e3ecf3; }
+  th { text-align: left; font-size: 22px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink); background: #e8f1f8; padding: 16px 24px; font-weight: 700; }
+  td { padding: 13px 24px; border-top: 2px solid #eef3f7; vertical-align: middle; }
+  td.tool { width: 470px; font-size: 30px; color: var(--ink); }
+  td.tool img { width: 56px; height: 56px; object-fit: contain; vertical-align: middle; margin-right: 18px; }
+  td.tool b { display: inline-block; vertical-align: middle; font-weight: 700; line-height: 1.15; }
+  td.tool b.teal { color: #40877c; }
+  td.role { width: 340px; font-size: 26px; color: var(--muted); line-height: 1.2; }
+  td.what { font-size: 29px; color: var(--ink); line-height: 1.25; }
+  .tnote { margin-top: 18px; font-size: 22px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <img class="tlogo" src="../video-60s/assets/logo-v8.png" alt="Theseus logo">
+  <div class="th1">Models and tools behind Theseus</div>
+  <div class="th2">Who built the system and what runs inside it</div>
+  <table>
+    <thead><tr><th>Model / tool</th><th>Role / capability</th><th>What we used it for</th></tr></thead>
+    <tbody>
+      <tr><td class="tool"><img src="../video-60s/assets/partners/openai.png" alt=""><b>OpenAI Codex</b></td><td class="role">Viveka<br>Coordination</td><td class="what">Coordinated agents and built the ASI:One Deputy CEO</td></tr>
+      <tr><td class="tool"><img src="../video-60s/assets/partners/claude.svg" alt=""><b>Claude Code</b></td><td class="role">Setu<br>Narrative &amp; defense</td><td class="what">Scenario, pitch, demo video and voice-over</td></tr>
+      <tr><td class="tool"><img src="../video-60s/assets/partners/gemini.png" alt=""><b>Gemini 4 Argon<br>via Antigravity</b></td><td class="role">Argon<br>Implementation</td><td class="what">Data import, backend, six UI screens and simulation</td></tr>
+      <tr><td class="tool"><img src="../video-60s/assets/partners/meta.png" alt=""><b class="teal">Meta Models<br>via Muse Code</b></td><td class="role">Fast &amp; Multimodal<br>Evidence extraction</td><td class="what">Cited claims from source records, with provenance checks</td></tr>
+      <tr><td class="tool"><img src="../video-60s/assets/partners/subq.png" alt=""><b>SubQ Snap 1.1</b></td><td class="role">Evidence review &amp;<br>decision management</td><td class="what">Scoped comparisons after prefiltering; uncertainty surfaced</td></tr>
+      <tr><td class="tool"><img src="../video-60s/assets/partners/fetch.png" alt=""><b>Fetch.ai / ASI:One</b></td><td class="role">Deputy CEO runtime</td><td class="what">Conversation, Commit card and website link; data bridge pending</td></tr>
+      <tr><td class="tool"><img src="../video-60s/assets/partners/mongodb.png" alt=""><b>MongoDB Atlas</b></td><td class="role">AI-native<br>organization memory</td><td class="what">53,431 raw records, source history and simulation events</td></tr>
+    </tbody>
+  </table>
+  <div class="tnote">Latest five SubQ checks: no proven contradiction. Outcome comparisons are labeled simulation.</div>
+</div>
+<script>
+  const stage = document.getElementById("stage");
+  const fit = () => stage.style.setProperty("--s", Math.min(innerWidth / 1920, innerHeight / 1080));
+  addEventListener("resize", fit); fit();
+  const fs = () => (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => {});
+  document.addEventListener("keydown", e => {
+    if (e.key === "f" || e.key === "F") fs();
+    if (e.key === "ArrowLeft" || e.key === "PageUp") location.href = "loop.html";
+  });
+  document.addEventListener("dblclick", fs);
+</script>
+</body>
+</html>
