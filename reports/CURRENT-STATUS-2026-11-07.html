@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Theseus Control Plane — статус хакатона</title>
+  <style>
+    :root{color-scheme:light;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#17334b;background:#edf3f6}
+    *{box-sizing:border-box}body{margin:0}main{max-width:1100px;margin:0 auto;padding:38px 24px 80px}
+    h1,h2{font-family:Georgia,serif;color:#113756}h1{font-size:clamp(2rem,4vw,3.4rem);margin:.1em 0}h2{margin-top:2.3rem}
+    p{line-height:1.55}.eyebrow{color:#2781bc;font-weight:700;letter-spacing:.11em;text-transform:uppercase;font-size:.8rem}
+    .lead{max-width:790px;font-size:1.12rem}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:26px 0}
+    .card,.panel{background:white;border:1px solid #d8e5ec;border-radius:16px;padding:20px;box-shadow:0 8px 26px #17334b0c}
+    .number{display:block;font-size:2rem;font-weight:800;color:#1373af}.label{color:#537187;font-size:.9rem}
+    table{width:100%;border-collapse:collapse;background:white;border-radius:14px;overflow:hidden}th,td{padding:14px 16px;text-align:left;vertical-align:top;border-bottom:1px solid #e4edf2;line-height:1.42}th{background:#174667;color:white}td:first-child{font-weight:650;width:24%}td:nth-child(2){width:12%;font-weight:700}tr:last-child td{border-bottom:0}
+    .note{border-left:4px solid #e8ae42;padding:14px 18px;background:#fff8e9;border-radius:0 10px 10px 0}.pending{color:#9b5b11}.done{color:#168166}
+    a{color:#086ba9}footer{margin-top:30px;color:#617e90;font-size:.88rem}
+    @media(max-width:700px){main{padding:22px 14px}table,tbody,tr,td,th{display:block}thead{display:none}tr{border-bottom:2px solid #d8e5ec}td{border:0;padding:7px 14px}td:first-child{padding-top:15px;width:auto}td:nth-child(2){width:auto}td:last-child{padding-bottom:16px}}
+  </style>
+</head>
+<body><main>
+  <div class="eyebrow">Theseus Control Plane · AIE Code 2026</div>
+  <h1>Где мы сейчас</h1>
+  <p class="lead">Срез на 7 ноября, 16:58 PST. Эти данные описывают один сценарий: как человек удерживает цель роста продаж и маржи, видит правила скидок и сложившуюся практику, проверяет свидетельства и принимает решение.</p>
+  <div class="cards">
+    <div class="card"><span class="number">≈80%</span><span class="label">оценка готовности демо по десяти равновесным направлениям</span></div>
+    <div class="card"><span class="number">53 431</span><span class="label">сырых записей и столько же источников проверено в MongoDB Atlas</span></div>
+    <div class="card"><span class="number">3 351</span><span class="label">локальных кандидатов в утверждения из 994 источников; корпус обработан частично</span></div>
+    <div class="card"><span class="number">5</span><span class="label">проверок SubQ по скидкам; доказанных противоречий нет</span></div>
+  </div>
+  <h2>Десять направлений</h2>
+  <table><thead><tr><th>Направление</th><th>Готовность</th><th>Что доказано и что осталось</th></tr></thead><tbody>
+    <tr><td>Сырой импорт</td><td class="done">100%</td><td>53 431 записей и источников в Atlas; сверка количества и хешей. Это ещё не извлечённые факты.</td></tr>
+    <tr><td>Модель и происхождение</td><td>85%</td><td>Версии, ссылки на источники, решения и откат работают. Независимая сквозная оценка остаётся.</td></tr>
+    <tr><td>Извлечение Muse</td><td>80%</td><td>Передан пакет с 3 351 кандидатом из 994 источников среди 7 697 кандидатов. Это локальные данные; в Atlas коллекции claims пока пусты. Полной обработки корпуса нет.</td></tr>
+    <tr><td>Культура одной цели</td><td>70%</td><td>Правила и примеры скидок связаны с источниками. Историческая CRM не даёт надёжных исходов и причин скидок; доля нарушений не выводится.</td></tr>
+    <tr><td>SubQ и противоречия</td><td>95%</td><td>Пять реальных проверок скидок показаны в S03 с точными метками; доказанных противоречий нет. Ответы модели — сигналы для ревью.</td></tr>
+    <tr><td>Решение и безопасное улучшение</td><td>65%</td><td>Человек может принять версионное решение; результат сравнивается в симуляции. Независимое held-out улучшение и реальное внедрение в организацию не доказаны.</td></tr>
+    <tr><td>Моделирование результата</td><td class="done">100%</td><td>Пять воспроизводимых сценариев на 120 синтетических лидах. Это демонстрация измерения, а не реальный рост продаж.</td></tr>
+    <tr><td>Сайт и Organization Memory</td><td>90%</td><td>Сырой импорт, частичное выделение, источники и вопросы видны раздельно. Два живых ответа Opus, reset, 37/37 тестов, HTTP 200 и проверка скриншотом прошли. Шесть старых экранов ждут финального сквозного прохода.</td></tr>
+    <tr><td>Deputy CEO / Fetch.ai</td><td>80%</td><td>Из ASI:One выполнил защищённый поиск по Atlas, указал источник и увидел изменение тестовой записи без рестарта. Commit остаётся действием на сайте. Нативная карточка однажды не отобразилась; есть обычная ссылка, переход нужно перепроверить.</td></tr>
+    <tr><td>Видео и подача</td><td>35%</td><td>Сценарий и черновик ролика есть. Нужны финальный живой прогон, медиа и отправка.</td></tr>
+  </tbody></table>
+  <h2>Главное сейчас</h2>
+  <div class="panel"><p><strong>Datamaster:</strong> довела Organization Memory до работающего демо после исчерпания лимита Argon. <strong>Muse:</strong> завершил слой свидетельств для одной цели, P0 у него нет. <strong>Viveka.Hackathon:</strong> проверила живой Deputy через защищённый мост к Atlas. Их результаты зафиксированы в <a href="../docs/WORKLOG.md">журнале</a>.</p><p>Сырые данные в Atlas — исторический снимок. Выделенные 3 351 утверждение остаются локальными кандидатами, не подтверждёнными фактами компании и не записями Atlas. CRM не подтверждает исходы скидок; симуляция не означает измеренный рост продаж.</p></div>
+  <h2>До честной демонстрации</h2>
+  <p class="note">Проверить переход Deputy → Commit, пройти сценарий Memory → вопрос → решение человека → SubQ → симуляция, сохранить работающими приложение, мост и туннель, затем проверить публичные материалы перед отправкой. Оценка 80% — готовность демо, не полнота продукта.</p>
+  <footer><a href="CURRENT-STATUS-2026-11-07.md">Подробный статус и расчёт</a> · <a href="../docs/status/Viveka.Datamaster.md">проверки Datamaster</a> · <a href="../app/deputy/agentverse/MONGO-LIVE-VERIFICATION.md">проверка Deputy</a> · <a href="CURRENT-STATUS-2026-11-07.en.html">English version</a>.</footer>
+</main></body></html>

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Theseus Control Plane — Hackathon Status</title>
+  <style>
+    :root{color-scheme:light;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#17334b;background:#edf3f6}
+    *{box-sizing:border-box}body{margin:0}main{max-width:1100px;margin:0 auto;padding:38px 24px 80px}
+    h1,h2{font-family:Georgia,serif;color:#113756}h1{font-size:clamp(2rem,4vw,3.4rem);margin:.1em 0}h2{margin-top:2.3rem}
+    p{line-height:1.55}.eyebrow{color:#2781bc;font-weight:700;letter-spacing:.11em;text-transform:uppercase;font-size:.8rem}
+    .lead{max-width:790px;font-size:1.12rem}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin:26px 0}
+    .card,.panel{background:white;border:1px solid #d8e5ec;border-radius:16px;padding:20px;box-shadow:0 8px 26px #17334b0c}
+    .number{display:block;font-size:2rem;font-weight:800;color:#1373af}.label{color:#537187;font-size:.9rem}
+    table{width:100%;border-collapse:collapse;background:white;border-radius:14px;overflow:hidden}th,td{padding:14px 16px;text-align:left;vertical-align:top;border-bottom:1px solid #e4edf2;line-height:1.42}th{background:#174667;color:white}td:first-child{font-weight:650;width:24%}td:nth-child(2){width:12%;font-weight:700}tr:last-child td{border-bottom:0}
+    .note{border-left:4px solid #e8ae42;padding:14px 18px;background:#fff8e9;border-radius:0 10px 10px 0}.done{color:#168166}
+    a{color:#086ba9}footer{margin-top:30px;color:#617e90;font-size:.88rem}
+    @media(max-width:700px){main{padding:22px 14px}table,tbody,tr,td,th{display:block}thead{display:none}tr{border-bottom:2px solid #d8e5ec}td{border:0;padding:7px 14px}td:first-child{padding-top:15px;width:auto}td:nth-child(2){width:auto}td:last-child{padding-bottom:16px}}
+  </style>
+</head>
+<body><main>
+  <div class="eyebrow">Theseus Control Plane · AIE Code 2026</div>
+  <h1>Where we stand</h1>
+  <p class="lead">Snapshot: November 7, 2026, 4:58 p.m. PST. This demo follows one goal: protect sales growth and margin while a human reviews discount rules, emerging practice, evidence and proposed decisions.</p>
+  <div class="cards">
+    <div class="card"><span class="number">≈80%</span><span class="label">estimated demo readiness across ten equally weighted workstreams</span></div>
+    <div class="card"><span class="number">53,431</span><span class="label">raw records and matching source records verified in MongoDB Atlas</span></div>
+    <div class="card"><span class="number">3,351</span><span class="label">local candidate claims from 994 sources; extraction remains partial</span></div>
+    <div class="card"><span class="number">5</span><span class="label">SubQ discount reviews; no proven contradiction</span></div>
+  </div>
+  <h2>Ten workstreams</h2>
+  <table><thead><tr><th>Workstream</th><th>Readiness</th><th>Evidence and remaining work</th></tr></thead><tbody>
+    <tr><td>Lossless raw import</td><td class="done">100%</td><td>53,431 records and source records in Atlas, with counts and hashes checked. This is the raw layer, not newly extracted facts.</td></tr>
+    <tr><td>Model and provenance</td><td>85%</td><td>Versions, source references, decisions and rollback exist. Independent end-to-end review remains.</td></tr>
+    <tr><td>Muse extraction</td><td>80%</td><td>The demo handoff has 3,351 candidate claims from 994 sources in a 7,697 candidate-hash set. The packet is local; Atlas claims collections are empty. The full corpus has not been distilled.</td></tr>
+    <tr><td>One-goal culture view</td><td>70%</td><td>Discount rules and examples cite sources. Historical CRM does not establish discount outcomes or reasons; no violation prevalence is inferred.</td></tr>
+    <tr><td>SubQ conflict review</td><td>95%</td><td>Five recorded discount comparisons appear in S03 with exact labels. None proves a contradiction. Model results are review signals.</td></tr>
+    <tr><td>Human decision and safe improvement</td><td>65%</td><td>The human can commit a versioned decision and inspect a simulated outcome. Independent held-out improvement and actual organizational adoption remain unproved.</td></tr>
+    <tr><td>Outcome simulation</td><td class="done">100%</td><td>Five reproducible configurations run on 120 synthetic leads. This demonstrates measurement mechanics, not observed business lift.</td></tr>
+    <tr><td>Website and Organization Memory</td><td>90%</td><td>The opening separates verified raw import, partial extraction, source inventory and grounded questions. Two live Opus answers, reset, 37/37 tests, HTTP 200 and desktop screenshot QA passed. The six older screens await a final complete walkthrough.</td></tr>
+    <tr><td>Deputy CEO / Fetch.ai</td><td>80%</td><td>ASI:One used an authenticated Atlas search, cited a source and saw an updated test record without restart. Commit remains a website action. A native card once failed to render; the plain local link fallback needs a final navigation check.</td></tr>
+    <tr><td>Video and submission</td><td>35%</td><td>A scenario and draft video exist. Final live rehearsal, media and submission remain.</td></tr>
+  </tbody></table>
+  <h2>Immediate focus</h2>
+  <div class="panel"><p><strong>Datamaster</strong> completed Organization Memory after Argon's model limit ended. <strong>Muse</strong> finished the one-goal evidence handoff with no P0 on his side. <strong>Viveka.Hackathon</strong> verified a live Deputy through an authenticated Atlas bridge. See the <a href="../docs/WORKLOG.md">work log</a>.</p><p>The raw Atlas corpus is a historical snapshot. Muse's 3,351 extracted claims remain local candidates, not Atlas records or confirmed company facts. CRM discount outcomes are unverified, and simulation is not measured sales lift.</p></div>
+  <h2>Before a truthful demo</h2>
+  <p class="note">Verify Deputy → Commit navigation; rehearse Memory → grounded question → human decision → SubQ → simulation; keep the app, bridge and tunnel running; inspect public artifacts before submission. The 80% figure estimates demo readiness, not product completeness.</p>
+  <footer><a href="CURRENT-STATUS-2026-11-07.md">Detailed status and calculation</a> · <a href="../docs/status/Viveka.Datamaster.md">Datamaster checks</a> · <a href="../app/deputy/agentverse/MONGO-LIVE-VERIFICATION.md">Deputy acceptance</a> · <a href="CURRENT-STATUS-2026-11-07.html">Русская версия</a>.</footer>
+</main></body></html>
