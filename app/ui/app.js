@@ -1618,7 +1618,7 @@ function renderCommitments(d) {
         <summary><span class="commitment-main"><span class="commitment-kind"><strong>${row.displayNumber}.</strong> ${esc(row.kind || 'Commitment')}${change ? ` <b class="commitment-change">${change}</b>` : ''}</span>
         <span class="commitment-text">${esc(row.text)}</span></span>
         <span class="commitment-date">${esc(commitmentDate(row.confirmedAt))}</span>
-        <span class="commitment-status">${esc(status)}</span><span class="commitment-row-actions"><a class="btn btn-secondary" href="#S06">Outcomes</a><span class="commitment-expand" aria-hidden="true"></span></span></summary>
+        <span class="commitment-status">${esc(status)}</span><span class="commitment-row-actions"><a class="btn btn-secondary commitment-implementation" href="#S05">Implementation</a><a class="btn btn-secondary" href="#S06">Outcomes</a><span class="commitment-expand" aria-hidden="true"></span></span></summary>
         <div class="commitment-detail">
           ${(row.sections || []).map(section => `<details class="commitment-section"><summary>
             <strong>${esc(section.kind)}${section.pending ? ' · Proposed' : ''}</strong><span class="commitment-preview">${esc(section.text)}</span><span class="commitment-expand" aria-hidden="true"></span></summary>
