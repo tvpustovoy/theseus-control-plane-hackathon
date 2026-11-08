@@ -60,6 +60,27 @@ function renderEnglishAnswer(value) {
   return esc(latin).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\n/g, '<br>');
 }
 
+function validDeputyReturn(value) {
+  if (typeof value !== 'string') return null;
+  const match = value.trim().match(/^https:\/\/asi1\.ai\/chat\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/i);
+  return match ? `https://asi1.ai/chat/${match[1]}` : null;
+}
+
+function updateDeputyReturn() {
+  const current = new URL(window.location.href);
+  const values = current.searchParams.getAll('return_to');
+  const target = values.length === 1 ? validDeputyReturn(values[0]) : null;
+  const link = document.getElementById('back-to-deputy');
+  const connect = document.getElementById('connect-deputy');
+  link.hidden = !target;
+  if (target) link.href = target;
+  else link.removeAttribute('href');
+  connect.querySelector('summary').textContent = target ? 'Change connected chat' : 'Connect this chat';
+  if (values.length && !target) {
+    document.getElementById('deputy-connect-error').textContent = 'Invalid return address. Paste an exact ASI:One chat URL.';
+  }
+}
+
 function provenanceBadgeClass(cat) {
   const s = String(cat || "").toLowerCase();
   if (s.includes("simulation") || s.includes("prepared")) return "amber";
@@ -1412,6 +1433,22 @@ window.addEventListener("keydown", (ev) => {
 });
 
 window.addEventListener("DOMContentLoaded", () => {
+  updateDeputyReturn();
+  document.getElementById('connect-deputy-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    const target = validDeputyReturn(document.getElementById('deputy-chat-url').value);
+    const error = document.getElementById('deputy-connect-error');
+    if (!target) {
+      error.textContent = 'Use https://asi1.ai/chat/ followed by the chat UUID.';
+      return;
+    }
+    const current = new URL(window.location.href);
+    current.searchParams.set('return_to', target);
+    window.history.replaceState(window.history.state, '', current);
+    error.textContent = '';
+    document.getElementById('connect-deputy').open = false;
+    updateDeputyReturn();
+  });
   const receiptBtn = document.getElementById("open-import-receipt-btn");
   if (receiptBtn) {
     receiptBtn.addEventListener("click", () => {

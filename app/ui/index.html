@@ -27,6 +27,16 @@
     </nav>
 
     <div class="top-actions">
+      <a id="back-to-deputy" class="cite-btn" hidden rel="noreferrer">Back to Deputy</a>
+      <details id="connect-deputy">
+        <summary>Connect this chat</summary>
+        <form id="connect-deputy-form">
+          <label for="deputy-chat-url">Paste your ASI:One chat URL</label>
+          <input id="deputy-chat-url" type="url" required placeholder="https://asi1.ai/chat/…" />
+          <button class="cite-btn" type="submit">Connect</button>
+          <p id="deputy-connect-error" role="alert"></p>
+        </form>
+      </details>
       <span class="status-pill teal" id="backend-badge">Data connected</span>
       <button class="cite-btn" id="open-import-receipt-btn" type="button" title="View database connection &amp; verification summary">
         Data connection
