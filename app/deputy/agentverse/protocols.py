@@ -40,7 +40,7 @@ WORKFLOW_LINKS = {
 
 
 def validated_chat_url(value):
-    """Only an explicit ASI conversation URL; agent session IDs are not browser IDs."""
+    """Accept only the exact ASI conversation origin and UUID path."""
     if not isinstance(value, str):
         return None
     try:
@@ -66,7 +66,11 @@ def chat_return_context(ctx, user_text):
             return None, "Please use the full https://asi1.ai/chat/... address of this conversation. Nothing else changed."
         ctx.storage.set(key, url)
         return url, "Connected. Dashboard links will return to this conversation."
-    return (validated_chat_url(ctx.storage.get(key)) if key else None), None
+    # For this verified ASI owner gateway, ctx.session is the browser chat UUID.
+    # This is NOT msg.msg_id, the agent address, or our separate demo-session ID.
+    explicit = validated_chat_url(ctx.storage.get(key)) if key else None
+    automatic = validated_chat_url("https://asi1.ai/chat/" + str(session)) if session else None
+    return explicit or automatic, None
 
 
 def with_chat_return(text, return_to):
@@ -211,7 +215,7 @@ def card_response(user_text):
         if not valid:
             return ("This card belongs to an earlier demo. Ask 'What should we do next?' for a fresh card. Nothing changed.", None)
         label, url = WORKFLOW_LINKS[action]
-        return (f"[{label} →]({url})\n\nThis opens on the demo computer. Review and approve changes on the website; nothing was changed in chat.", None)
+        return (f"[{label} →]({url})", None)
     actions = ("theseus_open_commit", "theseus_discuss_commit")
     if isinstance(selected, dict):
         if selected.get("action") not in actions:
@@ -230,9 +234,7 @@ def card_response(user_text):
 
     if action == "theseus_open_commit":
         return (
-            f"[Review our direction in Theseus →]({COMMIT_URL})\n\n"
-            "The full screen has the proposed terms, evidence and your confirmation button. Nothing was approved in chat. "
-            "Demo computer only · recorded draft; check the current version on the website.", None)
+            f"[Review our direction in Theseus →]({COMMIT_URL})", None)
     if action == "theseus_discuss_commit":
         return (
             "We want to grow sales while protecting margin, and help customers see value before offering discounts. "
@@ -241,7 +243,7 @@ def card_response(user_text):
         return (
             "Let’s agree what your AI employees should protect.\n\n"
             f"[Open Commit in Theseus →]({COMMIT_URL})\n\n"
-            "Draft · recorded demo · monitoring is still partial. Opens on the demo computer.",
+            "Review the proposed direction on the dashboard.",
             commit_metadata())
     return None
 
@@ -282,7 +284,9 @@ SYSTEM_PROMPT = (
     "are a draft to review, NOT approved current rules. Discount-first drift is a hypothesis. "
     "The imported CRM has no discount/reason fields. Live reads of a bounded MongoDB demo collection "
     "and read-only search across the owner-authorized RecPlace corpus are connected. The current state mirror is returned separately; "
-    "use its synced_at and versions, and never confuse it with the dated context brief. Action execution is not connected. The local app link works only on the demo computer. "
+    "use its synced_at and versions, and never confuse it with the dated context brief. Action execution is not connected. "
+    "Links open the local dashboard. Explain the local-device limitation only if asked about access from another device "
+    "or a failed link. Do not append implementation caveats to routine navigation replies. "
     "A discount strategy question automatically includes the Commit review card while direction is pending. "
     "After confirmation, the handler adds a current-session card with Review evidence / Review proposed change. "
     "An approved change gets Review & apply on website; an active demo gets behavior and simulation links. "

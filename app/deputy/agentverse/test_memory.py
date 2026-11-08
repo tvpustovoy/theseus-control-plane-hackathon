@@ -33,7 +33,7 @@ def card_namespace(memory=None):
 
 
 class MemoryContract(unittest.TestCase):
-    def test_return_link_uses_only_explicit_valid_chat_in_same_session(self):
+    def test_return_link_uses_current_asi_chat_session_and_scopes_explicit_override(self):
         ns = card_namespace()
         saved = {}
         ctx = types.SimpleNamespace(session="one", storage=types.SimpleNamespace(
@@ -46,6 +46,9 @@ class MemoryContract(unittest.TestCase):
         self.assertEqual(ns["chat_return_context"](ctx, "Show Commit")[0], url)
         ctx.session = "two"
         self.assertIsNone(ns["chat_return_context"](ctx, "Show Commit")[0])
+        for session in ["aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee", "22222222-3333-4444-5555-666666666666"]:
+            ctx.session = session
+            self.assertEqual(ns["chat_return_context"](ctx, "Show Commit")[0], "https://asi1.ai/chat/" + session)
         for bad in ["https://evil.example/chat/a", "javascript:alert(1)", "https://asi1.ai.evil.example/chat/a", "https://asi1.ai/chat"]:
             self.assertIsNone(ns["validated_chat_url"](bad))
         for frame in ["S01", "S03", "S04", "S05", "S06"]:
@@ -96,7 +99,6 @@ class MemoryContract(unittest.TestCase):
         for cta, frame in zip(payload["ctas"], ["S03", "S04"]):
             result, _ = ns["card_response"](json.dumps(cta["selection"]))
             self.assertIn("#" + frame, result)
-            self.assertIn("nothing was changed", result)
         stale = dict(payload["ctas"][0]["selection"], version="old-session")
         self.assertIn("earlier demo", ns["card_response"](json.dumps(stale))[0])
         self.assertIsNone(memory["current_state_records"][0]["decision_record"])
