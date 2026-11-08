@@ -50,7 +50,10 @@
   </div>
   <script>
     const fs = () => (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => {});
-    document.addEventListener("keydown", e => { if (e.key === "f" || e.key === "F") fs(); });
+    document.addEventListener("keydown", e => {
+      if (e.key === "f" || e.key === "F") fs();
+      if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") location.href = "loop.html";
+    });
     document.addEventListener("dblclick", fs);
   </script>
 </body>

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theseus Loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<!-- Second slide for the live demo: the whole loop of the 60 s video on one picture. Setu.Hackathon, 07.11.2026.
+     Steps and numbers are the ones voiced and shown in the video (VIDEO-60S-SCRIPT.md); outcome numbers are simulation.
+     F or double-click = full screen; ← → switch between the start slide and this one. -->
+<style>
+  :root {
+    --ink: #0b3a5e; --glacier: #3fa6e8; --ice: #dde9f2; --amber: #f5bf45; --amber-deep: #c98a12; --snow: #f6f9fc; --muted: #5a7389;
+    --sans: "Geist", -apple-system, "Segoe UI", sans-serif;
+    --serif: "Instrument Serif", Georgia, serif;
+    --mono: "Geist Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { background: radial-gradient(ellipse at 50% 55%, #ffffff 0%, var(--snow) 55%, #eaf2f8 100%);
+         color: var(--ink); font-family: var(--sans); overflow: hidden; }
+  .stage { position: fixed; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: 50% 50%;
+           transform: translate(-50%, -50%) scale(var(--s, .5)); }
+  svg.ring { position: absolute; inset: 0; }
+
+  .head { position: absolute; left: 72px; top: 52px; }
+  .kicker { font-family: var(--mono); font-size: 18px; letter-spacing: .22em; text-transform: uppercase; color: var(--glacier); }
+  .title { margin-top: 10px; font-family: var(--serif); font-size: 54px; line-height: 1; }
+  .title em { font-style: italic; color: var(--amber-deep); }
+
+  .hub { position: absolute; left: 960px; top: 600px; transform: translate(-50%, -50%); text-align: center; }
+  .hub img { width: 290px; height: 290px; object-fit: contain; display: block; margin: 0 auto; }
+  .hub .cap { margin-top: 2px; font-family: var(--mono); font-size: 15px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+  .card { position: absolute; transform: translate(-50%, -50%); width: 410px; padding: 20px 24px 22px;
+          background: #fff; border: 1px solid var(--ice); border-radius: 16px;
+          box-shadow: 0 10px 30px rgba(11, 58, 94, .08), 0 1px 3px rgba(11, 58, 94, .06); }
+  .card .top { display: flex; align-items: center; gap: 14px; }
+  .num { flex: none; width: 36px; height: 36px; border-radius: 50%; background: var(--glacier); color: #fff;
+         font-family: var(--mono); font-size: 17px; font-weight: 500; display: grid; place-items: center; }
+  .card h2 { font-family: var(--serif); font-weight: 400; font-size: 40px; line-height: 1; }
+  .card p { margin-top: 10px; font-size: 19px; line-height: 1.35; color: #24506f; }
+  .ex { margin-top: 14px; display: inline-block; padding: 7px 12px; border-radius: 8px; background: #eef5fa;
+        font-family: var(--mono); font-size: 14.5px; line-height: 1.35; color: var(--ink); }
+  .tag { display: inline-block; margin-right: 6px; padding: 1px 7px; border-radius: 5px; background: var(--amber);
+         font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); }
+
+  .card.key { width: 600px; border: 2px solid var(--amber); box-shadow: 0 14px 40px rgba(201, 138, 18, .16); }
+  .card.key .num { background: var(--amber-deep); }
+  .levers { margin-top: 14px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .lever { padding: 10px 12px; border-radius: 10px; background: #fdf6e6; border: 1px solid #f3dfae; }
+  .lever b { display: block; font-family: var(--mono); font-weight: 500; font-size: 13px; letter-spacing: .14em;
+             text-transform: uppercase; color: var(--amber-deep); }
+  .lever span { display: block; margin-top: 4px; font-size: 17px; line-height: 1.25; color: var(--ink); }
+
+  .card { animation: pop .7s ease-out both; }
+  .c1 { animation-delay: .10s; } .c2 { animation-delay: .25s; } .c3 { animation-delay: .40s; }
+  .c4 { animation-delay: .55s; } .c5 { animation-delay: .70s; } .c6 { animation-delay: .85s; }
+  @keyframes pop { from { opacity: 0; transform: translate(-50%, -46%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+  @media (prefers-reduced-motion: reduce) { .card { animation: none; } .runner { display: none; } }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <svg class="ring" viewBox="0 0 1920 1080" aria-hidden="true">
+    <path id="loop" d="M 960 270 A 640 330 0 1 1 960 930 A 640 330 0 1 1 960 270" fill="none"
+          stroke="#3fa6e8" stroke-opacity=".45" stroke-width="3" stroke-dasharray="2 10" stroke-linecap="round"/>
+    <g fill="#3fa6e8">
+      <polygon points="-11,-10 13,0 -11,10" transform="translate(1280 314) rotate(16.6)"/>
+      <polygon points="-11,-10 13,0 -11,10" transform="translate(1600 600) rotate(90)"/>
+      <polygon points="-11,-10 13,0 -11,10" transform="translate(1280 886) rotate(163.4)"/>
+      <polygon points="-11,-10 13,0 -11,10" transform="translate(640 886) rotate(-163.4)"/>
+      <polygon points="-11,-10 13,0 -11,10" transform="translate(320 600) rotate(-90)"/>
+      <polygon points="-11,-10 13,0 -11,10" transform="translate(640 314) rotate(-16.6)"/>
+    </g>
+    <circle class="runner" r="8" fill="#f5bf45" stroke="#c98a12" stroke-width="2">
+      <animateMotion dur="14s" repeatCount="indefinite"><mpath href="#loop"/></animateMotion>
+    </circle>
+  </svg>
+
+  <div class="head">
+    <div class="kicker">Theseus Control Plane</div>
+    <div class="title">One loop keeps the ship <em>on course.</em></div>
+  </div>
+
+  <div class="hub">
+    <img src="../../../styles/theseus-logo-v8-spacesuit.png" alt="Theseus: a half-rebuilt ship with a human at the helm">
+    <div class="cap">Hundreds of agents and people at work</div>
+  </div>
+
+  <div class="card c1" style="left:960px; top:262px">
+    <div class="top"><span class="num">1</span><h2>Commit</h2></div>
+    <p>Goals, rules and culture, taken from the founder's files and meetings.</p>
+    <div class="ex">Discounts can be flexible, never a substitute for value</div>
+  </div>
+
+  <div class="card c2" style="left:1514px; top:435px">
+    <div class="top"><span class="num">2</span><h2>Watch</h2></div>
+    <p>What agents and people actually do: the culture as it really is.</p>
+    <div class="ex">0 of 6,102 CRM deals record a discount reason</div>
+  </div>
+
+  <div class="card c3" style="left:1514px; top:765px">
+    <div class="top"><span class="num">3</span><h2>Flag</h2></div>
+    <p>Where behavior may drift from the commitment, or where evidence is missing.</p>
+    <div class="ex">5 SubQ checks · no proven contradiction</div>
+  </div>
+
+  <div class="card key c4" style="left:960px; top:922px">
+    <div class="top"><span class="num">4</span><h2>Propose one fix</h2></div>
+    <p>One decision, applied on three levels at once.</p>
+    <div class="levers">
+      <div class="lever"><b>Agents</b><span>memory and rules</span></div>
+      <div class="lever"><b>People</b><span>onboarding talk with a manager</span></div>
+      <div class="lever"><b>Environment</b><span>required CRM field, built by dev agents</span></div>
+    </div>
+  </div>
+
+  <div class="card c5" style="left:406px; top:765px">
+    <div class="top"><span class="num">5</span><h2>Approve</h2></div>
+    <p>You approve. Checks run before anything applies.</p>
+    <div class="ex">Exact version v2 · checks · then live</div>
+  </div>
+
+  <div class="card c6" style="left:406px; top:435px">
+    <div class="top"><span class="num">6</span><h2>Track</h2></div>
+    <p>Whether the change works, week by week, then the loop runs again.</p>
+    <div class="ex"><span class="tag">Simulation</span>W1→W4 · discounts with a value reason 31% → 94%</div>
+  </div>
+</div>
+<script>
+  const stage = document.getElementById("stage");
+  const fit = () => stage.style.setProperty("--s", Math.min(innerWidth / 1920, innerHeight / 1080));
+  addEventListener("resize", fit); fit();
+  const fs = () => (document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()).catch(() => {});
+  document.addEventListener("keydown", e => {
+    if (e.key === "f" || e.key === "F") fs();
+    if (e.key === "ArrowLeft" || e.key === "PageUp") location.href = "index.html";
+  });
+  document.addEventListener("dblclick", fs);
+</script>
+</body>
+</html>
