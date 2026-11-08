@@ -69,6 +69,34 @@ def _get_client():
     return _client
 
 
+def governance_status(memory):
+    """Separate S01 direction, S05 change permission, and activation; no invented receipt."""
+    states = memory.get("current_state_records") or []
+    if not states:
+        return {"available": False}
+    state = states[0]
+    return {
+        "available": True,
+        "demo_session_id": state.get("demo_session_id"),
+        "synced_at": state.get("synced_at"),
+        "direction": {
+            "confirmed": state.get("mandate_status") == "committed_mandate",
+            "version": state.get("active_mandate_version"),
+            "evidence": "current mirror mandate_status / s01_commit_summary",
+        },
+        "implementation_decision": {
+            "record": state.get("decision_record"),
+            "meaning": "S05 permission for a proposed implementation change, NOT the S01 direction confirmation",
+        },
+        "activation": {
+            "receipt": state.get("activation_receipt"),
+            "runtime_version": state.get("active_runtime_version"),
+            "crm_version": state.get("active_crm_schema_version"),
+        },
+        "monitoring_status": state.get("monitoring_status"),
+    }
+
+
 def current_decisions(memory, args):
     """Current rehearsal authority comes from its mirror, never a past audit row."""
     states = memory.get("current_state_records") or []
@@ -83,7 +111,8 @@ def current_decisions(memory, args):
                    ("_id", "record_id", "decision_id", "receipt_id")]]
     result = {"collection": "decisions", "scope": "current_demo_session",
               "demo_session_id": state.get("demo_session_id"), "synced_at": state.get("synced_at"),
-              "note": "Only current-session receipts. Older rehearsal decisions do not authorize this run."}
+              "governance_status": governance_status(memory),
+              "note": "These receipts concern S05 implementation/activation. S01 direction confirmation is separate: read governance_status.direction. An empty receipt list does NOT mean direction is unconfirmed. Older rehearsal decisions do not authorize this run."}
     if args.get("operation") == "count":
         result["count"] = len(records)
     else:
@@ -109,14 +138,25 @@ def ask_asi1(messages, memory=None):
         "Read time is NOT the date of the evidence. Curated context is a dated snapshot. "
         "current_state_records and deputy_public_state are the website state mirror: report their synced_at "
         "and version, and prefer the freshest mirror for current policy questions. If data is absent, say so. "
-        "CURRENT AUTHORITY: only the exact current_state_records mirror determines this demo run's approvals. "
-        "If decision_record is null, there is NO approved correction in this run, even if old audit rows or "
-        "earlier chat messages describe an approval. Historical approvals belong to previous rehearsals. "
+        "CURRENT AUTHORITY has THREE DISTINCT steps. S01: mandate_status=committed_mandate means the owner "
+        "HAS confirmed the direction. A null decision_record does NOT cancel or cast doubt on that confirmation. "
+        "S05: decision_record is separate permission to implement the proposed correction; null means that "
+        "implementation permission has not been recorded, which is EXPECTED after S01. Finally activation_receipt "
+        "and active runtime/CRM versions describe whether an implementation was applied. Never conflate these steps. "
+        "Use governance_status below; do not invent a separate missing S01 receipt or ask to reconfirm saved direction. "
+        "Only the current mirror describes this run; historical approvals belong to previous rehearsals. "
         "mandate-v1 is a prepared demo baseline, not a verified company strategy. "
+        "An absent CRM field or partial monitoring is an OBSERVABILITY GAP, not observed behavioral misalignment. "
+        "Historical examples predate the new mandate; do not call them violations of it. Simulation is synthetic. "
+        "Zero current-demo submissions is not zero business activity. Speak plainly; do not show internal field names "
+        "unless asked. After confirmed direction, the next step is reviewing evidence and a proposed change, NOT "
+        "reconfirming direction or claiming the tools already changed. "
         "Keep the answer under 120 words. For discount strategy: say what is established, one evidence-backed "
         "observation and the proposed next decision. Do not list simulation outcomes unless explicitly asked. "
         "Do not infer a company-wide strategy or prevalence from this small selected sample. "
-        "For source links use only source_url supplied in records.\n" + json.dumps(memory, default=str)
+        "For source links use only source_url supplied in records.\nGovernance status derived from the current mirror:\n"
+        + json.dumps(governance_status(memory), default=str)
+        + "\nFresh memory:\n" + json.dumps(memory, default=str)
     )}, *messages[1:]]
     for _ in range(4):
         completion = client.chat.completions.create(model=MODEL, messages=messages,

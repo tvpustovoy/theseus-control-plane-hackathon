@@ -18,6 +18,26 @@ spec.loader.exec_module(module)
 
 
 class MemoryContract(unittest.TestCase):
+    def test_confirmed_direction_does_not_require_implementation_approval(self):
+        memory = {"current_state_records": [{"demo_session_id": "fresh",
+                  "mandate_status": "committed_mandate", "active_mandate_version": "mandate-v2",
+                  "decision_record": None, "activation_receipt": None,
+                  "active_runtime_version": "tool-v1", "active_crm_schema_version": "crm-v1",
+                  "monitoring_status": "mandate_committed_crm_still_blind"}]}
+        status = module.current_decisions(memory, {"operation": "search"})["governance_status"]
+        self.assertTrue(status["direction"]["confirmed"])
+        self.assertIsNone(status["implementation_decision"]["record"])
+        self.assertIsNone(status["activation"]["receipt"])
+        self.assertEqual(status["activation"]["runtime_version"], "tool-v1")
+
+    def test_implementation_receipt_does_not_imply_direction_or_activation(self):
+        memory = {"current_state_records": [{"mandate_status": "draft_pending_owner_commit",
+                  "decision_record": {"decision": "approve"}, "activation_receipt": None}]}
+        status = module.governance_status(memory)
+        self.assertFalse(status["direction"]["confirmed"])
+        self.assertIsNotNone(status["implementation_decision"]["record"])
+        self.assertIsNone(status["activation"]["receipt"])
+
     def test_reset_mirror_does_not_reuse_historical_approval(self):
         memory = {"current_state_records": [{"demo_session_id": "fresh", "decision_record": None}],
                   "records": [{"decision_id": "old", "decision": "approve"}]}

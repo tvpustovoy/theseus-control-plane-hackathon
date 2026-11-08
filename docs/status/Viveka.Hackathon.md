@@ -1,5 +1,11 @@
 # Viveka.Hackathon · Agentverse setup
 
+## 17:21 PST — Separate confirmed direction from implementation permission
+
+Taras showed S01 Direction saved while Deputy flagged a null decision_record as a missing owner receipt. Inspection confirmed an interpretation defect: S01 confirmation is mandate_status=committed_mandate; decision_record is the separate S05 implementation approval. Added a derived governance_status object and explicit instructions separating direction, implementation permission and activation. Current receipt queries include that distinction. Partial monitoring is a visibility gap, not evidence of behavioral violation. Thirteen offline tests pass, including confirmed direction with no implementation receipt and implementation permission without activation. Deployed both hosted source files and verified successful startup at 17:21.
+
+During diagnosis, both localhost /api/state and the Mongo mirror independently showed a new session, demosess-1f3b5c62, started at 01:18:05Z, after the owner's screenshot confirmation at 01:17:51Z. Current direction was pending again. Viveka did not reset or restart the website; informed coordinator to hold resets/restarts during the owner's rehearsal. No fabricated receipt or replacement confirmation was written. At 17:21 the real ASI follow-up explicitly corrected the S01/S05 confusion, described the new run as pending, and distinguished the observability gap from a proven violation. Screenshot: `reports/evidence/deputy-direction-vs-implementation.png`. This checks the corrected explanation live; a confirmed-direction fixture is covered by the offline tests, not by a new owner approval performed during this check.
+
 ## 17:11 PST — Natural strategy question includes the Commit card
 
 Taras reported that a normal discount-strategy question produced text without a card. Previously only `Show Commit` attached card metadata. Added English/Russian matching for discount strategy/rules and explicit decision-card requests; while the current mirror awaits owner commitment, the response now carries the existing native Commit card. This is navigation, never chat approval.
