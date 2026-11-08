@@ -26,6 +26,7 @@ RECORD_ID = "theseus-commit"
 RECORD_VERSION = "mandate-v2-draft"
 SNAPSHOT_DATE = "2026-11-07"
 COMMIT_URL = "http://127.0.0.1:8765/#S01"
+COMMITMENTS_URL = "http://127.0.0.1:8765/#COMMITMENTS"
 COMMIT_ROWS = [
     {"label": "Goal", "value": "Grow sales. Protect margin."},
     {"label": "Rules", "value": "Exchange discounts for customer commitment."},
@@ -77,7 +78,7 @@ def with_chat_return(text, return_to):
     url = validated_chat_url(return_to)
     if not url:
         return text
-    for target in [COMMIT_URL, *(link[1] for link in WORKFLOW_LINKS.values())]:
+    for target in [COMMIT_URL, COMMITMENTS_URL, *(link[1] for link in WORKFLOW_LINKS.values())]:
         root, fragment = target.split("#", 1)
         text = text.replace(target, root + "?return_to=" + quote(url, safe="") + "#" + fragment)
     return text
@@ -101,7 +102,7 @@ def wants_commit_overview(user_text):
     """Recognize requests for organizational commitments, excluding source-control commits."""
     if re.search(r"\b(?:git|github|repository|repo|sha|branch)\b", user_text, re.I):
         return False
-    topic = re.search(r"\bcommits?\b|(?:current|confirmed|approved)\s+(?:direction|decisions)|текущ.{0,12}(?:решени|коммит)", user_text, re.I)
+    topic = re.search(r"\bcommit(?:s|ments?)?\b|(?:current|confirmed|approved)\s+(?:direction|decisions)|текущ.{0,12}(?:решени|коммит)", user_text, re.I)
     request = re.search(r"\b(?:show|open|review|list|what|current|status)\b|покажи|открой|какие", user_text, re.I)
     return bool(topic and request)
 
@@ -110,7 +111,7 @@ def commit_overview_response(user_text, memory):
     states = memory.get("current_state_records") or []
     if not memory.get("connected") or not states:
         return ("I cannot check the current direction right now. "
-                f"[Open the dashboard →]({COMMIT_URL})", None)
+                f"[View current commitments →]({COMMITMENTS_URL})", None)
     state = states[0]
     if state.get("mandate_status") == "committed_mandate":
         text = "Your direction is confirmed."
@@ -122,7 +123,7 @@ def commit_overview_response(user_text, memory):
             text += " The implementation change still needs your approval. Review the evidence and proposed change next."
     else:
         text = "Your direction is still a draft awaiting your confirmation. Review it before deciding."
-    return text + f"\n\n[Review current direction →]({COMMIT_URL})", decision_card_for(user_text, memory)
+    return text + f"\n\n[View current commitments →]({COMMITMENTS_URL})", decision_card_for(user_text, memory)
 
 
 def commit_metadata():

@@ -24,7 +24,7 @@ def card_namespace(memory=None):
     names = {"wants_direction_card", "wants_workflow_brief", "decision_card_for", "workflow_metadata",
              "workflow_response", "card_response", "commit_metadata", "validated_chat_url",
              "chat_return_context", "with_chat_return", "with_card_links", "wants_commit_overview", "commit_overview_response"}
-    constants = {"WORKFLOW_LINKS", "RECORD_ID", "RECORD_VERSION", "COMMIT_ROWS", "COMMIT_URL", "SNAPSHOT_DATE"}
+    constants = {"WORKFLOW_LINKS", "RECORD_ID", "RECORD_VERSION", "COMMIT_ROWS", "COMMIT_URL", "COMMITMENTS_URL", "SNAPSHOT_DATE"}
     nodes = [n for n in tree.body if (isinstance(n, ast.FunctionDef) and n.name in names)
              or (isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id in constants for t in n.targets))]
     namespace = {"re": re, "json": json, "quote": quote, "urlsplit": urlsplit, "read_memory": lambda: memory}
@@ -38,13 +38,13 @@ class MemoryContract(unittest.TestCase):
                  "active_runtime_version": "tool-v1", "decision_record": None}
         memory = {"connected": True, "current_state_records": [state]}
         ns = card_namespace(memory)
-        for question in ("show current commits", "Show Commit", "Please list our current commits",
+        for question in ("show current commits", "Show current commitments", "Show Commit", "Please list our current commits",
                          "What are our confirmed decisions?", "Покажи текущие решения"):
             reply, metadata = ns["card_response"](question)
             self.assertIn("Your direction is confirmed", reply)
             self.assertIn("still needs your approval", reply)
             linked = ns["with_card_links"](reply, metadata)
-            self.assertIn("#S01)", linked)
+            self.assertIn("#COMMITMENTS)", linked)
             self.assertIn("#S03)", linked)
             self.assertIn("#S04)", linked)
             returned = ns["with_chat_return"](linked, "https://asi1.ai/chat/11111111-2222-3333-4444-555555555555")
@@ -79,7 +79,7 @@ class MemoryContract(unittest.TestCase):
             self.assertEqual(ns["chat_return_context"](ctx, "Show Commit")[0], "https://asi1.ai/chat/" + session)
         for bad in ["https://evil.example/chat/a", "javascript:alert(1)", "https://asi1.ai.evil.example/chat/a", "https://asi1.ai/chat"]:
             self.assertIsNone(ns["validated_chat_url"](bad))
-        for frame in ["S01", "S03", "S04", "S05", "S06"]:
+        for frame in ["COMMITMENTS", "S01", "S03", "S04", "S05", "S06"]:
             linked = ns["with_chat_return"]("[Open](http://127.0.0.1:8765/#" + frame + ")", url)
             self.assertIn("?return_to=" + quote(url, safe="") + "#" + frame, linked)
 

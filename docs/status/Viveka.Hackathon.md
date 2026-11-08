@@ -203,3 +203,11 @@ Taras explicitly moved the application interfaces to Argon, requested that the c
 Sent the owner instruction and brief to Viveka.HackatonCoordinator for dispatch/ACK (`5DD2D856A6ED21503341E92F7015CDA6FE89185BF1DFBC4F5FABA31D4527614D`) and updated Setu.Hackathon (`FB9BCBD16FD61DEB920926FFB043C3FCB38911376635D6329F06FCAFC5C87E45`). Both sends succeeded; Argon's receipt/start is not independently verified. Shared tracker and root role records remain for the coordinator to reconcile. No new sibling session was launched.
 
 Generated `styles/theseus-deputy-avatar-v1.png` from the owner-selected v8 mark with the built-in image tool. Inspected the resulting image: connected human in spacesuit at the helm, enlarged for a compact avatar, with simplified blue/amber ship. Verified 1254 × 1254 RGBA, alpha range 0–255, 1,613,752 bytes (below 2 MB). Saved the exact prompt and source chain in `styles/GENERATION-DEPUTY-AVATAR-V1.md`. The original mark is unchanged. The user said the avatar would be uploaded later, so no profile upload/change was made.
+
+## Current commitments and chat return integration · November 7, 2026, evening
+
+Read all 38 waiting inbound messages for the bound Viveka.Hackathon identity. Datamaster delivered the Current Commitments view and bottom Back to Deputy actions (a4fd72d, 7b4d719). Updated the hosted Deputy and local protocol so “show current commits” and “show current commitments” link to `#COMMITMENTS`, preserving the originating ASI chat through `return_to`.
+
+Validation: 20 offline memory/navigation checks passed. The live ASI reply contained the new commitments link and evidence/change links. Clicked the commitments link, verified the four current agreement items, navigated to S03, and clicked its bottom Back to Deputy beside Review a correction. Returned to the exact originating chat with the conversation intact. Screenshot: `reports/evidence/deputy-s03-bottom-return.png`. No mandate, approval, application state, or demo checkpoint was changed during verification.
+
+Scope: this is a current agreement snapshot, not a complete acceptance-history ledger. Historical acceptance dates are not reconstructed. Simulation results remain illustrative and do not automatically recalculate when the owner edits a goal.
