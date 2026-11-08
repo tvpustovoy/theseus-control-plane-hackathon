@@ -20,7 +20,7 @@ HERE = Path(__file__).parent
 OUT = HERE / "out"
 INDEX = HERE.parent / "index.html"
 DUR = 80.0  # upper bound (owner 07.11: Russian cut grew past 60 s with the Deputy line); the Russian cut ends HOLD s after the last line (owner 07.11: no tools slide)
-HOLD = 1.8
+HOLD = 3.0  # the closing loop scheme stays on screen a little longer
 GAP = 0.35
 EXTRA = {"03_culture": 0.1, "05_correction": 0.6, "06_decision": 0.1, "07_outcome": 0.1}
 

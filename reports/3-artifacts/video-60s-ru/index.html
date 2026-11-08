@@ -125,9 +125,29 @@
       .br.tot .bb .b1 { background: var(--amber); }
       .bv { font-family: var(--mono); font-size: 28px; color: var(--ink); }
       /* close */
-      #logo7 { position: absolute; left: 700px; top: 30px; width: 520px; height: 520px; }
-      #s7 .text { position: absolute; left: 140px; right: 140px; top: 560px; text-align: center; }
-      #s7 .headline { font-size: 60px; line-height: 1.12; }
+      /* close (Russian cut, owner 07.11): the loop scheme from start-slide/loop-ru.html, scaled to stay above subtitles */
+      #loop7 { position: absolute; left: 50%; top: 0; width: 1920px; height: 1080px; transform: translateX(-50%) scale(.76); transform-origin: 50% 0; }
+      #loop7 svg { position: absolute; inset: 0; }
+      #loop7 .lhead { position: absolute; left: 72px; top: 52px; }
+      #loop7 .lk { font-family: var(--mono); font-size: 20px; letter-spacing: .22em; text-transform: uppercase; color: var(--glacier); }
+      #loop7 .lt { margin-top: 10px; font-family: var(--serif); font-size: 54px; line-height: 1.1; color: var(--ink); }
+      #loop7 .lt em { font-style: italic; color: var(--amber-deep); }
+      #loop7 .hub { position: absolute; left: 960px; top: 600px; transform: translate(-50%, -50%); text-align: center; }
+      #loop7 .hub img { width: 290px; height: 290px; object-fit: contain; display: block; margin: 0 auto; }
+      #loop7 .hubcap { margin-top: 2px; font-family: var(--mono); font-size: 16px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+      #loop7 .lc { position: absolute; transform: translate(-50%, -50%); width: 430px; padding: 18px 24px 20px; background: #fff; border: 1px solid var(--ice); border-radius: 16px; box-shadow: 0 10px 30px rgba(11,58,94,.08), 0 1px 3px rgba(11,58,94,.06); }
+      #loop7 .lc .top { display: flex; align-items: center; gap: 14px; }
+      #loop7 .num { flex: none; width: 38px; height: 38px; border-radius: 50%; background: var(--glacier); color: #fff; font-family: var(--mono); font-size: 18px; font-weight: 500; display: grid; place-items: center; }
+      #loop7 .lc h2 { font-family: var(--serif); font-weight: 500; font-size: 36px; line-height: 1.1; color: var(--ink); }
+      #loop7 .lc p { margin-top: 10px; font-size: 20px; line-height: 1.35; color: #24506f; }
+      #loop7 .ex { margin-top: 12px; display: inline-block; padding: 7px 12px; border-radius: 8px; background: #eef5fa; font-family: var(--mono); font-size: 15px; line-height: 1.35; color: var(--ink); }
+      #loop7 .tag { display: inline-block; margin-right: 6px; padding: 1px 7px; border-radius: 5px; background: var(--amber); font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); }
+      #loop7 .lc.key { width: 640px; border: 2px solid var(--amber); box-shadow: 0 14px 40px rgba(201,138,18,.16); }
+      #loop7 .lc.key .num { background: var(--amber-deep); }
+      #loop7 .levers { margin-top: 12px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      #loop7 .lever { padding: 10px 12px; border-radius: 10px; background: #fdf6e6; border: 1px solid #f3dfae; }
+      #loop7 .lever b { display: block; font-family: var(--mono); font-weight: 500; font-size: 14px; letter-spacing: .12em; text-transform: uppercase; color: var(--amber-deep); }
+      #loop7 .lever span { display: block; margin-top: 4px; font-size: 18px; line-height: 1.25; color: var(--ink); }
       /* tools slide */
       #tech { position: absolute; inset: 0; width: 1920px; height: 1080px; background: #f3f7fa; padding: 64px 96px; font-family: var(--sans); }
       #tech .tlogo { position: absolute; right: 96px; top: 40px; width: 190px; height: 190px; }
@@ -150,7 +170,7 @@
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="main" data-start="0" data-duration="69.1" data-width="1920" data-height="1080">
+    <div id="root" data-composition-id="main" data-start="0" data-duration="70.3" data-width="1920" data-height="1080">
 
       <div id="s0" class="scene clip" data-start="0.0" data-duration="8.57" data-track-index="1">
         <img id="logo0" src="assets/logo-v8.png" alt="Theseus logo" />
@@ -240,11 +260,28 @@
           </div></div>
       </div>
 
-      <div id="s7" class="scene clip" data-start="61.67" data-duration="7.43" data-track-index="1">
-        <img id="logo7" src="assets/logo-v8.png" alt="Theseus logo" />
-        <div class="text">
-          <div class="headline">Пусть ИИ-сотрудники улучшают вашу компанию. <em>Сохраните свои цели, правила и культуру.</em></div>
-          <div class="name">Theseus Control Plane</div>
+      <div id="s7" class="scene clip" data-start="61.67" data-duration="8.63" data-track-index="1">
+        <div id="loop7">
+          <svg viewBox="0 0 1920 1080" width="1920" height="1080" aria-hidden="true">
+            <path d="M 960 270 A 640 330 0 1 1 960 930 A 640 330 0 1 1 960 270" fill="none" stroke="#3fa6e8" stroke-opacity=".45" stroke-width="3" stroke-dasharray="2 10" stroke-linecap="round"/>
+            <g fill="#3fa6e8">
+              <polygon points="-11,-10 13,0 -11,10" transform="translate(1280 314) rotate(16.6)"/>
+              <polygon points="-11,-10 13,0 -11,10" transform="translate(1600 600) rotate(90)"/>
+              <polygon points="-11,-10 13,0 -11,10" transform="translate(1280 886) rotate(163.4)"/>
+              <polygon points="-11,-10 13,0 -11,10" transform="translate(640 886) rotate(-163.4)"/>
+              <polygon points="-11,-10 13,0 -11,10" transform="translate(320 600) rotate(-90)"/>
+              <polygon points="-11,-10 13,0 -11,10" transform="translate(640 314) rotate(-16.6)"/>
+            </g>
+          </svg>
+          <div class="lhead"><div class="lk">Theseus Control Plane</div><div class="lt">Один цикл держит корабль <em>на курсе.</em></div></div>
+          <div class="hub"><img src="assets/logo-v8.png" alt="Theseus" /><div class="hubcap">Сотни агентов и людей за работой</div></div>
+          <div class="lc" style="left:960px; top:262px"><div class="top"><span class="num">1</span><h2>Курс</h2></div><p>Цели, правила и культура из файлов и встреч основателя.</p><div class="ex">Скидки могут быть гибкими, но не вместо ценности</div></div>
+          <div class="lc" style="left:1514px; top:435px"><div class="top"><span class="num">2</span><h2>Наблюдение</h2></div><p>Что агенты и люди делают на самом деле: культура как она есть.</p><div class="ex">6 102 сделки в CRM · причины скидок не подтверждены</div></div>
+          <div class="lc" style="left:1514px; top:765px"><div class="top"><span class="num">3</span><h2>Сигнал</h2></div><p>Где поведение может расходиться с целями или где не хватает данных.</p><div class="ex">5 проверок SubQ · противоречие не доказано</div></div>
+          <div class="lc key" style="left:960px; top:922px"><div class="top"><span class="num">4</span><h2>Решения</h2></div><p>Сразу на трёх уровнях.</p>
+            <div class="levers"><div class="lever"><b>Агенты</b><span>память и правила</span></div><div class="lever"><b>Люди</b><span>беседа-онбординг с менеджером</span></div><div class="lever"><b>Инфраструктура</b><span>обязательное поле CRM от агентов-разработчиков</span></div></div></div>
+          <div class="lc" style="left:406px; top:765px"><div class="top"><span class="num">5</span><h2>Утверждение</h2></div><p>Утверждает их у вас. Проверки идут до применения.</p><div class="ex">Точная версия v2 · проверки · затем в работу</div></div>
+          <div class="lc" style="left:406px; top:435px"><div class="top"><span class="num">6</span><h2>Следующий шаг</h2></div><p>Каждый день следит, сработали ли изменения, и предлагает следующий шаг.</p><div class="ex"><span class="tag">Симуляция</span>недели 1–4 · доля скидок с причиной-ценностью 31% → 94%</div></div>
         </div>
       </div>
 
@@ -269,13 +306,13 @@
         <div class="cap clip" data-start="64.36" data-duration="3.14" data-track-index="6"><span>Он показывает, где она свернула не туда.</span></div>
         <!--/CAPS-->
 
-      <audio id="vo" class="clip" src="assets/voiceover.wav" data-start="0" data-duration="69.1" data-track-index="9"></audio>
+      <audio id="vo" class="clip" src="assets/voiceover.wav" data-start="0" data-duration="70.3" data-track-index="9"></audio>
     </div>
 
     <script>
       window.__timelines = window.__timelines || {};
-      const DUR = 69.1;
-      const SCENES = /*SCENES*/ [{"id": "s0", "start": 0.0, "dur": 8.57}, {"id": "sD", "start": 8.57, "dur": 9.14}, {"id": "s1", "start": 17.71, "dur": 6.84}, {"id": "sT", "start": 24.55, "dur": 7.23}, {"id": "s2", "start": 31.78, "dur": 3.74}, {"id": "s3", "start": 35.52, "dur": 5.73}, {"id": "s4", "start": 41.25, "dur": 9.75}, {"id": "s5", "start": 51.0, "dur": 4.78}, {"id": "s6", "start": 55.78, "dur": 5.89}, {"id": "s7", "start": 61.67, "dur": 7.43}] /*/SCENES*/;
+      const DUR = 70.3;
+      const SCENES = /*SCENES*/ [{"id": "s0", "start": 0.0, "dur": 8.57}, {"id": "sD", "start": 8.57, "dur": 9.14}, {"id": "s1", "start": 17.71, "dur": 6.84}, {"id": "sT", "start": 24.55, "dur": 7.23}, {"id": "s2", "start": 31.78, "dur": 3.74}, {"id": "s3", "start": 35.52, "dur": 5.73}, {"id": "s4", "start": 41.25, "dur": 9.75}, {"id": "s5", "start": 51.0, "dur": 4.78}, {"id": "s6", "start": 55.78, "dur": 5.89}, {"id": "s7", "start": 61.67, "dur": 8.63}] /*/SCENES*/;
       const at = Object.fromEntries(SCENES.map(s => [s.id, s]));
 
       // thesis: deterministic cascade of chat windows and agent terminals (seeded), built once at load
@@ -329,7 +366,7 @@
       });
       if (at.s0) tl.fromTo("#logo0", { scale: 0.93 }, { scale: 1, duration: at.s0.dur - 0.4, ease: "none" }, 0);
       if (at.sD) { const F = at.sD.start; tl.fromTo("#sD .av", { scale: 0.94 }, { scale: 1, duration: at.sD.dur - 0.4, ease: "none" }, F); tl.fromTo("#sD .pt", { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.35, stagger: 0.7 }, F + 1.2); }
-      if (at.s7) tl.fromTo("#logo7", { scale: 0.94 }, { scale: 1, duration: at.s7.dur - 0.4, ease: "none" }, at.s7.start);
+      if (at.s7) { const F = at.s7.start; tl.fromTo("#loop7 .hub", { opacity: 0 }, { opacity: 1, duration: 0.5 }, F + 0.1); tl.fromTo("#loop7 .lc", { opacity: 0 }, { opacity: 1, duration: 0.35, stagger: 0.45 }, F + 0.4); }
       if (at.sT) {
         const T = at.sT;
         tl.fromTo("#sT .w", { opacity: 0, scale: 0.85, y: 20 }, { opacity: 1, scale: 1, y: 0, duration: 0.3, stagger: (T.dur * 0.5) / 24 }, T.start + 0.1);
