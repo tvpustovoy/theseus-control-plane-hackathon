@@ -83,10 +83,12 @@ function updateDeputyReturn() {
   } catch (_) { /* URL persistence still works when storage is unavailable. */ }
   const link = document.getElementById('back-to-deputy');
   const connect = document.getElementById('connect-deputy');
-  link.hidden = !target;
-  link.style.display = target ? '' : 'none';
-  if (target) link.href = target;
-  else link.removeAttribute('href');
+  if (link) {
+    link.hidden = !target;
+    link.style.display = target ? '' : 'none';
+    if (target) link.href = target;
+    else link.removeAttribute('href');
+  }
   connect.querySelector('summary').textContent = target ? 'Change connected chat' : 'Connect this chat';
   if (values.length && !target) {
     document.getElementById('deputy-connect-error').textContent = 'Invalid return address. Paste an exact ASI:One chat URL.';
@@ -279,30 +281,29 @@ function renderMemory() {
   const types = ["", "sales_conversation", "crm_record", "normative", "founder_meeting", "unknown"];
   return `<div class="memory-page">
     <div class="card memory-hero">
-      <div class="card-kicker">COMPANY EVIDENCE · ONE GOAL</div>
       <h2>Organization Memory</h2>
-      <p>${esc(o.scope)}</p>
-      <p class="muted">Browse the imported source inventory, inspect the extraction checkpoint and ask a grounded question. This is not comprehensive monitoring.</p>
+      <p>Ask a question about the company, grounded in available evidence.</p>
+      <p class="muted">Coverage is partial. Imported records and candidate claims are not verified business outcomes.</p>
       <div class="memory-metrics">
         <div><strong>${snapshot.state === "verified_snapshot" ? Number(snapshot.raw_records).toLocaleString() : "—"}</strong><span>raw rows · verified import</span></div>
         <div><strong>${snapshot.state === "verified_snapshot" ? Number(snapshot.sources).toLocaleString() : "—"}</strong><span>source records · verified import</span></div>
         <div><strong>${dist.state === "partial_candidate_grade" ? Number(dist.candidate_claims).toLocaleString() : "—"}</strong><span>candidate claims · partial extraction</span></div>
         <div><strong>${review.discount_pairs ?? "—"}</strong><span>discount pairs · ${review.proven_contradictions ?? "—"} proven contradictions</span></div>
       </div>
+      <details class="page-more"><summary>More · Data coverage and verification</summary><p>${esc(o.scope)}</p>
       <p class="memory-provenance">Import verified ${esc(snapshot.verified_at || "date unavailable")} · Muse checkpoint batch ${esc(dist.batch || "unavailable")}: ${esc(dist.distinct_source_ids || "—")} distinct source IDs / ${esc(dist.candidate_text_hashes || "—")} candidate text hashes. Candidate claims are in a local private packet, not Atlas facts or confirmed frequencies.</p>
-      <p class="memory-provenance">Atlas derived collections now: ${esc(atlasDerived.claims ?? "—")} claims · ${esc(atlasDerived.source_chunks ?? "—")} source chunks · ${esc(atlasDerived.extraction_runs ?? "—")} extraction runs.</p>
+      <p class="memory-provenance">Atlas derived collections now: ${esc(atlasDerived.claims ?? "—")} claims · ${esc(atlasDerived.source_chunks ?? "—")} source chunks · ${esc(atlasDerived.extraction_runs ?? "—")} extraction runs.</p></details>
     </div>
-    <div class="card">
-      <div class="card-kicker">READ-ONLY INVENTORY</div><h3>Browse sources</h3>
+    <details id="memory-inventory" class="card page-more memory-inventory"><summary>More · Browse source records</summary>
       <p class="muted">Metadata only. The imported source text and client details are kept out of this demo browser.</p>
       <label for="memory-type">Source type</label>
       <select id="memory-type">${types.map(type => `<option value="${esc(type)}" ${type === stateStore.memoryType ? "selected" : ""}>${esc(type || "All source types")}</option>`).join("")}</select>
       ${stateStore.memorySources?.error ? `<p role="alert">${esc(stateStore.memorySources.error)}</p>` : ""}
       <div class="memory-table-wrap"><table class="memory-table"><thead><tr><th>Source ID</th><th>Type</th><th>Day</th><th>Version</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No source metadata in this page.</td></tr>`}</tbody></table></div>
       ${stateStore.memorySources?.next_cursor ? `<button class="btn secondary" id="memory-next" type="button">Next 12 sources →</button>` : ""}
-    </div>
+    </details>
     <div class="card">
-      <div class="card-kicker">GROUNDED QUESTION</div><h3>Ask this evidence</h3>
+      <h3>Ask about your company</h3>
       <p class="muted">Ask in any language; answers are in English. Claude can count CRM clients and find names matching your keywords, using live database results and selected evidence. Queries and answers are logged privately.</p>
       ${stateStore.memoryTurns.map(turn => `<div class="subcard memory-answer"><strong>Your question</strong><p>${esc(turn.question)}</p><strong>Answer · ${esc(turn.model)}</strong><p>${renderEnglishAnswer(turn.answer)}</p><div class="memory-citations">${[...new Set(turn.citation_ids || [])].map(id => stateStore.data?.evidence_catalog?.[id] ? renderCiteButton(id, id) : `<span class="status-pill mono">${esc(id)}</span>`).join(" ")}</div></div>`).join("")}
       ${stateStore.memoryTurns.length ? `<p class="muted">You can ask a follow-up. The last two question/answer pairs are included as context.</p><button class="btn secondary" id="memory-new-chat" type="button" ${stateStore.memoryBusy ? "disabled" : ""}>New conversation</button>` : ""}
@@ -440,7 +441,6 @@ function renderS01(d) {
     <div class="card" style="padding: 18px 22px;">
       <div class="card-header" style="margin-bottom: 10px; padding-bottom: 10px;">
         <div>
-          <div class="card-kicker">Step 1 · Direction &amp; Monitoring Scope</div>
           <h2 class="card-title" style="margin-bottom: 2px;">${esc(sc.heading || "Agree our direction")}</h2>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
@@ -456,15 +456,6 @@ function renderS01(d) {
         </li>
         <li>
           <strong>Principle:</strong> ${esc(sc.principle_summary || "Every discount should receive an explicit customer commitment in return.")}
-        </li>
-        <li>
-          <strong>Culture to protect:</strong> ${esc(c.culture_to_protect.protect)}
-        </li>
-        <li style="border-left: 4px solid var(--theseus-amber, #f5bf45); background: #fffdf8;">
-          <strong>Risk to watch — hypothesis:</strong> ${esc(sc.risk_hypothesis_summary || c.culture_to_protect.risk_to_watch)}
-        </li>
-        <li>
-          <strong>What Theseus can see:</strong> ${esc(sc.visibility_summary || "Sales conversations and CRM records. Discount outcomes and reasons are currently missing from the CRM.")}
         </li>
         <li style="border-left: 4px solid var(--theseus-glacier, #3fa6e8); background: #eef7fd;">
           <strong>Your decision:</strong> ${esc(sc.decision_prompt || "Confirm this direction and the monitoring scope. Monitoring remains partial until the missing signal is connected.")}
@@ -485,7 +476,7 @@ function renderS01(d) {
             Why these recommendations?
           </button>
         </div>
-        ${isCommitted ? `<button type="button" class="btn btn-teal" onclick="navigateToFrame('S02')">Continue to Step 2: How We Work →</button>` : ""}
+        ${isCommitted ? `<button type="button" class="btn btn-teal" onclick="navigateToFrame('S03')">Review alignment →</button>` : ""}
       </div>
 
       ${stateStore.s01EditOpen ? `
@@ -506,9 +497,19 @@ function renderS01(d) {
         </div>
       ` : ""}
 
+      <details class="page-more"><summary>More · Culture, risks and monitoring coverage</summary><ul class="direction-summary-list">        <li>
+          <strong>Culture to protect:</strong> ${esc(c.culture_to_protect.protect)}
+        </li>
+        <li style="border-left: 4px solid var(--theseus-amber, #f5bf45); background: #fffdf8;">
+          <strong>Risk to watch — hypothesis:</strong> ${esc(sc.risk_hypothesis_summary || c.culture_to_protect.risk_to_watch)}
+        </li>
+        <li>
+          <strong>What Theseus can see:</strong> ${esc(sc.visibility_summary || "Sales conversations and CRM records. Discount outcomes and reasons are currently missing from the CRM.")}
+        </li>
+</ul></details>
       <details style="margin-top: 12px;">
         <summary style="cursor:pointer; font-weight:600; font-size:0.84rem; color:var(--theseus-ink);">
-          Proposed quantitative terms, before/after comparison &amp; source links (draft until confirmed)
+          More · Full terms, changes and sources
         </summary>
         <div class="grid-2" style="margin-top: 10px;">
           <div class="subcard">
@@ -567,17 +568,18 @@ async function handleCommitMandate() {
    ========================================================================= */
 function renderS02(d) {
   const s02 = d.s02_culture;
-  const companyPatterns = s02.patterns.filter((p) => p.provenance === "observed");
+  const companyPatterns = s02.patterns.filter((p) => String(p.provenance).startsWith("observed"));
   const simPatterns = s02.patterns.filter((p) => p.provenance === "simulated");
 
   const renderPatternCard = (p, isSim) => `
     <div class="subcard ${isSim ? "highlight-amber" : "highlight-teal"}" style="margin-bottom: 14px;">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
-        <h4 style="margin:0; font-size:1.02rem;">${esc(p.title)}</h4>
+        <h4 style="margin:0; font-size:1.02rem;">${isSim ? 'Discount behavior in the simulated baseline' : 'Discount outcomes are not established in CRM'}</h4>
         <span class="status-pill ${isSim ? "amber" : "teal"}">${isSim ? "Simulation" : "Company evidence"}</span>
       </div>
 
-      <div style="margin: 10px 0; padding: 10px 12px; background:#ffffff; border-radius:8px; border:1px solid var(--theseus-ice);">
+      <p class="muted">${isSim ? 'Illustrative scenario, not observed company behavior.' : 'Sales conversations show discount requests. CRM data does not yet establish discounts granted or their reasons.'}</p>
+      <details class="page-more"><summary>More · Counts, limitations and examples</summary>      <div style="margin: 10px 0; padding: 10px 12px; background:#ffffff; border-radius:8px; border:1px solid var(--theseus-ice);">
         <div style="font-weight:700; font-size:0.95rem;">${esc(p.frequency_label)}</div>
         <div class="muted" style="margin-top:2px;">Scope inspected: ${esc(p.distinct_actors)}</div>
       </div>
@@ -586,7 +588,7 @@ function renderS02(d) {
         <strong>What is known vs. unknown:</strong> ${esc(p.confidence_limit)}
       </p>
 
-      <div class="grid-2" style="margin-top:10px;">
+<p class="muted">${esc(p.title)}</p><div class="grid-2" style="margin-top:10px;">
         <div style="background:#ffffff; padding:10px 12px; border-radius:8px; border:1px solid var(--theseus-ice);">
           <div style="font-size:0.78rem; font-weight:700; margin-bottom:6px;">Supporting examples</div>
           ${p.examples.map((ex) => `<div>${renderCiteButton(ex.evidence_id, ex.label)}</div>`).join("")}
@@ -602,7 +604,7 @@ function renderS02(d) {
         <div class="mono muted" style="margin-top:4px; font-size:0.74rem;">
           Pattern ID: ${esc(p.pattern_id)} · Numerator/Denominator: ${p.numerator} / ${p.denominator} · Provenance: ${esc(p.provenance)}
         </div>
-      </details>
+      </details></details>
     </div>
   `;
 
@@ -610,7 +612,6 @@ function renderS02(d) {
     <div class="card">
       <div class="card-header">
         <div>
-          <div class="card-kicker">Step 2 · Observe Recurring Practices</div>
           <h2 class="card-title">How we are working</h2>
           <p class="muted" style="margin:0;">
             Which recurring practices are supported by company evidence, and what remains unknown?
@@ -620,11 +621,12 @@ function renderS02(d) {
         <span class="status-pill">${esc(s02.human_reference_label)}</span>
       </div>
 
-      <h3 style="font-size:1rem; margin: 0 0 8px;">1. Observed company evidence (from sales conversations &amp; CRM records)</h3>
+      <h3 style="font-size:1rem; margin: 0 0 8px;">Observed sales practices</h3>
       ${companyPatterns.map((p) => renderPatternCard(p, false)).join("")}
 
-      <h3 style="font-size:1rem; margin: 18px 0 8px;">2. Simulated scenario (modeling the risk hypothesis across 120 synthetic leads)</h3>
+      <details class="page-more"><summary>More · Simulated practices (120 synthetic leads)</summary>
       ${simPatterns.map((p) => renderPatternCard(p, true)).join("")}
+      </details>
 
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top: 14px;">
         <button type="button" class="btn btn-secondary" data-evidence-id="ev:culture-crm-blindness">
@@ -699,11 +701,15 @@ function renderS03(d) {
     }
 
     return `
-      <div class="subcard ${card.provenance === "simulated" ? "highlight-amber" : "highlight-glacier"}" style="margin-bottom: 14px;">
+      <details class="alignment-finding" ${isQuestionOpen ? 'open' : ''}><summary>
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap;">
           <div>
             <span class="status-pill ${provenanceBadgeClass(card.evidence_category)}">${esc(card.evidence_category)}</span>
-            <h4 style="margin:6px 0 4px; font-size:1.04rem;">${esc(card.title)}</h4>
+            <h4 style="margin:6px 0 4px; font-size:1.04rem;">${esc({
+              'drift-card-real-crm-blindness': 'CRM: discount outcomes remain unverified',
+              'drift-card-subq-snap-pilot': 'Five comparisons: no proven contradiction',
+              'drift-card-reactive-discount-conflict': 'Simulation: reactive discounts conflict with the rule',
+            }[card.card_id] || card.title)}</h4>
           </div>
           <div style="text-align:right;">
             <div class="muted" style="font-size:0.74rem;">Model assessment</div>
@@ -713,11 +719,12 @@ function renderS03(d) {
           </div>
         </div>
 
+        </summary><div class="alignment-finding-body"><p class="muted">${esc(card.title)}</p>
         <p style="margin: 8px 0; font-size:0.9rem;">${esc(card.what_is_at_stake)}</p>
         <div class="muted" style="font-size:0.82rem;">
           <strong>Rule compared:</strong> ${esc(card.rule_ref)} · <strong>Observed/tested scope:</strong> ${esc(card.pattern_ref)}
         </div>
-        ${probHtml}
+        <details class="page-more"><summary>More · Model assessment and evidence</summary>${probHtml}</details>
 
         ${hasQuestion ? `
           <div class="subcard highlight-teal" style="margin-top:10px; background:#ffffff;">
@@ -769,7 +776,7 @@ function renderS03(d) {
             Card ID: ${esc(card.card_id)} · Rule ID: ${esc(card.technical_rule_id)} · Raw verdict: ${esc(card.subq_verdict)}
           </div>
         </details>
-      </div>
+      </div></details>
     `;
   }).join("");
 
@@ -785,7 +792,6 @@ function renderS03(d) {
     <div class="card">
       <div class="card-header">
         <div>
-          <div class="card-kicker">Step 3 · Alignment &amp; Drift Review</div>
           <h2 class="card-title">Does this fit our agreement?</h2>
           <p class="muted" style="margin:0;">${esc(s03.historical_scope_note)}</p>
         </div>
@@ -801,12 +807,11 @@ function renderS03(d) {
 
       ${cardsHtml}
 
-      <div class="card" style="margin-bottom:0; background:#f8fbfe;">
-        <h3 style="margin:0 0 10px; font-size:1rem;">What this means across five areas of the business</h3>
+      <details class="page-more"><summary>More · Impact across the business</summary>
         <div class="grid-5">
           ${fiveHtml}
         </div>
-      </div>
+      </details>
 
       <div style="display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap; margin-top: 14px;">
         <button type="button" class="btn btn-amber" onclick="navigateToFrame('S04')">
@@ -898,13 +903,12 @@ function renderS04(d) {
     <div class="card">
       <div class="card-header">
         <div>
-          <div class="card-kicker">Step 4 · Deputy Briefing &amp; Proposed Correction</div>
           <h2 class="card-title">Change how work happens</h2>
           <p class="muted" style="margin:0;">
             What changes, who is affected, and what it requires across agents, human sellers, and the CRM environment.
           </p>
         </div>
-        <span class="status-pill">${esc(s04.fetch_bridge_status.human_label)}</span>
+
       </div>
 
       <div class="grid-3">
@@ -917,12 +921,12 @@ function renderS04(d) {
               <strong>Readiness:</strong> ${esc(c.readiness)}<br/>
               <strong>Effort / cost:</strong> ${esc(c.cost)}
             </div>
-            <div class="diff-box diff-old">
+            <details class="page-more"><summary>More · Previous approach</summary><div class="diff-box diff-old">
               <strong>Before:</strong>
               <span class="status-pill ${c.beforeBadge.includes("Simulation") ? "amber" : "teal"}" style="margin:0 4px;">${esc(c.beforeBadge)}</span>
               ${esc(c.before)}
             </div>
-            <div class="diff-box diff-new"><strong>After (proposed):</strong> ${esc(c.after)}</div>
+            </details><div class="diff-box diff-new"><strong>After (proposed):</strong> ${esc(c.after)}</div>
             <details style="margin-top:8px;">
               <summary class="muted" style="cursor:pointer; font-size:0.76rem;">Technical diff ID</summary>
               <div class="mono muted" style="font-size:0.73rem; margin-top:4px;">${esc(c.tech)}</div>
@@ -933,7 +937,7 @@ function renderS04(d) {
 
       <details style="margin-top: 14px;">
         <summary style="cursor:pointer; font-weight:600; font-size:0.86rem; color:var(--theseus-ink);">
-          Rollout stage breakdown (Proposed → Tested in simulation → Approved → Applied in demo → Observed)
+          More · Rollout stages and evidence
         </summary>
         <div class="table-scroll" style="margin-top:10px;">
           <table class="data-table">
@@ -1009,7 +1013,6 @@ function renderS05(d) {
     <div class="card">
       <div class="card-header">
         <div>
-          <div class="card-kicker">Step 5 · Founder Decision &amp; Controlled Execution</div>
           <h2 class="card-title">Your decision, then execution</h2>
           <p class="muted" style="margin:0;">
             Approval and application are separate steps: first record your decision, then apply the approved change in the demo environment.
@@ -1043,7 +1046,7 @@ function renderS05(d) {
             <button type="button" class="btn btn-secondary" onclick="handleProposalDecision('reject')">
               Reject
             </button>
-            ${deputyReturnAction()}
+
           </div>
           ${dec ? `
             <div style="margin-top:10px; font-size:0.84rem;">
@@ -1075,7 +1078,7 @@ function renderS05(d) {
             <button type="button" class="btn btn-teal" onclick="handleActivateCandidate()" ${!isApproved || isApplied ? "disabled" : ""}>
               ${isApplied ? "Applied in demo ✓" : "Apply in demo"}
             </button>
-            ${deputyReturnAction()}
+
             ${isApplied ? `
               <button type="button" class="btn btn-secondary" onclick="handleRollbackCandidate()">
                 Roll back to previous baseline
@@ -1096,8 +1099,9 @@ function renderS05(d) {
         </div>
       </div>
 
+      <div class="page-actions"><a class="btn btn-secondary" href="#S06">View outcomes</a>${deputyReturnAction()}</div>
       <details style="margin-top:10px;">
-        <summary class="muted" style="cursor:pointer; font-size:0.8rem;">Technical details (decision &amp; activation receipt IDs)</summary>
+        <summary class="muted" style="cursor:pointer; font-size:0.8rem;">More · Decision record and receipts</summary>
         <div class="mono muted" style="margin-top:4px; font-size:0.74rem;">
           Active runtime ID: ${esc(s05.active_runtime_version)} ·
           Decision ID: ${esc(dec ? dec.decision_id : "none")} ·
@@ -1107,7 +1111,7 @@ function renderS05(d) {
       </details>
     </div>
 
-    <div class="card">
+    <details id="crm-test-panel" class="card page-more"><summary>More · Test the change in Demo CRM</summary>
       <div class="card-header">
         <div>
           <div class="card-kicker">Interactive Verification · Same-Input Before / After Demo CRM Check</div>
@@ -1193,7 +1197,7 @@ function renderS05(d) {
           </table>
         </div>
       ` : ""}
-    </div>
+    </details>
   `;
 }
 
@@ -1362,7 +1366,7 @@ function renderS06(d) {
 
   return `
     <div class="sim-banner">
-      <span>SIMULATION · Matched 120-lead synthetic cohort across 4 synthetic weeks (seed ${esc(ui.seed || 20261107)} · run ${esc(ui.last_simulation_run_at || "")})</span>
+      <span>SIMULATION · 120 synthetic leads · Business outcomes not yet measured</span>
       <span class="status-pill ${isApplied ? "teal" : "amber"}">
         ${isApplied ? "Candidate currently applied in demo" : "Evaluated in simulation only — baseline rule is still active in demo"}
       </span>
@@ -1371,16 +1375,13 @@ function renderS06(d) {
     <div class="card">
       <div class="card-header">
         <div>
-          <div class="card-kicker">Step 6 · Outcomes</div>
           <h2 class="card-title">Did the change help?</h2>
           <p class="muted" style="margin:0;">
             Matched comparison on the same 120 synthetic leads (60 automated sales agent leads + 60 modeled human seller leads).
           </p>
         </div>
         <div style="display:flex; gap:8px; align-items:center;">
-          <button type="button" class="btn btn-secondary btn-sm" id="run-fresh-sim-btn" onclick="handleRunFreshSimulation()">
-            Re-run matched simulation (seed 20261107)
-          </button>
+
           <span class="status-pill amber">Simulation</span>
         </div>
       </div>
@@ -1433,8 +1434,11 @@ function renderS06(d) {
 
       <details style="margin-top: 14px;">
         <summary style="cursor:pointer; font-weight:600; font-size:0.86rem; color:var(--theseus-ink);">
-          Full 5-arm counterfactual comparison &amp; W1–W4 synthetic weekly rollout tables (Simulation details)
+          More · Simulation breakdown, timeline and rerun
         </summary>
+<p class="muted">Seed: ${esc(ui.seed || 20261107)} · Run: ${esc(ui.last_simulation_run_at || "")}</p>          <button type="button" class="btn btn-secondary btn-sm" id="run-fresh-sim-btn" onclick="handleRunFreshSimulation()">
+            Re-run matched simulation (seed 20261107)
+          </button>
         <div class="table-scroll" style="margin-top:10px;">
           <table class="data-table">
             <thead>
@@ -1471,7 +1475,7 @@ function renderS06(d) {
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
           ${!isApplied ? `
             <button type="button" class="btn btn-secondary" onclick="navigateToFrame('S05')">
-              Go to Step 5 to approve &amp; apply in demo
+              Review implementation decision
             </button>
           ` : `
             <button type="button" class="btn btn-secondary" onclick="handleRollbackCandidate()">
@@ -1480,7 +1484,7 @@ function renderS06(d) {
           `}
         </div>
         <button type="button" class="btn btn-amber" onclick="navigateToFrame('S01')">
-          Return to direction review (Step 1) ↻
+          Review agreement
         </button>
         ${deputyReturnAction()}
       </div>
@@ -1637,14 +1641,20 @@ function renderCommitments(d) {
 function renderAll() {
   const d = stateStore.data;
   if (!d) return;
+  const scoped = ['S01', 'S03', 'S04', 'S05', 'S06'].includes(stateStore.currentFrame);
+  document.getElementById('commitment-navigation').hidden = !scoped;
+  document.getElementById('selected-commitment-title').textContent =
+    'Commitment 1 · ' + (commitmentList(d)[0]?.text || 'Current agreement');
 
   // Update active nav button
   document.querySelectorAll("#frame-nav .nav-btn").forEach((btn) => {
     const f = btn.getAttribute("data-frame");
     if (f === stateStore.currentFrame) {
       btn.classList.add("active");
+      btn.setAttribute('aria-current', 'page');
     } else {
       btn.classList.remove("active");
+      btn.removeAttribute('aria-current');
     }
   });
 
@@ -1656,6 +1666,9 @@ function renderAll() {
 
   const stage = document.getElementById("main-stage");
   if (!stage) return;
+  const openPanels = stage.dataset.frame === stateStore.currentFrame
+    ? [...stage.querySelectorAll('details[id][open]')].map(panel => panel.id) : [];
+  stage.dataset.frame = stateStore.currentFrame;
 
   switch (stateStore.currentFrame) {
     case "COMMITMENTS":
@@ -1663,6 +1676,9 @@ function renderAll() {
       break;
     case "MEMORY":
       stage.innerHTML = renderMemory();
+      if (stage.querySelector('.memory-inventory')) {
+        stage.querySelector('.memory-page').append(stage.querySelector('.memory-inventory'));
+      }
       break;
     case "S01":
       stage.innerHTML = renderS01(d);
@@ -1680,16 +1696,20 @@ function renderAll() {
       stage.innerHTML = renderS05(d);
       break;
     case "S06":
-      stage.innerHTML = `<div class="card"><h3>Commitments monitored by this simulation</h3>
+      stage.innerHTML = renderS06(d) + `<details class="card page-more"><summary>More · Commitment references and measurement limits</summary>
         <p>${d.s01_commit.mandate_status === 'committed_mandate' ? 'Confirmed direction' : 'Proposed direction preview'} · ${esc(d.s01_commit.mandate_status === 'committed_mandate' ? d.s01_commit.committed_version : d.s01_commit.draft_version)}</p>
         <p class="mono">${esc(d.s01_commit.intent_and_goal.id)} · ${esc(d.s01_commit.governing_principle.id)}</p>
         <p>Discount rate and average discount are goal proxies. Customer commitment and justification measure rule behavior; consistency is a simulated rule check. The references link this illustrative scenario to the current direction; the fixed simulation is not recalculated when wording changes. Culture and real revenue effects remain unmeasured.</p>
-        <a class="cite-btn" href="#COMMITMENTS">View commitments, targets and evidence gaps</a></div>` + renderS06(d);
+        <a class="cite-btn" href="#COMMITMENTS">View commitments, targets and evidence gaps</a></details>`;
       break;
     default:
       stage.innerHTML = renderS01(d);
   }
 
+  for (const id of openPanels) {
+    const panel = document.getElementById(id);
+    if (panel) panel.open = true;
+  }
   renderDrawer();
 }
 

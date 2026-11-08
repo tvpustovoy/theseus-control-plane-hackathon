@@ -26,6 +26,15 @@
 
 ## Acceptance — complete
 
+## CEO dashboard grooming — 2026-11-07
+
+- Organization navigation: Memory & questions, Working practices, Commitments. Selected commitment navigation: Agreement, Alignment, Proposed changes, Decide & apply, Outcomes, with explicit commitment context and return to list. Removed misleading sequential step numbering from navigation.
+- Removed header Back to Deputy. Kept contextual bottom continuation helpers intact; made the legacy header-anchor update null-safe. Connection details, chat association and demo reset live under Settings.
+- Memory puts questions ahead of collapsed source inventory; import provenance/coverage is expandable. Agreement retains goal/principle/confirmation and moves culture/risks/reference detail into More. Working practices displays a concise evidence gap with counts/examples below disclosure. Fixed its observed-provenance filter so verified snapshot evidence is no longer silently excluded.
+- Alignment renders three compact findings with expandable evidence; model probabilities and business-area detail are collapsed. Proposed changes keeps proposed effects, affected people, readiness and costs visible, with previous behavior/rollout details expandable. Decide & apply retains separate decision/application controls; Demo CRM test is optional and stays open across rerenders. Outcomes retains simulation labels, metrics and current application status, with references, tables and rerun under More.
+- Checked all eight routes at 1440×1000 and 390×844: no JS errors or horizontal overflow; contextual menu visibility, disclosures and Outcomes navigation pass. Pre/post live-state comparison confirms unchanged mandate, application and demo session. Continuation unit checks and JavaScript syntax/diff checks pass. Temporary screenshots: `/tmp/ceo-desktop-*.png`, `/tmp/ceo-mobile-*.png`.
+- Static UI only: no server restart, reset, model call, confirmation or database mutation. Additive independent commitment storage remains a separate outstanding integration task.
+
 ## Current Commitments and decision-row return — 2026-11-07
 
 ### Compact list revision

@@ -1,5 +1,43 @@
 @import url("/styles/tokens.css");
 
+.workspace-nav { max-width:1400px; margin:0 auto; padding:14px 28px 0; }
+.organization-nav { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.nav-scope { font-size:.76rem; color:#4b647b; margin-right:8px; }
+.commitment-navigation { margin-top:18px; padding-top:14px; border-top:1px solid #c9dce9; }
+.commitment-navigation[hidden] { display:none; }
+.selected-commitment { display:flex; align-items:baseline; flex-wrap:wrap; gap:16px; margin-bottom:10px; font-size:.84rem; }
+.selected-commitment a { color:#4b647b; text-underline-offset:3px; }
+.selected-commitment span { font-weight:600; }
+.workspace-settings { position:relative; font-size:.82rem; }
+.workspace-settings > summary { cursor:pointer; padding:8px 12px; }
+.workspace-settings-body { position:absolute; right:0; top:38px; width:min(330px,85vw); padding:18px; background:#fff; border:1px solid #c9dce9; border-radius:12px; display:flex; align-items:flex-start; gap:14px; flex-direction:column; z-index:30; }
+.workspace-settings-body input { width:100%; }
+.page-more { margin:14px 0; border-top:1px solid #dde9f2; padding-top:12px; }
+.page-more > summary { cursor:pointer; font-weight:600; font-size:.84rem; color:#34556e; }
+.page-more[open] > summary { margin-bottom:14px; }
+.page-actions { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin:16px 0; }
+.alignment-finding { border-top:1px solid #c9dce9; }
+.alignment-finding > summary { cursor:pointer; padding:14px 0; }
+.alignment-finding > summary > div { display:inline-flex !important; width:calc(100% - 22px); vertical-align:top; }
+.alignment-finding-body { padding:0 0 16px; }
+.alignment-finding > summary:focus-visible { outline:2px solid #176fa9; outline-offset:2px; }
+.memory-hero { background:#fff !important; }
+.memory-metrics > div { border:0 !important; border-radius:0 !important; padding:8px 12px !important; border-left:1px solid #dde9f2 !important; }
+.memory-metrics strong { font-size:1.45rem !important; }
+.memory-hero h2 { font-size:1.65rem !important; }
+#main-stage > .card { box-shadow:none; }
+#main-stage .card-header { align-items:flex-start; }
+#main-stage .card-title { font-size:1.55rem; }
+#main-stage .direction-summary-list li { border-left-width:1px !important; }
+@media (max-width:700px) {
+  .workspace-nav { padding:12px 20px 0; }
+  .organization-nav { gap:6px; }
+  .nav-scope { flex-basis:100%; }
+  .workspace-settings-body { position:fixed; top:70px; right:16px; }
+  .selected-commitment { gap:6px; }
+  #main-stage .card-header { flex-wrap:wrap; gap:12px; }
+}
+
 .commitments-page { max-width:1120px; margin:12px auto; }
 .commitments-heading, .commitments-toolbar { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
 .commitments-heading h2 { margin:0; font-size:2rem; letter-spacing:-.025em; }

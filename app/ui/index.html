@@ -16,19 +16,8 @@
       </div>
     </div>
 
-    <nav class="nav-steps" id="frame-nav" aria-label="Control Plane Steps">
-      <a href="#MEMORY" class="nav-btn active" data-frame="MEMORY">Organization Memory</a>
-      <a href="#COMMITMENTS" class="nav-btn" data-frame="COMMITMENTS">Current Commitments</a>
-      <a href="#S01" class="nav-btn" data-frame="S01">1. Agree Direction</a>
-      <a href="#S02" class="nav-btn" data-frame="S02">2. How We Work</a>
-      <a href="#S03" class="nav-btn" data-frame="S03">3. Check Alignment</a>
-      <a href="#S04" class="nav-btn" data-frame="S04">4. Proposed Change</a>
-      <a href="#S05" class="nav-btn" data-frame="S05">5. Decide &amp; Apply</a>
-      <a href="#S06" class="nav-btn" data-frame="S06">6. Outcomes</a>
-    </nav>
-
     <div class="top-actions">
-      <a id="back-to-deputy" class="cite-btn" hidden rel="noreferrer">Back to Deputy</a>
+      <details class="workspace-settings"><summary>Settings</summary><div class="workspace-settings-body">
       <details id="connect-deputy">
         <summary>Connect this chat</summary>
         <form id="connect-deputy-form">
@@ -45,8 +34,28 @@
       <button class="cite-btn" id="reset-demo-btn" type="button" title="Start a fresh isolated demo session from checkpoint C0 without modifying raw sources">
         Start fresh demo ↺
       </button>
+      </div></details>
     </div>
   </header>
+
+  <div id="frame-nav" class="workspace-nav">
+    <nav class="organization-nav" aria-label="Organization">
+      <span class="nav-scope">Organization</span>
+      <a href="#MEMORY" class="nav-btn active" data-frame="MEMORY">Memory &amp; questions</a>
+      <a href="#S02" class="nav-btn" data-frame="S02">Working practices</a>
+      <a href="#COMMITMENTS" class="nav-btn" data-frame="COMMITMENTS">Commitments</a>
+    </nav>
+    <div id="commitment-navigation" class="commitment-navigation" hidden>
+      <div class="selected-commitment"><a href="#COMMITMENTS">All commitments</a><span id="selected-commitment-title"></span></div>
+      <nav class="nav-steps" aria-label="Selected commitment">
+        <a href="#S01" class="nav-btn" data-frame="S01">Agreement</a>
+        <a href="#S03" class="nav-btn" data-frame="S03">Alignment</a>
+        <a href="#S04" class="nav-btn" data-frame="S04">Proposed changes</a>
+        <a href="#S05" class="nav-btn" data-frame="S05">Decide &amp; apply</a>
+        <a href="#S06" class="nav-btn" data-frame="S06">Outcomes</a>
+      </nav>
+    </div>
+  </div>
 
   <main class="layout drawer-closed" id="app-layout">
     <section id="main-stage" aria-live="polite">
