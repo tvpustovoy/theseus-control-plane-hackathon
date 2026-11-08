@@ -19,7 +19,8 @@ from tts import synth, dur  # noqa: E402
 HERE = Path(__file__).parent
 OUT = HERE / "out"
 INDEX = HERE.parent / "index.html"
-DUR = 60.0
+DUR = 60.0  # upper bound; the Russian cut ends HOLD s after the last line (owner 07.11: no tools slide)
+HOLD = 1.8
 GAP = 0.35
 EXTRA = {"03_culture": 0.1, "05_correction": 0.6, "06_decision": 0.1, "07_outcome": 0.1}
 
@@ -42,12 +43,10 @@ LINES = [
     ("07_outcome", "s6", "assured",
      "Затем он проверяет на симуляции, работает ли изменение."),
     ("08_close", "s7", "warm, uplifting, finishing strong",
-     "Тесей не тормозит вашу компанию. <short pause> Он показывает, где она свернула."),
-    ("09_tech", "tech", "friendly, matter-of-fact",
-     "Сделано с помощью OpenAI Codex, Claude, Gemini, Meta, SubQ, Fetch AI и MongoDB."),
+     "Тесей не тормозит вашу компанию. <short pause> Он показывает, где она свернула НЕ ТУДА."),
 ]
 SUB_SCENES = {"s0", "s1", "sT", "s2", "s3", "s4", "s5", "s6", "s7"}  # screen text and narration differ: the banner line is on screen, the voice and subtitles carry their own words; the tools slide has no subtitles
-CAPTION_FIX = {"Fetch AI": "Fetch.ai", "БОЛЬШЕ НЕ": "больше не"}
+CAPTION_FIX = {"БОЛЬШЕ НЕ": "больше не", "НЕ ТУДА": "не туда"}
 SAY = {"Тесей": "Тесе́й", "AI-native": "эй-ай нэйтив", "CRM": "си-ар-эм", "OpenAI Codex": "Оупен-эй-ай Кодекс", "Claude": "Клод",
        "Gemini": "Джемини", "Meta": "Мета", "SubQ": "Саб Кью", "Fetch AI": "Фетч эй-ай", "MongoDB": "Монго ди-би"}
 
@@ -88,6 +87,7 @@ def synth_eleven(text, key, voice="EXAVITQu4vr4xnSDxMaL"):
 
 
 def main():
+    global DUR
     ap = argparse.ArgumentParser()
     ap.add_argument("--voice", default="Kore")
     ap.add_argument("--tempo", type=float, default=1.0)
@@ -114,23 +114,21 @@ def main():
     end = timeline[-1]["start"] + timeline[-1]["dur"]
     if end > DUR - 0.2:
         sys.exit(f"Voice ends at {end:.2f}s, over {DUR}s: raise --tempo or shorten lines")
+    DUR = round(end + HOLD, 1)
     # scenes
     scenes = []
     for i, ln in enumerate(timeline):
         s0 = 0.0 if i == 0 else round(ln["start"] - 0.3, 2)
         s1 = DUR if i == len(timeline) - 1 else round(timeline[i + 1]["start"] - 0.3, 2)
         scenes.append({"id": ln["scene"], "start": s0, "dur": round(s1 - s0, 2)})
-    tech = scenes[-1]
-    if tech["dur"] < 5:
-        sys.exit(f"Tools slide only {tech['dur']}s; owner asked for at least 5 s")
     # mix
     cmd = ["ffmpeg", "-y", "-loglevel", "error"]
     for ln in timeline:
         cmd += ["-i", str(OUT / f"{ln['id']}.fast.wav")]
     delays = "".join(f"[{i}]adelay={int(ln['start']*1000)}|{int(ln['start']*1000)}[d{i}];" for i, ln in enumerate(timeline))
     mix = "".join(f"[d{i}]" for i in range(len(timeline)))
-    cmd += ["-filter_complex", f"{delays}{mix}amix=inputs={len(timeline)}:normalize=0,apad=whole_dur={int(DUR)},loudnorm=I=-16[a]",
-            "-map", "[a]", "-t", str(int(DUR)), "-ar", "48000", str(HERE.parent / "assets" / "voiceover.wav")]
+    cmd += ["-filter_complex", f"{delays}{mix}amix=inputs={len(timeline)}:normalize=0,apad=whole_dur={DUR},loudnorm=I=-16[a]",
+            "-map", "[a]", "-t", str(DUR), "-ar", "48000", str(HERE.parent / "assets" / "voiceover.wav")]
     subprocess.check_call(cmd)
     # subtitles: split each line's time over its sentences by character share
     caps = []
@@ -151,10 +149,13 @@ def main():
                       for i, (s, d, c) in enumerate(caps))
     html = re.sub(r"<!--CAPS-->.*?<!--/CAPS-->", "<!--CAPS-->\n" + block + "\n        <!--/CAPS-->", html, flags=re.S)
     html = re.sub(r"/\*SCENES\*/.*?/\*/SCENES\*/", "/*SCENES*/ " + json.dumps(scenes) + " /*/SCENES*/", html, flags=re.S)
+    html = re.sub(r'(data-composition-id="main" data-start="0" data-duration=")[0-9.]+', r"\g<1>%s" % DUR, html)
+    html = re.sub(r'(<audio id="vo" class="clip" src="assets/voiceover.wav" data-start="0" data-duration=")[0-9.]+', r"\g<1>%s" % DUR, html)
+    html = re.sub(r"const DUR = [0-9.]+;", "const DUR = %s;" % DUR, html)
     INDEX.write_text(html)
     for ln in timeline:
         print(f"{ln['id']:14} start={ln['start']:6.2f} dur={ln['dur']:5.2f}")
-    print(f"voice ends {end:.2f}s · tools slide {tech['start']}–60 s ({tech['dur']} s) · {len(caps)} subtitles")
+    print(f"voice ends {end:.2f}s · video {DUR} s · {len(caps)} subtitles")
 
 
 if __name__ == "__main__":
