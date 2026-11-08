@@ -24,6 +24,7 @@ import mimetypes
 import os
 import sys
 import uuid
+import threading
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -32,6 +33,7 @@ from urllib.parse import parse_qs, urlparse
 
 from app.control import ControlPlaneGovernance
 from app.api.organization_memory import OrganizationMemory
+from app.api.commitment_ledger import CommitmentLedger
 from app.deputy import ScopedDeputyCEOTools
 from app.model.versioning import VersionedModelService
 from app.runtime import (
@@ -92,7 +94,7 @@ def _default_import_receipt() -> Dict[str, Any]:
             "verified_at": None, "provenance": "verification_receipt_unavailable", "readiness": "unverified"}
 
 
-class TheseusLocalApplication:
+class TheseusLocalApplication(CommitmentLedger):
     """
     Stateful application controller backing the six Theseus UI frames (`S01..S06`),
     shared evidence drawer, five-area lens, cross-cutting decision lifecycle
@@ -114,10 +116,24 @@ class TheseusLocalApplication:
         self.sim_harness = Step5SimulationHarness(self.adapter)
 
         self.import_receipt = _default_import_receipt()
+        self._state_lock = threading.RLock()
+        self._ledger_initializing = True
+        self._commitments = {}
+        self.active_commitment_id = None
         self.demo_session_id = f"demosess-{uuid.uuid4().hex[:8]}"
         self.session_started_at = utc_now_iso()
         self.last_simulation_run_at = self.session_started_at
         self._init_scenario_state()
+        self._draft_context = self._capture_context()
+        saved = self.adapter.backend.find_one('deputy_public_state', {'_id': self._ledger_key()})
+        if saved:
+            self.demo_session_id = saved['demo_session_id']
+            self.session_started_at = saved['session_started_at']
+            self._commitments = saved['records']
+            self.active_commitment_id = saved['active_commitment_id']
+            self._restore_context(saved['current_context'])
+        self._ledger_initializing = False
+        self._sync_public_deputy_mirror()
 
     @staticmethod
     def _init_default_adapter() -> Tuple[IngestionAdapter, str]:
@@ -915,6 +931,8 @@ class TheseusLocalApplication:
         behavior_ev = self.runtime.get_behavior_evidence(organization_id=org)
 
         return {
+            "commitments": self.list_commitments(),
+            "active_commitment_id": self.active_commitment_id,
             "organization_id": org,
             "demo_session_id": self.demo_session_id,
             "session_started_at": self.session_started_at,
@@ -1062,6 +1080,9 @@ class TheseusLocalApplication:
         5-pair SubQ review summary, and normalized `ui_metrics`) into MongoDB collection `deputy_public_state`
         so the hosted Agentverse / local Deputy can read live state without touching raw client payloads.
         """
+        if self._ledger_initializing:
+            return {}
+        self._save_ledger()
         org = self.adapter.organization_id
         is_v2_active = self.runtime.active_version == "tool-v2"
         evidence_summaries = {
@@ -1077,6 +1098,8 @@ class TheseusLocalApplication:
             for ev_id, ev in self.evidence_catalog.items()
         }
         mirror_body = {
+            "commitments": self.list_commitments(),
+            "active_commitment_id": self.active_commitment_id,
             "organization_id": org,
             "demo_session_id": self.demo_session_id,
             "session_started_at": self.session_started_at,
@@ -1132,6 +1155,17 @@ class TheseusLocalApplication:
         if actor not in self.governance.authorized_actors:
             raise ContractError("permission_denied", f"Actor {actor!r} is not authorized to commit mandate.")
 
+        cid = payload.get('commitment_id')
+        if cid:
+            self.select_commitment({'commitment_id': cid})
+        else:
+            self._save_ledger()
+            draft = copy.deepcopy(self.commit_state) if not self.active_commitment_id else None
+            self.active_commitment_id = None
+            self._restore_context(self._draft_context)
+            if draft is not None:
+                self.commit_state = draft
+
         if "goal_text" in payload and str(payload["goal_text"]).strip():
             self.commit_state["intent_and_goal"]["proposed_text"] = str(payload["goal_text"]).strip()
             self.commit_state["summary_copy"]["goal_summary"] = str(payload["goal_text"]).strip()
@@ -1166,6 +1200,7 @@ class TheseusLocalApplication:
                 card["title"] = "Simulated Baseline Check against Confirmed Direction: Reactive 10–15% discounting"
                 card["rule_ref"] = "Confirmed agreement (customer commitment required for every discount)"
                 card["human_verdict"] = "Contradicts confirmed rule (in baseline simulation)"
+        self._record_commitment(payload, actor, now)
         self._sync_public_deputy_mirror()
         return self.commit_state
 
@@ -1375,7 +1410,10 @@ class TheseusLocalApplication:
           no human decision/activation/rollback in this session, empty session CRM submission list).
         - NEVER deletes or mutates `raw_records`, `sources`, `claims`, or historical audit records in MongoDB.
         """
+        self._save_ledger()
         prev_session_id = self.demo_session_id
+        self.active_commitment_id = None
+        self._commitments = {}
         self.demo_session_id = f"demosess-{uuid.uuid4().hex[:8]}"
         self.session_started_at = utc_now_iso()
         self.runtime = VersionedRuntimeEngine(self.adapter, self.governance)
@@ -1497,6 +1535,10 @@ def create_app_server(
             return self._send_json(HTTPStatus.NOT_FOUND, {"error": "unknown_route", "path": route})
 
         def do_POST(self) -> None:
+            with controller._state_lock:
+                self._handle_post()
+
+        def _handle_post(self) -> None:
             parsed = urlparse(self.path)
             route = parsed.path
             length = int(self.headers.get("Content-Length", "0"))
@@ -1507,6 +1549,14 @@ def create_app_server(
                 return self._send_json(HTTPStatus.BAD_REQUEST, {"error": "invalid_json"})
 
             try:
+                if route == '/api/commitments/select':
+                    controller.select_commitment(payload)
+                    return self._send_json(HTTPStatus.OK, {'ok': True, 'state': controller.get_state_payload()})
+                if route == '/api/commitments/draft':
+                    controller.new_commitment_draft(payload)
+                    return self._send_json(HTTPStatus.OK, {'ok': True, 'state': controller.get_state_payload()})
+                if route in {'/api/decide/approve', '/api/decide/activate', '/api/decide/rollback', '/api/crm/submit', '/api/simulate/run', '/api/drift/override'}:
+                    controller._require_scenario()
                 if route == "/api/commit":
                     res = controller.commit_mandate(payload)
                     return self._send_json(HTTPStatus.OK, {"ok": True, "commit_state": res, "state": controller.get_state_payload()})
