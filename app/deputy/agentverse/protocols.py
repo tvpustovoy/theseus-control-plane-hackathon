@@ -110,19 +110,19 @@ def wants_commit_overview(user_text):
 def commit_overview_response(user_text, memory):
     states = memory.get("current_state_records") or []
     if not memory.get("connected") or not states:
-        return ("I cannot check the current direction right now. "
+        return ("**I cannot check the current direction right now.**\n\n"
                 f"[View current commitments →]({COMMITMENTS_URL})", None)
     state = states[0]
     if state.get("mandate_status") == "committed_mandate":
-        text = "Your direction is confirmed."
+        text = "**Your direction is confirmed.**\n\n"
         if state.get("active_runtime_version") == "tool-v2":
-            text += " The approved changes are active in the demo."
+            text += "The approved changes are active in the demo."
         elif (state.get("decision_record") or {}).get("decision", (state.get("decision_record") or {}).get("action")) == "approve":
-            text += " The implementation change is approved but has not been applied yet."
+            text += "The implementation change is approved but has not been applied yet."
         else:
-            text += " The implementation change still needs your approval. Review the evidence and proposed change next."
+            text += "The implementation change still needs your approval. Review the evidence and proposed change next."
     else:
-        text = "Your direction is still a draft awaiting your confirmation. Review it before deciding."
+        text = "**Your direction is still a draft awaiting your confirmation.**\n\nReview it before deciding."
     return text + f"\n\n[View current commitments →]({COMMITMENTS_URL})", decision_card_for(user_text, memory)
 
 
@@ -219,21 +219,21 @@ def workflow_response(user_text, memory):
         return None
     state = memory["current_state_records"][0]
     if state.get("mandate_status") != "committed_mandate":
-        text = ("The direction is still waiting for your confirmation in this demo. "
+        text = ("**The direction is still waiting for your confirmation.**\n\n"
                 "You can review the evidence and proposed change before deciding. Opening a page does not approve or apply anything.")
     elif state.get("active_runtime_version") == "tool-v2":
-        text = ("Your direction is confirmed, and the new rules are active in the demo. "
+        text = ("**Your direction is confirmed, and the new rules are active in the demo.**\n\n"
                 "Review this commitment's outcomes and check how the sales form behaves now. "
                 "The comparison comes from a test run; company outcomes have not yet been measured.")
     elif (state.get("decision_record") or {}).get("decision", (state.get("decision_record") or {}).get("action")) == "approve":
-        text = ("Your direction is confirmed. You have approved the proposed change, but it has not been applied yet. "
+        text = ("**You have approved the change, but it has not been applied yet.**\n\n"
                 "Review it on the website before applying it, then check how the sales form behaves.")
     else:
         gap = ("The current sales form still does not record why a discount was given, so we cannot check the rule reliably. "
                "That is a gap in our data, not proof of a violation. "
                if state.get("active_crm_schema_version") == "crm-v1" else
                "We should review the available evidence before deciding whether a change is needed. ")
-        text = ("Your direction is confirmed. " + gap + "\n\nReview the evidence, then the proposed change. "
+        text = ("**Your direction is confirmed; the implementation change still needs your approval.**\n\n" + gap + "\n\nReview the evidence, then the proposed change. "
                 "This is a summary of the current demo state, not a new scan. Nothing is applied by these buttons.")
     return text, metadata
 

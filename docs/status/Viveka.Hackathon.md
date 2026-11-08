@@ -231,3 +231,11 @@ Verified the real S03 return, clipboard content and paste in the same ASI chat: 
 Updated CHAT-CONTINUATION.md with the shipped behavior and clearly marked earlier proactive-message research as an unimplemented alternative. Official ASI documentation describes internal new-chat prefills but did not establish an external prefill URL for an existing chat. The shipped mechanism requires one paste; it is not presented as automatic prefill.
 
 Public push review rejected the initial inclusion of a browser screenshot containing private chat/account context. Removed it from the unpublished commit and retained only local evidence; public changes include code, checks and documentation.
+
+## Bold first-sentence takeaway · November 7, 2026, 19:05 PST
+
+At Taras's request, the Deputy voice instructions and optional brevity edit now require one short, fully bold first sentence carrying the main business answer, followed by a separate paragraph of detail. Updated deterministic CRM count, commitment overview and workflow replies to match. No business state, approval or permissions changed.
+
+Python syntax and diff checks passed. Both hosted files were compared against local source via the editor. Agentverse startup succeeded at 19:04:58 with memory connected. A fresh ASI:One strategy answer rendered its first sentence in bold and retained the appropriate navigation card. Screenshot evidence is stored privately outside this public repository; existing messages are unchanged.
+
+Read Datamaster's pending coordination messages. Datamaster owns the additive commitment ledger, UI selection and reset changes (backend checkpoint 80c4e00 was reported as not yet live). Confirmed that the hosted Deputy currently has no write path: it reads memory and links to website confirmation. Proposed a new-draft review link that only prefills an unaccepted form, with explicit IDs for existing packages; waiting for the final supported URL and memory contract before changing that integration. Coordinator informed. No local application restart or reset was performed.
