@@ -80,12 +80,26 @@ def memory_context():
     inventory = {}
     for name in sorted(COLLECTIONS):
         inventory[name] = DB[name].count_documents({}, maxTimeMS=5000)
+    raw_table_counts = {row["_id"]: row["count"] for row in DB["raw_records"].aggregate([
+        {"$match": {"organization_id": "recplace"}},
+        {"$group": {"_id": "$source_table", "count": {"$sum": 1}}},
+    ], maxTimeMS=5000)}
+    organization_counts = {
+        "crm_deal_records": {"count": raw_table_counts.get("raw.CRM_DEALS", 0),
+            "source_collection": "raw_records", "source_table": "raw.CRM_DEALS",
+            "scope": "imported_snapshot_rows", "unique_active_won_paid_deals_verified": False},
+        "crm_client_records": {"count": raw_table_counts.get("raw.CRM_CLIENTS", 0),
+            "scope": "imported_snapshot_rows"},
+        "demo_crm_records": {"count": inventory["crm_deals_demo"],
+            "scope": "synthetic_demo_data_not_company_deals"},
+    }
     curated = list(CLIENT["theseus_deputy_demo"]["memory"].find({"public_safe": True}, {"_id": 0}).limit(40))
     state = [bounded(row) for row in DB["deputy_public_state"].find(
         {"_id": "deputy_mirror:recplace:current"}).limit(1)]
     return {"connected": True, "transport": "authenticated_https_to_mongodb", "read_at_utc": now(),
             "scope": "Owner-authorized RecPlace database; source corpus is historical, simulation rows are synthetic",
-            "collection_counts": inventory, "records": curated, "current_state_records": state,
+            "collection_counts": inventory, "organization_counts": organization_counts,
+            "raw_table_counts": raw_table_counts, "records": curated, "current_state_records": state,
             "note": "Counts are fresh. Raw and sources represent overlapping layers, not unique-document totals. Zero claims means no claims persisted in this collection, not no local extraction artifacts."}
 
 

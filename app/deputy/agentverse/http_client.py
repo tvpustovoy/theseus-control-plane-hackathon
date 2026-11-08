@@ -121,6 +121,25 @@ def governance_status(memory):
     }
 
 
+def crm_count_reply(user_text, memory):
+    """Answer only an unfiltered company CRM deal-row count from a fresh aggregate."""
+    import re
+    text = user_text.lower()
+    asks_count = re.search(r"how many|number of|count|сколько|количеств", text)
+    asks_deals = re.search(r"\bdeals?\b|сдел", text)
+    unfiltered_question = re.search(
+        r"\bhow many (?:crm )?deals(?: are there| do we have)?(?: in (?:the |our )?crm)?\s*[?.!]*\s*$|"
+        r"сколько(?: всего)? сделок(?: (?:в|у нас в) (?:crm|срм))?\s*[?.!]*\s*$", text)
+    qualified = re.search(r"\b(paid|won|lost|active|unique|discounted|today|yesterday|month|week|demo|test|simulat\w*)\b|оплач|выигр|актив|уникал|сегодня|месяц|недел|демо|тест", text)
+    if not asks_count or not asks_deals or qualified or not unfiltered_question:
+        return None
+    record = (memory.get("organization_counts") or {}).get("crm_deal_records") or {}
+    if not memory.get("connected") or record.get("scope") != "imported_snapshot_rows" or not isinstance(record.get("count"), int):
+        return None
+    return (f"There are {record['count']:,} imported deal records in the RecPlace CRM snapshot. "
+            "That is a record count, not a verified count of unique, active or paid deals. Demo transactions are separate.")
+
+
 def current_decisions(memory, args):
     """Current rehearsal authority comes from its mirror, never a past audit row."""
     states = memory.get("current_state_records") or []
@@ -175,6 +194,11 @@ def ask_asi1(messages, memory=None):
         "Zero current-demo submissions is not zero business activity. Speak plainly; do not show internal field names "
         "unless asked. After confirmed direction, the next step is reviewing evidence and a proposed change, NOT "
         "reconfirming direction or claiming the tools already changed. "
+        "DATA SCOPE: 'our CRM', 'clients' and 'deals' default to the REAL IMPORTED RecPlace snapshot, never "
+        "crm_deals_demo or simulation rows. organization_counts.crm_deal_records is the exact fresh row count "
+        "matching Organization Memory. Do not round exact counts. Demo data is separate and only relevant if "
+        "explicitly requested. For a tool count use raw_records with source_table='raw.CRM_DEALS'; sources does "
+        "not expose that same field. A row count does not establish unique, active, won or paid deals. "
         "Default to 60-90 words; expand only if asked. For discount strategy: say what is established, one evidence-backed "
         "observation and the proposed next decision. Do not list simulation outcomes unless explicitly asked. "
         "Do not infer a company-wide strategy or prevalence from this small selected sample. "

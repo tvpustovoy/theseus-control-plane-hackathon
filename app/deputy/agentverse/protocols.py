@@ -13,7 +13,7 @@ from uagents_core.contrib.protocols.chat import (
     chat_protocol_spec,
 )
 
-from http_client import REPLY_STYLE, ask_asi1, llm_available, read_memory
+from http_client import REPLY_STYLE, ask_asi1, crm_count_reply, llm_available, read_memory
 
 chat_protocol = Protocol(spec=chat_protocol_spec)
 
@@ -30,6 +30,12 @@ COMMIT_ROWS = [
     {"label": "Rules", "value": "Exchange discounts for customer commitment."},
     {"label": "Culture", "value": "Understand needs. Show value first."},
 ]
+WORKFLOW_LINKS = {
+    "theseus_open_evidence": ("Review evidence", "http://127.0.0.1:8765/#S03"),
+    "theseus_open_change": ("Review proposed change", "http://127.0.0.1:8765/#S04"),
+    "theseus_open_apply": ("Review & apply on website", "http://127.0.0.1:8765/#S05"),
+    "theseus_open_simulation": ("View simulation", "http://127.0.0.1:8765/#S06"),
+}
 
 
 def commit_metadata():
@@ -60,14 +66,87 @@ def wants_direction_card(user_text):
     return bool((topic and direction) or explicit)
 
 
+def wants_workflow_brief(user_text):
+    return bool(re.search(
+        r"against.{0,60}direction|what.{0,35}(?:next|recommend)|"
+        r"(?:show|open|review).{0,30}(?:alignment|evidence|proposed change|next step|decision card)|"
+        r"что.{0,25}(?:дальше|предлага|рекоменду)|(?:покажи|открой).{0,25}(?:проверк|изменени|плашк)",
+        user_text, re.IGNORECASE))
+
+
+def workflow_metadata(state):
+    """A current-session navigation card; all consequential decisions stay on the website."""
+    direction_label = "Confirmed by you" if state.get("mandate_status") == "committed_mandate" else "Awaiting your confirmation"
+    active = state.get("active_runtime_version") == "tool-v2"
+    decision = state.get("decision_record") or {}
+    approved = decision.get("decision", decision.get("action")) == "approve"
+    if active:
+        title, status = "See what changed", "New rules active in the demo"
+        actions = ["theseus_open_apply", "theseus_open_simulation"]
+        rows = [{"label": "Direction", "value": direction_label},
+                {"label": "Change", "value": status},
+                {"label": "Results", "value": "Simulation, not real business outcomes"}]
+    elif approved:
+        title, status = "Review before applying", "Approved, not yet applied"
+        actions = ["theseus_open_apply", "theseus_open_evidence"]
+        rows = [{"label": "Direction", "value": direction_label},
+                {"label": "Change", "value": status}]
+    else:
+        title = "Make the rule measurable"
+        actions = ["theseus_open_evidence", "theseus_open_change"]
+        rows = [{"label": "Direction", "value": direction_label},
+                {"label": "Next", "value": "Review evidence and the proposed change"},
+                {"label": "Your control", "value": "Nothing applied without your approval"}]
+    payload = {"title": title, "summary_rows": rows, "ctas": [
+        {"label": WORKFLOW_LINKS[action][0], "primary": i == 0,
+         "selection": {"action": action, "record_id": "theseus-workflow",
+                       "version": state["demo_session_id"]}}
+        for i, action in enumerate(actions)]}
+    return {"card_protocol_version": "1", "requires_card_interaction": "true",
+            "card_kind": "detail", "preferred_drawer_width_px": "540",
+            "card_payload": json.dumps(payload, ensure_ascii=False)}
+
+
 def decision_card_for(user_text, memory):
     states = memory.get("current_state_records") or []
-    if not memory.get("connected") or not states or not wants_direction_card(user_text):
+    if not memory.get("connected") or not states:
         return None
-    # A recorded proposal is useful only while this rehearsal awaits the owner's commitment.
-    if states[0].get("mandate_status") != "draft_pending_owner_commit":
+    if wants_direction_card(user_text) or wants_workflow_brief(user_text):
+        explicit_review = re.search(r"(?:show|open|review).{0,25}(?:evidence|alignment|proposed change)|(?:покажи|открой).{0,25}(?:проверк|изменени)", user_text, re.IGNORECASE)
+        if explicit_review and states[0].get("demo_session_id"):
+            return workflow_metadata(states[0])
+        if states[0].get("mandate_status") == "draft_pending_owner_commit":
+            return commit_metadata()
+        if states[0].get("mandate_status") == "committed_mandate" and states[0].get("demo_session_id"):
+            return workflow_metadata(states[0])
+    return None
+
+
+def workflow_response(user_text, memory):
+    """Short, state-derived handoff for the known demo flow, not a new evidence analysis."""
+    if not wants_workflow_brief(user_text):
         return None
-    return commit_metadata()
+    metadata = decision_card_for(user_text, memory)
+    if metadata is None:
+        return None
+    state = memory["current_state_records"][0]
+    if state.get("mandate_status") != "committed_mandate":
+        text = ("The direction is still waiting for your confirmation in this demo. "
+                "You can review the evidence and proposed change before deciding. Opening a page does not approve or apply anything.")
+    elif state.get("active_runtime_version") == "tool-v2":
+        text = ("Your direction is confirmed, and the new rules are active in the demo. "
+                "Open the website to check how the sales form behaves now. The outcome comparison is a simulation, not measured business results.")
+    elif (state.get("decision_record") or {}).get("decision", (state.get("decision_record") or {}).get("action")) == "approve":
+        text = ("Your direction is confirmed. You have approved the proposed change, but it has not been applied yet. "
+                "Review it on the website before applying it, then check how the sales form behaves.")
+    else:
+        gap = ("The current sales form still does not record why a discount was given, so we cannot check the rule reliably. "
+               "That is a gap in our data, not proof of a violation. "
+               if state.get("active_crm_schema_version") == "crm-v1" else
+               "We should review the available evidence before deciding whether a change is needed. ")
+        text = ("Your direction is confirmed. " + gap + "\n\nReview the evidence, then the proposed change. "
+                "This is a summary of the current demo state, not a new scan. Nothing is applied by these buttons.")
+    return text, metadata
 
 
 def card_response(user_text):
@@ -76,6 +155,22 @@ def card_response(user_text):
         selected = json.loads(user_text)
     except (ValueError, TypeError):
         selected = None
+    requested_workflow_actions = [action for action in WORKFLOW_LINKS if action in user_text]
+    if requested_workflow_actions:
+        if len(requested_workflow_actions) != 1:
+            return ("Please choose one action from the card. Nothing changed.", None)
+        action = requested_workflow_actions[0]
+        memory = read_memory()
+        states = memory.get("current_state_records") or []
+        if not memory.get("connected") or not states or not states[0].get("demo_session_id"):
+            return ("I cannot verify the current demo right now. Please try again. Nothing changed.", None)
+        session = states[0]["demo_session_id"]
+        valid = (selected.get("record_id") == "theseus-workflow" and selected.get("version") == session
+                 if isinstance(selected, dict) else "theseus-workflow" in user_text and session in user_text)
+        if not valid:
+            return ("This card belongs to an earlier demo. Ask 'What should we do next?' for a fresh card. Nothing changed.", None)
+        label, url = WORKFLOW_LINKS[action]
+        return (f"[{label} →]({url})\n\nThis opens on the demo computer. Review and approve changes on the website; nothing was changed in chat.", None)
     actions = ("theseus_open_commit", "theseus_discuss_commit")
     if isinstance(selected, dict):
         if selected.get("action") not in actions:
@@ -148,8 +243,10 @@ SYSTEM_PROMPT = (
     "and read-only search across the owner-authorized RecPlace corpus are connected. The current state mirror is returned separately; "
     "use its synced_at and versions, and never confuse it with the dated context brief. Action execution is not connected. The local app link works only on the demo computer. "
     "A discount strategy question automatically includes the Commit review card while direction is pending. "
-    "Explain the proposed next decision briefly and refer to 'Review direction' on that card. 'Show Commit' "
-    "also opens it explicitly. Never invent any other card, URL or interface.\n"
+    "After confirmation, the handler adds a current-session card with Review evidence / Review proposed change. "
+    "An approved change gets Review & apply on website; an active demo gets behavior and simulation links. "
+    "These are navigation cards, never approval actions. Refer only to the relevant known card. "
+    "'Show Commit' opens the recorded draft explicitly. Never invent cards, URLs or interfaces outside these known routes.\n"
     "GROUNDING: Never turn an example, proposal, assumption or an AI's earlier statement into an "
     "observed fact. Repeated anecdotes are not a proven culture trend. Ask for sources, time window "
     "and denominator when relevant. A rollback must restore an explicitly approved, safer baseline; "
@@ -235,8 +332,15 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
 
     try:
         memory = read_memory()
-        response = ask_asi1(messages, memory=memory)
-        metadata = decision_card_for(user_text, memory)
+        count_reply = crm_count_reply(user_text, memory)
+        guided_reply = workflow_response(user_text, memory)
+        if count_reply is not None:
+            response, metadata = count_reply, None
+        elif guided_reply is not None:
+            response, metadata = guided_reply
+        else:
+            response = ask_asi1(messages, memory=memory)
+            metadata = decision_card_for(user_text, memory)
     except Exception:
         ctx.logger.exception("ASI:One call failed")
         response = None

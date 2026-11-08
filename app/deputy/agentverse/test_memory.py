@@ -1,6 +1,7 @@
 """Offline contract checks for the bounded public demo reader."""
 import importlib.util
 import ast
+import json
 import os
 import re
 from pathlib import Path
@@ -17,7 +18,59 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 
+def card_namespace(memory=None):
+    tree = ast.parse(Path(__file__).with_name("protocols.py").read_text())
+    names = {"wants_direction_card", "wants_workflow_brief", "decision_card_for", "workflow_metadata",
+             "workflow_response", "card_response", "commit_metadata"}
+    constants = {"WORKFLOW_LINKS", "RECORD_ID", "RECORD_VERSION", "COMMIT_ROWS", "COMMIT_URL", "SNAPSHOT_DATE"}
+    nodes = [n for n in tree.body if (isinstance(n, ast.FunctionDef) and n.name in names)
+             or (isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id in constants for t in n.targets))]
+    namespace = {"re": re, "json": json, "read_memory": lambda: memory}
+    exec(compile(ast.Module(body=nodes, type_ignores=[]), "card-contract", "exec"), namespace)
+    return namespace
+
+
 class MemoryContract(unittest.TestCase):
+    def test_company_deal_count_never_uses_demo_count(self):
+        memory = {"connected": True, "organization_counts": {
+            "crm_deal_records": {"count": 6102, "scope": "imported_snapshot_rows"},
+            "demo_crm_records": {"count": 360}}}
+        answer = module.crm_count_reply("how many deals in crm?", memory)
+        self.assertIn("6,102", answer)
+        self.assertNotIn("360", answer)
+        for question in ("How many paid deals?", "How many demo deals?", "How many deals this month?", "How many deals for Acme?"):
+            self.assertIsNone(module.crm_count_reply(question, memory))
+        self.assertIsNone(module.crm_count_reply("How many deals?", {"connected": False}))
+
+    def test_after_commit_shows_review_card_and_both_links_without_mutation(self):
+        memory = {"connected": True, "current_state_records": [{"demo_session_id": "session-a",
+            "mandate_status": "committed_mandate", "active_runtime_version": "tool-v1",
+            "active_crm_schema_version": "crm-v1", "decision_record": None}]}
+        ns = card_namespace(memory)
+        reply, card = ns["workflow_response"]("Against the direction I confirmed, what do you recommend?", memory)
+        self.assertLess(len(reply.split()), 100)
+        payload = json.loads(card["card_payload"])
+        self.assertEqual([c["label"] for c in payload["ctas"]], ["Review evidence", "Review proposed change"])
+        for cta, frame in zip(payload["ctas"], ["S03", "S04"]):
+            result, _ = ns["card_response"](json.dumps(cta["selection"]))
+            self.assertIn("#" + frame, result)
+            self.assertIn("nothing was changed", result)
+        stale = dict(payload["ctas"][0]["selection"], version="old-session")
+        self.assertIn("earlier demo", ns["card_response"](json.dumps(stale))[0])
+        self.assertIsNone(memory["current_state_records"][0]["decision_record"])
+
+    def test_workflow_cards_distinguish_approval_from_activation(self):
+        state = {"demo_session_id": "session-a", "mandate_status": "committed_mandate",
+                 "active_runtime_version": "tool-v1", "decision_record": {"decision": "approve"}}
+        memory = {"connected": True, "current_state_records": [state]}
+        ns = card_namespace(memory)
+        reply, _ = ns["workflow_response"]("What should we do next?", memory)
+        self.assertIn("not been applied", reply)
+        state["active_runtime_version"] = "tool-v2"
+        reply, card = ns["workflow_response"]("What should we do next?", memory)
+        self.assertIn("active in the demo", reply)
+        self.assertIn("View simulation", card["card_payload"])
+
     def test_confirmed_direction_does_not_require_implementation_approval(self):
         memory = {"current_state_records": [{"demo_session_id": "fresh",
                   "mandate_status": "committed_mandate", "active_mandate_version": "mandate-v2",
@@ -55,17 +108,13 @@ class MemoryContract(unittest.TestCase):
         self.assertIn("error", module.current_decisions({}, {"operation": "search"}))
 
     def test_natural_strategy_question_attaches_card_only_to_pending_direction(self):
-        tree = ast.parse(Path(__file__).with_name("protocols.py").read_text())
-        functions = [node for node in tree.body if isinstance(node, ast.FunctionDef)
-                     and node.name in {"wants_direction_card", "decision_card_for"}]
-        namespace = {"re": re, "commit_metadata": lambda: {"card_kind": "detail"}}
-        exec(compile(ast.Module(body=functions, type_ignores=[]), "card-intent", "exec"), namespace)
-        memory = {"connected": True, "current_state_records": [{"mandate_status": "draft_pending_owner_commit"}]}
+        namespace = card_namespace()
+        memory = {"connected": True, "current_state_records": [{"demo_session_id": "session-a", "mandate_status": "draft_pending_owner_commit"}]}
         for question in ("@theseus-deputy-ceo What is our discount strategy?", "Какая у нас стратегия скидок?", "Show the decision card"):
             self.assertIsNotNone(namespace["decision_card_for"](question, memory))
         self.assertIsNone(namespace["decision_card_for"]("How many CRM records are loaded?", memory))
         memory["current_state_records"][0]["mandate_status"] = "committed_mandate"
-        self.assertIsNone(namespace["decision_card_for"]("What is our discount strategy?", memory))
+        self.assertIn("Review evidence", namespace["decision_card_for"]("What is our discount strategy?", memory)["card_payload"])
 
     def setUp(self):
         self.environment = patch.dict(os.environ, {"THESEUS_MEMORY_URL": ""})
