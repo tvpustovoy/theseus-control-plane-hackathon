@@ -6,19 +6,19 @@
   "actors": [
     {
       "name": "Viveka.HackatonCoordinator",
-      "state": "future_session"
+      "state": "active_coordination"
     },
     {
       "name": "Muse.Hackathon",
-      "state": "not_started"
+      "state": "demo_evidence_ready"
     },
     {
       "name": "Argon.Hackathon",
-      "state": "not_started"
+      "state": "handoff_after_model_limit"
     },
     {
       "name": "Setu.Hackathon",
-      "state": "message_sent_ack_pending"
+      "state": "demo_artifacts_in_progress"
     },
     {
       "name": "Independent verifier",
@@ -198,10 +198,14 @@
       "blockers": [],
       "scope": "app/verification/",
       "acceptance": "Нормализация/группировка, uncertainty route, тест межгрупповых пропусков; mock отделён от live",
-      "status": "doing",
+      "status": "done",
       "approval": "user",
       "dispatch": "acknowledged",
-      "evidence": []
+      "evidence": [
+        "database/fixtures/evidence-handoff.json",
+        "database/fixtures/review-packet-subq-discount.json",
+        "docs/status/Muse.Hackathon.md"
+      ]
     },
     {
       "id": "A06",
@@ -410,12 +414,33 @@
       "blockers": [],
       "scope": "app/ui/; app/api/; existing Argon backend areas",
       "acceptance": "Six navigable states, evidence drawer, demo CRM validation, honest live/fixture/simulation labels, one start command and exact localhost URL",
-      "status": "doing",
+      "status": "review",
       "approval": "user",
       "dispatch": "acknowledged",
       "evidence": [
         "docs/agents/argon/UI-LOCALHOST-BRIEF.md",
-        "reports/2-scenarios/DEMO-INTERFACES.md"
+        "reports/2-scenarios/DEMO-INTERFACES.md",
+        "app/api/test_ui_api.py",
+        "docs/status/Viveka.Datamaster.md"
+      ]
+    },
+    {
+      "id": "F04",
+      "phase": "Интерфейс",
+      "title": "Organization Memory opening and grounded source questions",
+      "owner": "Viveka.Datamaster",
+      "depends_on": [
+        "P00"
+      ],
+      "blockers": [],
+      "scope": "app/ui/; app/api/",
+      "acceptance": "Verified raw import and partial extraction shown separately; bounded source browsing; grounded question with citations; old six-state demo and reset survive; browser QA",
+      "status": "review",
+      "approval": "user",
+      "dispatch": "acknowledged",
+      "evidence": [
+        "docs/status/Viveka.Datamaster.md",
+        "app/api/test_organization_memory.py"
       ]
     },
     {
