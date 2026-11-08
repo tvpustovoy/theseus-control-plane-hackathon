@@ -19,7 +19,7 @@ from tts import synth, dur  # noqa: E402
 HERE = Path(__file__).parent
 OUT = HERE / "out"
 INDEX = HERE.parent / "index.html"
-DUR = 60.0  # upper bound; the Russian cut ends HOLD s after the last line (owner 07.11: no tools slide)
+DUR = 80.0  # upper bound (owner 07.11: Russian cut grew past 60 s with the Deputy line); the Russian cut ends HOLD s after the last line (owner 07.11: no tools slide)
 HOLD = 1.8
 GAP = 0.35
 EXTRA = {"03_culture": 0.1, "05_correction": 0.6, "06_decision": 0.1, "07_outcome": 0.1}
@@ -27,7 +27,9 @@ EXTRA = {"03_culture": 0.1, "05_correction": 0.6, "06_decision": 0.1, "07_outcom
 # (id, scene element id, style, text) — Russian version; SAY below changes only how names are pronounced, subtitles keep the written form
 LINES = [
     ("01_opening", "s0", "calm, thoughtful documentary narrator",
-     "Ваша AI-native организация меняется каждый час. <short pause> Как заметить, что она уже не такая, какой вы её задумали?"),
+     "В эпоху ИИ ваша организация меняется каждый час. <short pause> Как заметить, что она уже не такая, какой вы её задумали?"),
+    ("01b_deputy", "sD", "warm, confident",
+     "Тесей — ваш директор по развитию. <short pause> Он берёт на себя ваши обязательства, следит за ними и заботится о том, чтобы важное не потерялось."),
     ("02_commit", "s1", "warm, confident, unhurried",
      "Тесей начинает с ваших целей: растить продажи, беречь маржу и сохранять культуру."),
     ("02b_thesis", "sT", "confident, brisk, a little faster than usual",
@@ -37,15 +39,15 @@ LINES = [
     ("04_drift", "s3", "focused, slightly serious",
      "И отмечает, где поведение может расходиться с целями, <short pause> или где не хватает данных."),
     ("05_correction", "s4", "clear, practical",
-     "Он предлагает одно решение на трёх уровнях: память агентов, обучение продавцов и сама CRM."),
+     "Он предлагает решения сразу на трёх уровнях: память агентов, обучение продавцов и цифровая инфраструктура организации."),
     ("06_decision", "s5", "calm, decisive",
-     "Вы утверждаете. <short pause> Проверки идут до того, как что-то изменится."),
+     "Утверждает их у вас. <short pause> Проверки идут до того, как что-то изменится."),
     ("07_outcome", "s6", "assured",
-     "Затем он проверяет на симуляции, работает ли изменение."),
+     "Затем он каждый день следит, сработали ли изменения. <short pause> И предлагает следующий шаг."),
     ("08_close", "s7", "warm, uplifting, finishing strong",
      "Тесей не тормозит вашу компанию. <short pause> Он показывает, где она свернула НЕ ТУДА."),
 ]
-SUB_SCENES = {"s0", "s1", "sT", "s2", "s3", "s4", "s5", "s6", "s7"}  # screen text and narration differ: the banner line is on screen, the voice and subtitles carry their own words; the tools slide has no subtitles
+SUB_SCENES = {"s0", "sD", "s1", "sT", "s2", "s3", "s4", "s5", "s6", "s7"}  # screen text and narration differ: the banner line is on screen, the voice and subtitles carry their own words; the tools slide has no subtitles
 CAPTION_FIX = {"БОЛЬШЕ НЕ": "больше не", "НЕ ТУДА": "не туда"}
 SAY = {"Тесей": "Тесе́й", "AI-native": "эй-ай нэйтив", "CRM": "си-ар-эм", "OpenAI Codex": "Оупен-эй-ай Кодекс", "Claude": "Клод",
        "Gemini": "Джемини", "Meta": "Мета", "SubQ": "Саб Кью", "Fetch AI": "Фетч эй-ай", "MongoDB": "Монго ди-би"}
