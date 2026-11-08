@@ -16,6 +16,14 @@
 .page-more > summary { cursor:pointer; font-weight:600; font-size:.84rem; color:#34556e; }
 .page-more[open] > summary { margin-bottom:14px; }
 .page-actions { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin:16px 0; }
+.change-lane-label { display:flex; align-items:center; gap:10px; margin-bottom:14px; font-size:1rem; font-weight:700; }
+.change-lane-label svg { width:30px; height:30px; flex:none; }
+.change-lane-0 { background:#eff7fd; border-color:#a7cee8; }
+.change-lane-0 .change-lane-label { color:#12618f; }
+.change-lane-1 { background:#f0f8f3; border-color:#b5d6c1; }
+.change-lane-1 .change-lane-label { color:#266342; }
+.change-lane-2 { background:#f6f2fa; border-color:#ccbade; }
+.change-lane-2 .change-lane-label { color:#654188; }
 .alignment-finding { border-top:1px solid #c9dce9; }
 .alignment-finding > summary { cursor:pointer; padding:14px 0; }
 .alignment-finding > summary > div { display:inline-flex !important; width:calc(100% - 22px); vertical-align:top; }

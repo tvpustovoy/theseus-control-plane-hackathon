@@ -912,9 +912,13 @@ function renderS04(d) {
       </div>
 
       <div class="grid-3">
-        ${leverCards.map((c) => `
-          <div class="subcard highlight-glacier">
-            <div class="card-kicker">${esc(c.num)}</div>
+        ${leverCards.map((c, index) => `
+          <div class="subcard change-lane change-lane-${index}">
+            <div class="change-lane-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${[
+              '<rect x="4" y="7" width="16" height="13" rx="3"/><path d="M12 3v4M8 12h.01M16 12h.01M8 16h8M2 11v5M22 11v5"/>',
+              '<circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M17 4a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 4v3"/>',
+              '<rect x="3" y="3" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4M3 8h18M8 8v9"/>'
+            ][index]}</svg><span>${['Agents', 'People', 'Environment'][index]}</span></div>
             <h4 style="margin-top:4px;">${esc(c.title)}</h4>
             <div class="muted" style="font-size:0.8rem; margin-bottom:6px;">
               <strong>Who is affected:</strong> ${esc(c.affected)}<br/>
