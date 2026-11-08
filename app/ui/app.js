@@ -73,6 +73,7 @@ function updateDeputyReturn() {
   const link = document.getElementById('back-to-deputy');
   const connect = document.getElementById('connect-deputy');
   link.hidden = !target;
+  link.style.display = target ? '' : 'none';
   if (target) link.href = target;
   else link.removeAttribute('href');
   connect.querySelector('summary').textContent = target ? 'Change connected chat' : 'Connect this chat';
