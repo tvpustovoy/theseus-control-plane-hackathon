@@ -4,7 +4,7 @@
 
 AIE Code Hackathon · November 7, 2026 · San Francisco.
 
-This workspace starts a new hackathon implementation. It contains architecture, agent startup instructions, draft data contracts and a local progress dashboard. A bounded, proposal-only Deputy CEO is active on Fetch.ai Agentverse and has answered direct Agent Chat Protocol tests; its database and operational backend are not connected. The RecPlace import and other product integrations are **not implemented yet**. Public GitHub publication has not occurred.
+This public workspace contains the hackathon prototype, a verified 53,431-record RecPlace raw import to MongoDB Atlas, a one-goal evidence and SubQ review, the human-facing Organization Memory and decision screens, and a hosted Fetch.ai Deputy with authenticated live read access. [Judges: start here](JUDGES.md). For current readiness and limits, see the [English report](reports/CURRENT-STATUS-2026-11-07.en.html).
 
 Agent entry points: [Muse](docs/agents/muse/START-HERE.md), [Argon](docs/agents/argon/START-HERE.md). Start with orientation; the owner opens implementation stages. Read [RecPlace sources](docs/RECPLACE-SOURCES.md) and the shared [ingestion contract](database/INGESTION-CONTRACT.md).
 
@@ -37,4 +37,4 @@ The local [dashboard](reports/STATUS.html) is generated from task and event reco
 
 No private source data, credentials, provider account identifiers or client traces belong in this repository. Use `database/private/` for ignored local inputs and `.env` for local credentials. See [data handling](docs/DATA-HANDLING.md).
 
-Public hosting has not been configured. Prior work must be disclosed in the submission materials before publication. No open-source license has been selected yet.
+The application runs locally for the demo; public hosting has not been configured. Private RecPlace data and credentials remain outside Git. No open-source license has been selected yet.
