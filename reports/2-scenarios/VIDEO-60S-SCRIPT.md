@@ -11,6 +11,21 @@ Screens come from three sources: **live** = capture of `http://127.0.0.1:8765/#S
 the video; **drawn** = built inside the video (HyperFrames); **slide**. Each screen is on air 4–9 s, so the elements
 listed under "must be visible" have to be readable at first glance, above the fold, without scrolling or clicking.
 
+## URGENT — interface parts to finish for the video (by 16:40 PST)
+
+Owner, 16:19: «сделай акцент на то какие файлы нужно срочно сделать в интерфейсе». The video is otherwise done; these
+three screens are the only placeholders left. Order = order of urgency.
+
+| # | Screen · route | Files to finish | Done when (visible at 1280×800, above the fold, no clicks) |
+|---|---|---|---|
+| 1 | **S06 · Outcome** `#S06` | `app/ui/app.js` → `renderS06()` (headline metrics read `arms.before.overall` / `arms.combined.overall`); `app/api/server.py` → `s06_track.report` builder | no `undefined`; **SIMULATION** label; matched before/after (same synthetic leads and seed, W1–W4); main metric with denominator (share of discounts with a value reason); one row/line per lever (agents · modeled human sellers · CRM field · combined); Keep / Roll back |
+| 2 | **S05 · Decision** `#S05` | `app/api/server.py` → demo CRM submission and discount-tool v2 check; `app/ui/app.js` → `renderS05()` | v2 rejects a discount without a value justification / customer commitment (today the same 5% passes v1 and v2); exact version v2 with Approve; checks list with results; activation state shown separately from approval; required *Discount justification* field |
+| 3 | **S03 · Drift** `#S03` | `app/ui/app.js` → `renderS03()`; `app/api/server.py` → `s03_drift` (the five-pair `discount_subq_packet` is loaded; the first card is still the legacy `drift-card-subq-snap-pilot`) | first thing on screen: committed principle next to observed practice; the **five current SubQ Snap 1.1 comparisons** with verdict chips (different scope/time, insufficient evidence); the line "no proven contradiction"; missing-evidence reason (CRM does not record discount outcomes) |
+| 4 | S04 · Correction `#S04` — live demo only, the video draws it | `app/ui/app.js` → `renderS04()` | same three changes as the video: agent memory/rule diff · manager–seller onboarding talk · required CRM field; "Before" values labeled Simulation |
+
+Ready signal → Setu captures in about two minutes and re-renders. Not ready at 16:40 → Setu draws that scene in the
+video from verified facts only.
+
 ## Scene by scene
 
 | # | Time, s | Scene | Source | Voice (= subtitles) | Must be visible on the screen | Owner · state |
