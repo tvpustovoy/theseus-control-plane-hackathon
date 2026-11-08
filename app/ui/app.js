@@ -69,7 +69,18 @@ function validDeputyReturn(value) {
 function updateDeputyReturn() {
   const current = new URL(window.location.href);
   const values = current.searchParams.getAll('return_to');
-  const target = values.length === 1 ? validDeputyReturn(values[0]) : null;
+  let target = values.length === 1 ? validDeputyReturn(values[0]) : null;
+  try {
+    if (!values.length) {
+      target = validDeputyReturn(sessionStorage.getItem('theseus.deputyReturn'));
+      if (target) {
+        current.searchParams.set('return_to', target);
+        window.history.replaceState(window.history.state, '', current);
+      }
+    }
+    if (target) sessionStorage.setItem('theseus.deputyReturn', target);
+    else if (values.length) sessionStorage.removeItem('theseus.deputyReturn');
+  } catch (_) { /* URL persistence still works when storage is unavailable. */ }
   const link = document.getElementById('back-to-deputy');
   const connect = document.getElementById('connect-deputy');
   link.hidden = !target;

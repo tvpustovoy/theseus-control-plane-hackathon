@@ -26,4 +26,11 @@
 
 ## Acceptance — complete
 
+## Post-demo exact Deputy return navigation
+
+- Static UI changes: `app/ui/index.html`, `app/ui/app.js`; initial checkpoints `0197e58`, `61d5209`.
+- Contract: `/?return_to=<URL-encoded https://asi1.ai/chat/UUID>#S01` (also MEMORY and S02–S06). Exact HTTPS host and UUID path allowlist; no referrer guessing or generic chat/profile destination.
+- Header displays Back to Deputy for a valid target, or Connect this chat form otherwise. The URL query persists through hash routes and refresh. A per-tab sessionStorage fallback supports older links without the parameter; an explicit valid parameter replaces it and an invalid parameter clears it. No global localStorage.
+- Only routing metadata changes. No restart, reset, approval, database write or business-state update. URL validation and hash-route preservation checked; full ASI roundtrip awaits Viveka.Hackathon's explicit owner-chat association.
+
 The coordinator independently confirmed HTTP 200 and desktop visual QA in headless Chrome at 1440×1000 (Ours receipt `0E1F8CBE47385801820CD7525527134D4277DB37555CAAC6B5D4972B4AE7E21A`). The opening screen, counts, partial coverage caveat and source metadata table were readable with no observed first-screen layout issue. The screenshot remains temporary at `/private/tmp/theseus-memory-loaded.png`. This closes the earlier desktop visual QA limitation; mobile layout was not checked. Both live Q&A cases and post-change reset were accepted. F04 implementation is complete and ready for coordinator tracker closure.
