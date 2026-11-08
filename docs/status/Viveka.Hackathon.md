@@ -1,5 +1,11 @@
 # Viveka.Hackathon · Agentverse setup
 
+## Plain-language response guidance · November 7, 2026
+
+At Taras's request, replaced the default technical-report voice with plain English for a busy founder: answer and business meaning first, 2 short paragraphs, roughly 60–90 words, one next step. A shared REPLY_STYLE instruction is included in the main prompt and reinforced after retrieved context on each model call. Technical fields, IDs, versions, seeds and machine timestamps stay out of normal replies; exact evidence details remain available on request. The guidance preserves uncertainty and the distinction between direction, change approval and activation. It also distinguishes new data from an earlier mistaken answer.
+
+Removed conflicting defaults that required showing claim IDs, mirror timestamps and versions in ordinary answers. Source syntax and whitespace checks pass. Conversation retesting is intentionally deferred at the owner's request while Datamaster updates memory; no business-state reset or confirmation is part of this change.
+
 ## 17:21 PST — Separate confirmed direction from implementation permission
 
 Taras showed S01 Direction saved while Deputy flagged a null decision_record as a missing owner receipt. Inspection confirmed an interpretation defect: S01 confirmation is mandate_status=committed_mandate; decision_record is the separate S05 implementation approval. Added a derived governance_status object and explicit instructions separating direction, implementation permission and activation. Current receipt queries include that distinction. Partial monitoring is a visibility gap, not evidence of behavioral violation. Thirteen offline tests pass, including confirmed direction with no implementation receipt and implementation permission without activation. Deployed both hosted source files and verified successful startup at 17:21.
