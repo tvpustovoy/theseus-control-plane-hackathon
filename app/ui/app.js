@@ -5,7 +5,12 @@
 
 const stateStore = {
   data: null,
-  currentFrame: "S01",
+  currentFrame: "MEMORY",
+  memoryOverview: null,
+  memorySources: null,
+  memoryType: "",
+  memoryAnswer: null,
+  memoryBusy: false,
   selectedEvidenceId: null,
   drawerOpen: false,
   lastTriggerEl: null,
@@ -90,16 +95,100 @@ async function postApi(path, payload) {
 }
 
 function setFrameFromHash() {
-  const hash = (window.location.hash || "#S01").replace("#", "").toUpperCase();
-  const valid = ["S01", "S02", "S03", "S04", "S05", "S06"];
-  stateStore.currentFrame = valid.includes(hash) ? hash : "S01";
+  const hash = (window.location.hash || "#MEMORY").replace("#", "").toUpperCase();
+  const valid = ["MEMORY", "S01", "S02", "S03", "S04", "S05", "S06"];
+  stateStore.currentFrame = valid.includes(hash) ? hash : "MEMORY";
   // Keep evidence drawer closed on fresh route navigation
   closeEvidenceDrawer(false);
   renderAll();
+  if (stateStore.currentFrame === "MEMORY") loadMemory();
 }
 
 function navigateToFrame(frameId) {
   window.location.hash = "#" + frameId;
+}
+
+async function loadMemory(cursor = null) {
+  try {
+    if (!stateStore.memoryOverview) {
+      const overviewResponse = await fetch("/api/memory/overview");
+      if (!overviewResponse.ok) throw new Error("Could not load Organization Memory status");
+      stateStore.memoryOverview = await overviewResponse.json();
+    }
+    const params = new URLSearchParams({ limit: "12" });
+    if (stateStore.memoryType) params.set("type", stateStore.memoryType);
+    if (cursor) params.set("cursor", cursor);
+    const sourceResponse = await fetch(`/api/memory/sources?${params}`);
+    if (!sourceResponse.ok) throw new Error("Could not load source metadata");
+    stateStore.memorySources = await sourceResponse.json();
+    renderAll();
+  } catch (error) {
+    stateStore.memorySources = { items: [], error: error.message };
+    renderAll();
+  }
+}
+
+function renderMemory() {
+  const o = stateStore.memoryOverview;
+  if (!o) return `<div class="card"><h2>Organization Memory</h2><p class="muted">Loading verified data status…</p></div>`;
+  const snapshot = o.snapshot || {};
+  const dist = o.distillation || {};
+  const review = o.review || {};
+  const rows = (stateStore.memorySources?.items || []).map(item => `
+    <tr><td class="mono">${esc(item.source_id)}</td><td>${esc(item.source_type)}</td>
+    <td>${esc(item.day || "Unknown")}</td><td>${esc(item.source_version)}</td></tr>`).join("");
+  const types = ["", "sales_conversation", "crm_record", "normative", "founder_meeting", "unknown"];
+  return `<div class="memory-page">
+    <div class="card memory-hero">
+      <div class="card-kicker">COMPANY EVIDENCE · ONE GOAL</div>
+      <h2>Organization Memory</h2>
+      <p>${esc(o.scope)}</p>
+      <p class="muted">Browse the imported source inventory, inspect the extraction checkpoint and ask a grounded question. This is not comprehensive monitoring.</p>
+      <div class="memory-metrics">
+        <div><strong>${snapshot.state === "verified_snapshot" ? Number(snapshot.raw_records).toLocaleString() : "—"}</strong><span>raw rows · verified import</span></div>
+        <div><strong>${snapshot.state === "verified_snapshot" ? Number(snapshot.sources).toLocaleString() : "—"}</strong><span>source records · verified import</span></div>
+        <div><strong>${dist.state === "partial_candidate_grade" ? Number(dist.candidate_claims).toLocaleString() : "—"}</strong><span>candidate claims · partial extraction</span></div>
+        <div><strong>${review.discount_pairs ?? "—"}</strong><span>discount pairs · ${review.proven_contradictions ?? "—"} proven contradictions</span></div>
+      </div>
+      <p class="memory-provenance">Import verified ${esc(snapshot.verified_at || "date unavailable")} · Muse checkpoint batch ${esc(dist.batch || "unavailable")}: ${esc(dist.distinct_source_ids || "—")} distinct source IDs / ${esc(dist.candidate_text_hashes || "—")} candidate text hashes. Candidate claims are not confirmed frequencies.</p>
+    </div>
+    <div class="card">
+      <div class="card-kicker">READ-ONLY INVENTORY</div><h3>Browse sources</h3>
+      <p class="muted">Metadata only. The imported source text and client details are kept out of this demo browser.</p>
+      <label for="memory-type">Source type</label>
+      <select id="memory-type">${types.map(type => `<option value="${esc(type)}" ${type === stateStore.memoryType ? "selected" : ""}>${esc(type || "All source types")}</option>`).join("")}</select>
+      ${stateStore.memorySources?.error ? `<p role="alert">${esc(stateStore.memorySources.error)}</p>` : ""}
+      <div class="memory-table-wrap"><table class="memory-table"><thead><tr><th>Source ID</th><th>Type</th><th>Day</th><th>Version</th></tr></thead><tbody>${rows || `<tr><td colspan="4">No source metadata in this page.</td></tr>`}</tbody></table></div>
+      ${stateStore.memorySources?.next_cursor ? `<button class="btn secondary" id="memory-next" type="button">Next 12 sources →</button>` : ""}
+    </div>
+    <div class="card">
+      <div class="card-kicker">GROUNDED QUESTION</div><h3>Ask this evidence</h3>
+      <p class="muted">The server sends only selected sanitized summaries, verified counts and coverage limits to Claude. Answers include evidence IDs and should state when data is insufficient.</p>
+      <form id="memory-ask-form"><label for="memory-question">Your question</label><textarea id="memory-question" maxlength="600" required placeholder="What do we know about discounts and customer commitments?"></textarea>
+      <button class="btn" type="submit" ${stateStore.memoryBusy ? "disabled" : ""}>${stateStore.memoryBusy ? "Asking…" : "Ask"}</button></form>
+      ${stateStore.memoryAnswer ? `<div class="subcard memory-answer"><strong>Answer · ${esc(stateStore.memoryAnswer.model || "")}</strong><p>${esc(stateStore.memoryAnswer.answer || stateStore.memoryAnswer.error || "").replace(/\n/g, "<br>")}</p><div class="memory-citations">${(stateStore.memoryAnswer.citation_ids || []).map(id => stateStore.data?.evidence_catalog?.[id] ? renderCiteButton(id, id) : `<span class="status-pill mono">${esc(id)}</span>`).join(" ")}</div></div>` : ""}
+    </div>
+  </div>`;
+}
+
+async function askMemory(question) {
+  stateStore.memoryBusy = true;
+  stateStore.memoryAnswer = null;
+  renderAll();
+  try {
+    const response = await fetch("/api/memory/ask", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.ok) throw new Error(result.message || "The model request failed");
+    stateStore.memoryAnswer = result;
+  } catch (error) {
+    stateStore.memoryAnswer = { error: error.message };
+  } finally {
+    stateStore.memoryBusy = false;
+    renderAll();
+  }
 }
 
 function openEvidenceDrawer(evidenceId, triggerEl) {
@@ -1272,6 +1361,9 @@ function renderAll() {
   if (!stage) return;
 
   switch (stateStore.currentFrame) {
+    case "MEMORY":
+      stage.innerHTML = renderMemory();
+      break;
     case "S01":
       stage.innerHTML = renderS01(d);
       break;
@@ -1325,7 +1417,23 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   const stageEl = document.getElementById("main-stage");
   if (stageEl) {
+    stageEl.addEventListener("change", (ev) => {
+      if (ev.target.id === "memory-type") {
+        stateStore.memoryType = ev.target.value;
+        loadMemory();
+      }
+    });
+    stageEl.addEventListener("submit", (ev) => {
+      if (ev.target.id === "memory-ask-form") {
+        ev.preventDefault();
+        askMemory(document.getElementById("memory-question").value);
+      }
+    });
     stageEl.addEventListener("click", (ev) => {
+      if (ev.target.id === "memory-next") {
+        loadMemory(stateStore.memorySources?.next_cursor);
+        return;
+      }
       const evBtn = ev.target.closest("[data-evidence-id]");
       if (evBtn) {
         openEvidenceDrawer(evBtn.getAttribute("data-evidence-id"), evBtn);
@@ -1343,10 +1451,12 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-  const hash = (window.location.hash || "#S01").replace("#", "").toUpperCase();
-  const valid = ["S01", "S02", "S03", "S04", "S05", "S06"];
-  stateStore.currentFrame = valid.includes(hash) ? hash : "S01";
-  fetchState().catch((err) => {
+  const hash = (window.location.hash || "#MEMORY").replace("#", "").toUpperCase();
+  const valid = ["MEMORY", "S01", "S02", "S03", "S04", "S05", "S06"];
+  stateStore.currentFrame = valid.includes(hash) ? hash : "MEMORY";
+  fetchState().then(() => {
+    if (stateStore.currentFrame === "MEMORY") loadMemory();
+  }).catch((err) => {
     const stage = document.getElementById("main-stage");
     if (stage) {
       stage.innerHTML = `<div class="card"><h3>Error loading state</h3><p class="muted">${esc(err.message)}</p></div>`;

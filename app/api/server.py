@@ -31,6 +31,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import parse_qs, urlparse
 
 from app.control import ControlPlaneGovernance
+from app.api.organization_memory import OrganizationMemory
 from app.deputy import ScopedDeputyCEOTools
 from app.model.versioning import VersionedModelService
 from app.runtime import (
@@ -63,64 +64,32 @@ def _default_import_receipt() -> Dict[str, Any]:
     if atlas_summary.exists():
         try:
             raw = json.loads(atlas_summary.read_text(encoding="utf-8"))
+            counts = raw.get("atlas_counts_verified") or {}
+            sources_total = raw.get("atlas_sources_total")
+            if raw.get("all_atlas_digests_match") is not True or len(counts) != 7 or not isinstance(sources_total, int):
+                raise ValueError("verification receipt incomplete")
             return {
-                "import_run_id": raw.get("import_run_id", "import-live-20261107-full"),
-                "status": raw.get("status", "completed"),
-                "target_database": raw.get("target_database", "theseus_recplace"),
-                "target_backend": raw.get("target_backend", "mongodb_atlas"),
-                "canonicalization_protocol": raw.get("canonicalization_protocol", "theseus-raw-canonical-v1"),
-                "total_raw_records": sum(raw.get("atlas_counts_verified", {}).values()),
-                "total_sources": raw.get("atlas_sources_total", 53431),
-                "all_atlas_digests_match": bool(raw.get("all_atlas_digests_match", True)),
-                "counts_by_table": raw.get("atlas_counts_verified", {}),
+                "import_run_id": raw.get("import_run_id"),
+                "status": raw.get("status"),
+                "target_database": raw.get("target_database"),
+                "target_backend": raw.get("target_backend"),
+                "canonicalization_protocol": raw.get("canonicalization_protocol"),
+                "total_raw_records": sum(counts.values()),
+                "total_sources": sources_total,
+                "all_atlas_digests_match": True,
+                "counts_by_table": counts,
                 "multiset_digests": raw.get("atlas_multiset_digests", {}),
                 "sources_by_type": raw.get("atlas_sources_by_type", {}),
                 "facts_created_count": raw.get("facts_created_count", 0),
-                "verified_at": raw.get("atlas_verified_at", "2026-11-07T22:10:50Z"),
+                "verified_at": raw.get("atlas_verified_at"),
                 "provenance": "observed",
                 "readiness": "live_atlas_verified",
             }
         except Exception:
             pass
-    return {
-        "import_run_id": "import-live-20261107-full",
-        "status": "completed",
-        "target_database": "theseus_recplace",
-        "target_backend": "mongodb_atlas",
-        "canonicalization_protocol": "theseus-raw-canonical-v1",
-        "total_raw_records": 53431,
-        "total_sources": 53431,
-        "all_atlas_digests_match": True,
-        "counts_by_table": {
-            "raw.CORPUS_MANIFEST": 1088,
-            "raw.CORPUS_TEXTS": 1088,
-            "raw.EPISODES": 22576,
-            "raw.EPISODES_TEXT": 14144,
-            "raw.CRM_CLIENTS": 1157,
-            "raw.CRM_DEALS": 6102,
-            "raw.CRM_DEAL_STAGE_EVENTS": 7276,
-        },
-        "multiset_digests": {
-            "raw.CORPUS_MANIFEST": "d9a818ba9b3a9e83b4ac1383aeef859497def9852055c8356d6bfc1447f25850",
-            "raw.CORPUS_TEXTS": "1f7ed5ff3716d7e71c19668e87f75e35195c98815d9e5ccbf308678afb36d52b",
-            "raw.EPISODES": "3b4c1a1272c9a50aaffdfc12783da9e4eb605740ab4c8f79e05c0fa3eab66242",
-            "raw.EPISODES_TEXT": "0c77005636a1ce354db3488390dc7a074962812040ea861959ab5b578f17e6f5",
-            "raw.CRM_CLIENTS": "c776f44f7fe736ddfb46e78be02a123f354fbd01eb3ab26c2daa9e58c9c0d028",
-            "raw.CRM_DEALS": "2470e0ae1f5a2d380f3aa31a5eaba774f98bc49bd78573e9255b9ddff16e9662",
-            "raw.CRM_DEAL_STAGE_EVENTS": "7465c1cb41cf3c4d57be618ab997e71d9d0436a6c76a65d83c4b1a16b6609be6",
-        },
-        "sources_by_type": {
-            "sales_conversation": 28470,
-            "crm_record": 22967,
-            "normative": 1572,
-            "unknown": 402,
-            "founder_meeting": 20,
-        },
-        "facts_created_count": 0,
-        "verified_at": "2026-11-07T22:10:50Z",
-        "provenance": "observed",
-        "readiness": "live_atlas_verified",
-    }
+    return {"status": "unverified", "total_raw_records": None, "total_sources": None,
+            "all_atlas_digests_match": False, "counts_by_table": {}, "sources_by_type": {},
+            "verified_at": None, "provenance": "verification_receipt_unavailable", "readiness": "unverified"}
 
 
 class TheseusLocalApplication:
@@ -555,18 +524,20 @@ class TheseusLocalApplication:
 
     def _build_evidence_catalog(self) -> None:
         """Build sanitized, inspectable evidence drawer items (zero raw client PII)."""
+        import_verified = self.import_receipt.get("all_atlas_digests_match") is True
+        import_count = self.import_receipt.get("total_raw_records")
         self.evidence_catalog: Dict[str, Dict[str, Any]] = {
             "ev:import-live-20261107-full": {
                 "evidence_id": "ev:import-live-20261107-full",
-                "title": "Data Connection · Verified RecPlace Corpus in MongoDB Atlas",
-                "human_label": "See data connection: 53,431 records verified",
+                "title": "Data Connection · RecPlace Import Verification",
+                "human_label": f"See data connection: {import_count:,} records verified" if import_verified else "See data connection: verification unavailable",
                 "kind": "ImportReceipt",
                 "source_id": "import-live-20261107-full",
                 "version": "0.1.0",
-                "provenance": "observed",
-                "evidence_category": "Company evidence",
-                "readiness": "observed_company_evidence",
-                "summary": "53,431 raw records and 53,431 indexed sources verified in MongoDB Atlas with 100% SHA-256 multiset match across all 7 tables and 0 fabricated facts.",
+                "provenance": "observed" if import_verified else "unverified",
+                "evidence_category": "Company evidence" if import_verified else "Verification unavailable",
+                "readiness": "observed_company_evidence" if import_verified else "unverified",
+                "summary": f"{import_count:,} raw records and {self.import_receipt['total_sources']:,} indexed sources verified in MongoDB Atlas with SHA-256 multiset match across all 7 tables; 0 facts created during import." if import_verified else "Import verification receipt is unavailable; source counts are not verified in this session.",
                 "details": self.import_receipt,
             },
             "ev:codex-ep-187": {
@@ -1454,6 +1425,7 @@ def create_app_server(
     app: Optional[TheseusLocalApplication] = None,
 ) -> Tuple[ThreadingHTTPServer, TheseusLocalApplication]:
     controller = app or TheseusLocalApplication()
+    memory = OrganizationMemory(controller)
 
     class RequestHandler(BaseHTTPRequestHandler):
         def log_message(self, format: str, *args: Any) -> None:
@@ -1501,6 +1473,20 @@ def create_app_server(
 
             if route == "/api/state":
                 return self._send_json(HTTPStatus.OK, controller.get_state_payload())
+            if route == "/api/memory/overview":
+                return self._send_json(HTTPStatus.OK, memory.overview())
+            if route == "/api/memory/sources":
+                query = parse_qs(parsed.query)
+                try:
+                    limit = int(query.get("limit", ["12"])[0])
+                    result = memory.list_sources(
+                        query.get("type", [None])[0], query.get("cursor", [None])[0], limit,
+                    )
+                    return self._send_json(HTTPStatus.OK, result)
+                except (ContractError, ValueError) as exc:
+                    if isinstance(exc, ContractError):
+                        return self._send_json(HTTPStatus.BAD_REQUEST, {"ok": False, **exc.to_dict()})
+                    return self._send_json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": "invalid_limit"})
             if route.startswith("/api/evidence/"):
                 ev_id = route[len("/api/evidence/") :]
                 item = controller.evidence_catalog.get(ev_id)
@@ -1548,6 +1534,8 @@ def create_app_server(
                 if route == "/api/deputy/tool":
                     res = controller.invoke_deputy_tool(payload)
                     return self._send_json(HTTPStatus.OK, {"ok": True, **res})
+                if route == "/api/memory/ask":
+                    return self._send_json(HTTPStatus.OK, {"ok": True, **memory.ask(str(payload.get("question", "")))})
             except ContractError as exc:
                 return self._send_json(HTTPStatus.BAD_REQUEST, {"ok": False, **exc.to_dict()})
             except Exception as exc:
