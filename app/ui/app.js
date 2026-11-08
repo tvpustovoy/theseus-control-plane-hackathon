@@ -1497,7 +1497,7 @@ async function checkCommitmentUpdates() {
 }
 
 function renderCommitments(d) {
-  const rows = commitmentList(d);
+  const rows = commitmentList(d).map((row, index) => ({ ...row, displayNumber: index + 1 }));
   const seen = commitmentReviewState(d, rows);
   const changes = row => !Object.hasOwn(seen, row.key || row.id) ? 'New' :
     seen[row.key || row.id] !== commitmentFingerprint(row) ? 'Updated' : '';
@@ -1507,7 +1507,7 @@ function renderCommitments(d) {
   const c = d.s01_commit;
   return `<section class="commitments-page" aria-labelledby="commitments-title">
     <header class="commitments-heading"><div><h2 id="commitments-title">Commitments</h2>
-    <p>What we agreed, and when.</p></div>
+    <p>${Array.isArray(d.commitments) ? 'What we agreed, and when.' : 'One agreement · One goal, with a rule, a cultural principle and monitoring.'}</p></div>
     <a class="btn btn-secondary" href="#S01">Review direction</a></header>
     <div class="commitments-toolbar">
       <span role="status">${changedCount ? `<strong>${changedCount} new or updated since your last review</strong>` : `${rows.length} items · Latest first`}</span>
@@ -1520,7 +1520,7 @@ function renderCommitments(d) {
       const change = changes(row);
       const status = row.status || (row.pending ? 'Proposed' : row.confirmed ? 'Confirmed' : 'Baseline');
       return `<details class="commitment-item ${change ? 'has-change' : ''}">
-        <summary><span class="commitment-main"><span class="commitment-kind">${esc(row.kind || 'Commitment')}${change ? ` <b class="commitment-change">${change}</b>` : ''}</span>
+        <summary><span class="commitment-main"><span class="commitment-kind"><strong>${row.displayNumber}.</strong> ${esc(row.kind || 'Commitment')}${change ? ` <b class="commitment-change">${change}</b>` : ''}</span>
         <span class="commitment-text">${esc(row.text)}</span></span>
         <span class="commitment-date">${esc(commitmentDate(row.confirmedAt))}</span>
         <span class="commitment-status">${esc(status)}<span class="commitment-expand" aria-hidden="true"></span></span></summary>
