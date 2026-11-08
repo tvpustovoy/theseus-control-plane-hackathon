@@ -2,6 +2,7 @@
 import unittest
 import json
 import tempfile
+import io
 from pathlib import Path
 from unittest.mock import patch
 
@@ -57,6 +58,35 @@ class OrganizationMemoryTests(unittest.TestCase):
                 self.memory.ask(question)
         with self.assertRaises(ContractError):
             self.memory.list_sources(None, None, 26)
+
+    def test_crm_keyword_count_is_union_and_examples_are_optional(self):
+        rows = [{"v_json": {"name": "Dental стоматология", "client_key": "1"}},
+                {"v_json": json.dumps({"name": "Other", "client_key": "2"})}]
+        with patch.object(self.memory.controller.adapter.backend, "find_many", return_value=rows):
+            result = self.memory.crm_count({"name_terms": ["dental", "стомат"]})
+            self.assertEqual(result["count"], 1)
+            self.assertEqual(result["examples"], [])
+            with_examples = self.memory.crm_count({"name_terms": ["dental"], "include_examples": True})
+            self.assertEqual(with_examples["examples"][0]["client_key"], "1")
+
+    def test_follow_up_carries_server_history_and_rejects_unknown_parent(self):
+        requests = []
+        def respond(request, timeout):
+            requests.append(json.loads(request.data))
+            return io.BytesIO(json.dumps({"content": [{"type": "text", "text": "A grounded answer."}]}).encode())
+        with tempfile.TemporaryDirectory() as tmp:
+            key = Path(tmp) / "anthropic-dashboard-key"
+            key.write_text("test-key", encoding="utf-8")
+            with patch.object(memory_module, "PRIVATE", Path(tmp)), patch.dict(memory_module.os.environ, {"ANTHROPIC_API_KEY_FILE": str(key)}), patch.object(memory_module.urllib.request, "urlopen", side_effect=respond):
+                first = self.memory.ask("What do we know about discounts?")
+                self.memory.ask("What should we check first?", first["run_id"])
+                self.memory.ask("A new independent question")
+        self.assertEqual(len(requests[0]["messages"]), 1)
+        self.assertEqual([m["role"] for m in requests[1]["messages"]], ["user", "assistant", "user"])
+        self.assertEqual(requests[1]["messages"][1]["content"], "A grounded answer.")
+        self.assertEqual(len(requests[2]["messages"]), 1)
+        with self.assertRaises(ContractError):
+            self.memory.ask("Follow-up", "unknown-run")
 
 
 if __name__ == "__main__":

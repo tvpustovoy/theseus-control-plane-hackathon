@@ -10,6 +10,7 @@ const stateStore = {
   memorySources: null,
   memoryType: "",
   memoryAnswer: null,
+  memoryTurns: [],
   memoryBusy: false,
   selectedEvidenceId: null,
   drawerOpen: false,
@@ -48,6 +49,15 @@ function esc(str) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+function renderEnglishAnswer(value) {
+  const letters = {а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'yo',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'kh',ц:'ts',ч:'ch',ш:'sh',щ:'shch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya',і:'i',ї:'yi',є:'ye',ґ:'g'};
+  const latin = String(value || '').replace(/[А-Яа-яЁёІіЇїЄєҐґ]/g, char => {
+    const translated = letters[char.toLowerCase()] || '';
+    return char === char.toUpperCase() ? translated.charAt(0).toUpperCase() + translated.slice(1) : translated;
+  });
+  return esc(latin).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\n/g, '<br>');
 }
 
 function provenanceBadgeClass(cat) {
@@ -165,8 +175,10 @@ function renderMemory() {
     </div>
     <div class="card">
       <div class="card-kicker">GROUNDED QUESTION</div><h3>Ask this evidence</h3>
-      <p class="muted">The server sends only selected sanitized summaries, verified counts and coverage limits to Claude. Answers include evidence IDs and should state when data is insufficient.</p>
-      <form id="memory-ask-form"><label for="memory-question">Your question</label><textarea id="memory-question" maxlength="600" required placeholder="What do we know about discounts and customer commitments?"></textarea>
+      <p class="muted">Ask in any language; answers are in English. Claude can count CRM clients and find names matching your keywords, using live database results and selected evidence. Queries and answers are logged privately.</p>
+      ${stateStore.memoryTurns.map(turn => `<div class="subcard memory-answer"><strong>Your question</strong><p>${esc(turn.question)}</p><strong>Answer · ${esc(turn.model)}</strong><p>${renderEnglishAnswer(turn.answer)}</p><div class="memory-citations">${[...new Set(turn.citation_ids || [])].map(id => stateStore.data?.evidence_catalog?.[id] ? renderCiteButton(id, id) : `<span class="status-pill mono">${esc(id)}</span>`).join(" ")}</div></div>`).join("")}
+      ${stateStore.memoryTurns.length ? `<p class="muted">You can ask a follow-up. The last two question/answer pairs are included as context.</p><button class="btn secondary" id="memory-new-chat" type="button" ${stateStore.memoryBusy ? "disabled" : ""}>New conversation</button>` : ""}
+      <form id="memory-ask-form"><label for="memory-question">${stateStore.memoryTurns.length ? "Follow-up question" : "Your question"}</label><textarea id="memory-question" maxlength="600" required placeholder="${stateStore.memoryTurns.length ? "What should we verify first, and why?" : "What do we know about discounts and customer commitments?"}"></textarea>
       <button class="btn" type="submit" ${stateStore.memoryBusy ? "disabled" : ""}>${stateStore.memoryBusy ? "Asking…" : "Ask"}</button></form>
       ${stateStore.memoryAnswer ? `<div class="subcard memory-answer"><strong>Answer · ${esc(stateStore.memoryAnswer.model || "")}</strong><p>${esc(stateStore.memoryAnswer.answer || stateStore.memoryAnswer.error || "").replace(/\n/g, "<br>")}</p><div class="memory-citations">${(stateStore.memoryAnswer.citation_ids || []).map(id => stateStore.data?.evidence_catalog?.[id] ? renderCiteButton(id, id) : `<span class="status-pill mono">${esc(id)}</span>`).join(" ")}</div></div>` : ""}
     </div>
@@ -180,11 +192,12 @@ async function askMemory(question) {
   try {
     const response = await fetch("/api/memory/ask", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question }),
+      body: JSON.stringify({ question, previous_run_id: stateStore.memoryTurns.at(-1)?.run_id || null }),
     });
     const result = await response.json();
     if (!response.ok || !result.ok) throw new Error(result.message || "The model request failed");
-    stateStore.memoryAnswer = result;
+    stateStore.memoryTurns.push({ question, ...result });
+    stateStore.memoryAnswer = null;
   } catch (error) {
     stateStore.memoryAnswer = { error: error.message };
   } finally {
@@ -1432,6 +1445,12 @@ window.addEventListener("DOMContentLoaded", () => {
       }
     });
     stageEl.addEventListener("click", (ev) => {
+      if (ev.target.id === "memory-new-chat" && !stateStore.memoryBusy) {
+        stateStore.memoryTurns = [];
+        stateStore.memoryAnswer = null;
+        renderAll();
+        return;
+      }
       if (ev.target.id === "memory-next") {
         loadMemory(stateStore.memorySources?.next_cursor);
         return;

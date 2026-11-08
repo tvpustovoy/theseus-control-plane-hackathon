@@ -1535,7 +1535,7 @@ def create_app_server(
                     res = controller.invoke_deputy_tool(payload)
                     return self._send_json(HTTPStatus.OK, {"ok": True, **res})
                 if route == "/api/memory/ask":
-                    return self._send_json(HTTPStatus.OK, {"ok": True, **memory.ask(str(payload.get("question", "")))})
+                    return self._send_json(HTTPStatus.OK, {"ok": True, **memory.ask(str(payload.get("question", "")), payload.get("previous_run_id"))})
             except ContractError as exc:
                 return self._send_json(HTTPStatus.BAD_REQUEST, {"ok": False, **exc.to_dict()})
             except Exception as exc:
