@@ -1085,7 +1085,7 @@ function renderS05(d) {
           <span id="crm-feedback" style="font-size:0.85rem; font-weight:600;"></span>
         </div>
         <button type="button" class="btn btn-amber" onclick="navigateToFrame('S06')">
-          See simulated outcome (Step 6) →
+          See outcomes (Step 6) →
         </button>
         ${deputyReturnAction()}
       </div>
@@ -1285,7 +1285,7 @@ function renderS06(d) {
     <div class="card">
       <div class="card-header">
         <div>
-          <div class="card-kicker">Step 6 · Simulated Outcome Comparison</div>
+          <div class="card-kicker">Step 6 · Outcomes</div>
           <h2 class="card-title">Did the change help?</h2>
           <p class="muted" style="margin:0;">
             Matched comparison on the same 120 synthetic leads (60 automated sales agent leads + 60 modeled human seller leads).
@@ -1520,7 +1520,7 @@ function renderCommitments(d) {
       ${changedCount ? '<button class="btn btn-secondary" onclick="markCommitmentsReviewed()">Mark as reviewed</button>' : ''}</div>
     </div>
     <p id="commitments-feedback" role="status"></p>
-    <div class="commitments-columns" aria-hidden="true"><span>Commitment</span><span>${Array.isArray(d.commitments) ? 'Accepted' : 'Last confirmed'}</span><span>Status</span></div>
+    <div class="commitments-columns" aria-hidden="true"><span>Commitment</span><span>${Array.isArray(d.commitments) ? 'Accepted' : 'Last confirmed'}</span><span>Status</span><span></span></div>
     <div class="commitments-list">${rows.length ? rows.map(row => {
       const change = changes(row);
       const status = row.status || (row.pending ? 'Proposed' : row.confirmed ? 'Confirmed' : 'Baseline');
@@ -1528,14 +1528,13 @@ function renderCommitments(d) {
         <summary><span class="commitment-main"><span class="commitment-kind"><strong>${row.displayNumber}.</strong> ${esc(row.kind || 'Commitment')}${change ? ` <b class="commitment-change">${change}</b>` : ''}</span>
         <span class="commitment-text">${esc(row.text)}</span></span>
         <span class="commitment-date">${esc(commitmentDate(row.confirmedAt))}</span>
-        <span class="commitment-status">${esc(status)}<span class="commitment-expand" aria-hidden="true"></span></span></summary>
+        <span class="commitment-status">${esc(status)}</span><span class="commitment-row-actions"><a class="btn btn-secondary" href="#S06">Outcomes</a><span class="commitment-expand" aria-hidden="true"></span></span></summary>
         <div class="commitment-detail">
           ${(row.sections || []).map(section => `<details class="commitment-section"><summary>
             <strong>${esc(section.kind)}${section.pending ? ' · Proposed' : ''}</strong><span class="commitment-preview">${esc(section.text)}</span><span class="commitment-expand" aria-hidden="true"></span></summary>
             <div class="commitment-section-body"><p>${esc(section.text)}</p><p><strong>Target:</strong> ${esc(section.target)}</p><p class="muted"><strong>Evidence gap:</strong> ${esc(section.gap)}</p></div></details>`).join('')}
           ${row.target ? `<p><strong>Target / constraint</strong><br>${esc(row.target)}</p>` : ''}
           ${row.gap ? `<p><strong>Evidence still needed</strong><br>${esc(row.gap)}</p>` : ''}
-          <div class="commitment-outcome"><a class="btn btn-secondary" href="#S06">Track outcome →</a><span>Implementation status &amp; simulated results</span></div>
           <details class="commitment-reference"><summary>Record details</summary><p class="muted">Reference: ${esc(row.id)} · ${esc(row.version || c.committed_version)}<br>
           Confirmed by: ${esc(row.approvedBy || row.confirmed_by || 'Not recorded')}</p></details>
           ${row.changedAt && row.changedAt !== row.confirmedAt ? `<p class="muted">Updated: ${esc(commitmentDate(row.changedAt))}</p>` : ''}

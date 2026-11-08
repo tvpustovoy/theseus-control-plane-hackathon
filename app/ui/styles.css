@@ -6,7 +6,7 @@
 .commitments-heading p { margin:4px 0 0; color:#4b647b; }
 .commitments-toolbar { margin:24px 0 12px; font-size:.9rem; }
 .commitments-toolbar > div, .commitments-links { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-.commitments-columns, .commitment-item > summary { display:grid; grid-template-columns:minmax(0,1fr) 180px 120px; column-gap:24px; }
+.commitments-columns, .commitment-item > summary { display:grid; grid-template-columns:minmax(0,1fr) 180px 90px 126px; column-gap:20px; }
 .commitments-columns { padding:10px 20px; color:#4b647b; font-size:.78rem; }
 .commitments-list { border-top:1px solid #c9dce9; }
 .commitment-item { border-bottom:1px solid #c9dce9; background:#fff; }
@@ -38,8 +38,8 @@
 .commitment-reference { margin-top:8px; font-size:.78rem; color:#4b647b; }
 .commitment-reference summary { cursor:pointer; }
 .commitment-reference p { margin:8px 0 0; font-size:.78rem; }
-.commitment-outcome { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-top:12px; }
-.commitment-outcome > span { color:#4b647b; font-size:.78rem; }
+.commitment-row-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:14px; }
+.commitment-row-actions a { font-size:.8rem; padding:6px 10px; text-decoration:none; }
 .commitment-change { display:inline-block; color:#14594f; background:#d9eee8; padding:1px 7px; margin-left:8px; border-radius:4px; }
 .commitment-item.has-change { background:#f0faf6; }
 .commitments-footer { margin-top:22px; }
@@ -51,6 +51,7 @@
   .commitment-item > summary { grid-template-columns:1fr auto; column-gap:12px; row-gap:8px; padding:16px; }
   .commitment-main { grid-column:1 / -1; }
   .commitment-date, .commitment-status { padding-top:0; }
+  .commitment-row-actions { grid-column:1 / -1; padding-top:0; }
   .commitment-text { -webkit-line-clamp:3; }
   .commitments-heading h2 { font-size:1.6rem; }
   .commitment-detail { padding:0 16px 16px; }
