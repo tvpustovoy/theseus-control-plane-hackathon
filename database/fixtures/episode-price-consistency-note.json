@@ -1,0 +1,36 @@
+{
+ "artifact": "episode note: price-consistency network deal (sanitized, public-safe description)",
+ "status": "INTERNAL SECONDARY ANALYSIS - not primary evidence, not a verified outcome",
+ "description": "An internal review of network/franchise accounts dated 2026-09-01 records a 45-branch medical-network opportunity in which a per-branch rate had reportedly been agreed with the client's chief executive, and attributes the loss to the client encountering different prices quoted by different managers. The surviving source is the internal analytical summary itself; no primary negotiation transcript or CRM deal record confirming the rate agreement, the differing quotes, or the causal chain has been located in the processed evidence.",
+ "claims": [
+  {
+   "claim_id": "C2934-ce70728102",
+   "statement_sanitized": "Different prices quoted by different managers to one client are recorded as killing a 45-branch network deal.",
+   "source_ref": {
+    "source_id": "src:ea7fc88bec2223dbb7f0",
+    "source_text_sha256": "4208d95e17ad7e8d4aa8475d29b54c41305abc07004b537eed65a243f8fb0af5",
+    "source_day": "2026-09-01"
+   },
+   "evidence_ref": {
+    "quote_sha256": "9f244158c22413ac187c187211a53e11bdf91b9461a9ca02d302ad2120fad12f",
+    "char_start": 1379,
+    "char_end": 1461
+   }
+  },
+  {
+   "claim_id": "C2935-762457e525",
+   "statement_sanitized": "A per-branch rate reportedly agreed with the client CEO collapsed over differing manager prices.",
+   "source_ref": {
+    "source_id": "src:ea7fc88bec2223dbb7f0",
+    "source_text_sha256": "4208d95e17ad7e8d4aa8475d29b54c41305abc07004b537eed65a243f8fb0af5",
+    "source_day": "2026-09-01"
+   },
+   "evidence_ref": {
+    "quote_sha256": "57172e45f8dfc1245af0ac86b7c65bb76707177b825af71e3c39364d8acab5ea",
+    "char_start": 959,
+    "char_end": 1042
+   }
+  }
+ ],
+ "demo_rule": "May be narrated ONLY as: internal analysis attributes a lost network opportunity to inconsistent manager pricing (secondary source, outcome unverified). Never state as a verified lost deal or proven causation. Client/company names omitted."
+}
