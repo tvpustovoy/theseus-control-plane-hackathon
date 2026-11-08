@@ -435,7 +435,7 @@
       "blockers": [],
       "scope": "app/ui/; app/api/",
       "acceptance": "Verified raw import and partial extraction shown separately; bounded source browsing; grounded question with citations; old six-state demo and reset survive; browser QA",
-      "status": "review",
+      "status": "done",
       "approval": "user",
       "dispatch": "acknowledged",
       "evidence": [

@@ -7,7 +7,7 @@
 - Подготовка: 1/5 завершено
 - A: 1/7 завершено
 - B: 0/7 завершено
-- Интерфейс: 0/4 завершено
+- Интерфейс: 1/4 завершено
 - Защита: 0/3 завершено
 
 ## Участники
@@ -44,7 +44,7 @@
 | F01 · Интерфейс | Каркас Deputy CEO и инструменты состояния — Argon.Hackathon | Ждёт: P01; P02 | todo / ждёт Тараса / not_sent |
 | F02 · Интерфейс | Fetch Deputy CEO / Agentverse bridge — Viveka.Hackathon | Ждёт: F01; B07; Доступ/регистрация Agentverse | todo / ждёт Тараса / not_sent |
 | F03 · Интерфейс | Six Theseus browser UI states on localhost — Argon.Hackathon | Входы готовы | review / разрешено / acknowledged |
-| F04 · Интерфейс | Organization Memory opening and grounded source questions — Viveka.Datamaster | Входы готовы | review / разрешено / acknowledged |
+| F04 · Интерфейс | Organization Memory opening and grounded source questions — Viveka.Datamaster | Завершено | done / разрешено / acknowledged |
 | D01 · Защита | Нарратив, презентация, видео и сценарий — Setu.Hackathon | Входы готовы | todo / разрешено / sent_unacknowledged |
 | D02 · Защита | Подставить реальные результаты и ссылки — Setu.Hackathon | Ждёт: D01; F03 | todo / ждёт Тараса / not_sent |
 | D03 · Защита | Публикация и сдача — Viveka.HackatonCoordinator | Ждёт: D02; Явная команда Тараса на публикацию и отправку | todo / ждёт Тараса / not_sent |
