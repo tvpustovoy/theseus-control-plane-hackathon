@@ -6,14 +6,14 @@
 .commitments-heading p { margin:4px 0 0; color:#4b647b; }
 .commitments-toolbar { margin:24px 0 12px; font-size:.9rem; }
 .commitments-toolbar > div, .commitments-links { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-.commitments-columns, .commitment-item summary { display:grid; grid-template-columns:minmax(0,1fr) 180px 120px; column-gap:24px; }
+.commitments-columns, .commitment-item > summary { display:grid; grid-template-columns:minmax(0,1fr) 180px 120px; column-gap:24px; }
 .commitments-columns { padding:10px 20px; color:#4b647b; font-size:.78rem; }
 .commitments-list { border-top:1px solid #c9dce9; }
 .commitment-item { border-bottom:1px solid #c9dce9; background:#fff; }
-.commitment-item summary { padding:18px 20px; cursor:pointer; align-items:start; list-style:none; }
-.commitment-item summary::-webkit-details-marker { display:none; }
-.commitment-item summary:hover { background:#eff6fb; }
-.commitment-item summary:focus-visible { outline:2px solid #176fa9; outline-offset:-2px; }
+.commitment-item > summary { padding:18px 20px; cursor:pointer; align-items:start; list-style:none; }
+.commitment-item > summary::-webkit-details-marker { display:none; }
+.commitment-item > summary:hover { background:#eff6fb; }
+.commitment-item > summary:focus-visible { outline:2px solid #176fa9; outline-offset:-2px; }
 .commitment-kind { display:block; font-size:.76rem; color:#4b647b; margin-bottom:5px; }
 .commitment-text { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5; font-size:1rem; }
 .commitment-item[open] .commitment-text { display:block; }
@@ -23,9 +23,23 @@
 .commitment-expand:before, .commitment-expand:after { content:''; position:absolute; background:currentColor; }
 .commitment-expand:before { top:5px; left:0; width:12px; height:2px; }
 .commitment-expand:after { top:0; left:5px; width:2px; height:12px; }
-.commitment-item[open] .commitment-expand:after { display:none; }
-.commitment-detail { padding:0 20px 20px; max-width:78ch; overflow-wrap:anywhere; }
+.commitment-item[open] > summary .commitment-expand:after { display:none; }
+.commitment-detail { padding:0 20px 12px; overflow-wrap:anywhere; }
 .commitment-detail p { margin:0 0 14px; font-size:.9rem; }
+.commitment-section { border-top:1px solid #dde9f2; }
+.commitment-section > summary { display:grid; grid-template-columns:120px minmax(0,1fr) 12px; align-items:center; gap:16px; padding:10px 0; font-size:.85rem; cursor:pointer; list-style:none; }
+.commitment-section > summary::-webkit-details-marker { display:none; }
+.commitment-section > summary:hover { color:#176fa9; }
+.commitment-section > summary:focus-visible { outline:2px solid #176fa9; outline-offset:2px; }
+.commitment-preview { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.commitment-section[open] > summary .commitment-expand:after { display:none; }
+.commitment-section-body { max-width:78ch; padding:4px 0 8px; }
+.commitment-section-body p { font-size:.84rem; margin-bottom:8px; }
+.commitment-reference { margin-top:8px; font-size:.78rem; color:#4b647b; }
+.commitment-reference summary { cursor:pointer; }
+.commitment-reference p { margin:8px 0 0; font-size:.78rem; }
+.commitment-outcome { display:flex; align-items:center; flex-wrap:wrap; gap:12px; margin-top:12px; }
+.commitment-outcome > span { color:#4b647b; font-size:.78rem; }
 .commitment-change { display:inline-block; color:#14594f; background:#d9eee8; padding:1px 7px; margin-left:8px; border-radius:4px; }
 .commitment-item.has-change { background:#f0faf6; }
 .commitments-footer { margin-top:22px; }
@@ -34,12 +48,13 @@
 #commitments-feedback:empty { display:none; }
 @media (max-width:700px) {
   .commitments-columns { display:none; }
-  .commitment-item summary { grid-template-columns:1fr auto; column-gap:12px; row-gap:8px; padding:16px; }
+  .commitment-item > summary { grid-template-columns:1fr auto; column-gap:12px; row-gap:8px; padding:16px; }
   .commitment-main { grid-column:1 / -1; }
   .commitment-date, .commitment-status { padding-top:0; }
   .commitment-text { -webkit-line-clamp:3; }
   .commitments-heading h2 { font-size:1.6rem; }
   .commitment-detail { padding:0 16px 16px; }
+  .commitment-section > summary { grid-template-columns:82px minmax(0,1fr) 12px; gap:8px; font-size:.78rem; }
 }
 
 .memory-page { display: grid; gap: 18px; }

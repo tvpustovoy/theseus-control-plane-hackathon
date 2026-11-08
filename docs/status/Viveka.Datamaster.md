@@ -30,6 +30,8 @@
 
 ### Compact list revision
 
+- Final density pass: expanded package shows four compact one-line disclosure rows, not full paragraphs. Fixed parent-summary CSS leaking onto nested disclosures. Full wording/targets/gaps require opening the relevant section; record metadata collapsed. Added Track outcome button to S06. Live desktop/mobile checks passed, including route navigation, individual disclosure, no overflow and expanded desktop package height below 420px.
+
 - Owner clarified unit of record: the existing mandate is ONE commitment, not four. Fallback now renders one numbered collapsed row with shared confirmation date/status; expanding shows Goal, Rule/principle, Culture, Monitoring. Section edits mark the package Updated. New review-key namespace avoids mislabeling this presentation migration as a newly accepted commitment. Live browser verified one row and four expanded sections.
 
 - Replaced long nested cards with a text/date/status list, expandable details and newest/changed items first. Preserved exact saved wording; hidden details retain IDs, targets and evidence gaps. Unknown dates remain explicit.

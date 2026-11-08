@@ -1530,12 +1530,14 @@ function renderCommitments(d) {
         <span class="commitment-date">${esc(commitmentDate(row.confirmedAt))}</span>
         <span class="commitment-status">${esc(status)}<span class="commitment-expand" aria-hidden="true"></span></span></summary>
         <div class="commitment-detail">
-          ${(row.sections || []).map(section => `<section><h3>${esc(section.kind)}${section.pending ? ' · Proposed' : ''}</h3><p>${esc(section.text)}</p>
-            <details><summary>Target and evidence</summary><p>${esc(section.target)}</p><p class="muted">${esc(section.gap)}</p></details></section>`).join('')}
+          ${(row.sections || []).map(section => `<details class="commitment-section"><summary>
+            <strong>${esc(section.kind)}${section.pending ? ' · Proposed' : ''}</strong><span class="commitment-preview">${esc(section.text)}</span><span class="commitment-expand" aria-hidden="true"></span></summary>
+            <div class="commitment-section-body"><p>${esc(section.text)}</p><p><strong>Target:</strong> ${esc(section.target)}</p><p class="muted"><strong>Evidence gap:</strong> ${esc(section.gap)}</p></div></details>`).join('')}
           ${row.target ? `<p><strong>Target / constraint</strong><br>${esc(row.target)}</p>` : ''}
           ${row.gap ? `<p><strong>Evidence still needed</strong><br>${esc(row.gap)}</p>` : ''}
-          <p class="muted">Reference: ${esc(row.id)} · ${esc(row.version || c.committed_version)}<br>
-          Confirmed by: ${esc(row.approvedBy || row.confirmed_by || 'Not recorded')}</p>
+          <div class="commitment-outcome"><a class="btn btn-secondary" href="#S06">Track outcome →</a><span>Implementation status &amp; simulated results</span></div>
+          <details class="commitment-reference"><summary>Record details</summary><p class="muted">Reference: ${esc(row.id)} · ${esc(row.version || c.committed_version)}<br>
+          Confirmed by: ${esc(row.approvedBy || row.confirmed_by || 'Not recorded')}</p></details>
           ${row.changedAt && row.changedAt !== row.confirmedAt ? `<p class="muted">Updated: ${esc(commitmentDate(row.changedAt))}</p>` : ''}
           ${validDeputyReturn(row.source_chat_url) ? `<a class="cite-btn" href="${esc(validDeputyReturn(row.source_chat_url))}">Open source conversation</a>` : ''}
         </div></details>`;
