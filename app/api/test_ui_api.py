@@ -126,7 +126,7 @@ class TheseusUiApiAcceptanceTests(unittest.TestCase):
             self.assertTrue(pr["claim_b"]["mandate_status"])
 
         subq_card = next(c for c in s03["cards"] if c["card_id"] == "drift-card-subq-snap-pilot")
-        self.assertEqual(subq_card["subq_verdict"], "insufficient_evidence")
+        self.assertEqual(subq_card["subq_verdict"], "reviewed_no_proven_contradiction")
         self.assertEqual(len(subq_card["subq_pairs"]), 5)
         self.assertEqual(subq_card["evidence_category"], "Recorded SubQ model response")
 
@@ -138,7 +138,7 @@ class TheseusUiApiAcceptanceTests(unittest.TestCase):
                 "reason": "Historical episodes predate the proposed rule; record commitments going forward.",
             }
         )
-        self.assertEqual(updated_card["subq_verdict"], "insufficient_evidence")
+        self.assertEqual(updated_card["subq_verdict"], "reviewed_no_proven_contradiction")
         self.assertEqual(updated_card["owner_override_verdict"], "different_scope")
         self.assertIn("predate the proposed rule", updated_card["owner_override_reason"])
 
@@ -208,6 +208,69 @@ class TheseusUiApiAcceptanceTests(unittest.TestCase):
         # Historical decision & CRM deal remain preserved in backend store
         self.assertGreaterEqual(len(self.store.find_many("decisions", {"organization_id": "recplace"})), 1)
         self.assertGreaterEqual(len(self.store.find_many("crm_deals_demo", {"organization_id": "recplace"})), 1)
+
+    def test_factual_provenance_refinements_and_deputy_public_mirror(self) -> None:
+        state = self.app.get_state_payload()
+        # (a) Snapshot counts caveated as unverified discount outcome semantics
+        crm_card = next(c for c in state["s03_drift"]["cards"] if c["card_id"] == "drift-card-real-crm-blindness")
+        self.assertEqual(crm_card["readiness"], "snapshot_counts_unverified_semantics")
+        self.assertEqual(crm_card["provenance"], "observed_snapshot_rows_unverified_semantics")
+        self.assertEqual(
+            state["evidence_catalog"]["ev:culture-crm-blindness"]["readiness"],
+            "snapshot_counts_unverified_semantics",
+        )
+        self.assertEqual(
+            state["evidence_catalog"]["ev:culture-crm-blindness"]["details"]["records_with_payment_evidence_fields"],
+            27,
+        )
+
+        # (b) Proposed quantitative draft targets labeled as owner_proposal_and_simulation_draft
+        self.assertEqual(state["s01_commit"]["intent_and_goal"]["provenance"], "owner_proposal_and_simulation_draft")
+        self.assertEqual(
+            state["s01_commit"]["governing_principle"]["provenance"],
+            "owner_proposal_and_simulation_draft",
+        )
+
+        # (c) drift-card-subq-snap-pilot machine subq_verdict & secondary analysis note
+        subq_card = next(c for c in state["s03_drift"]["cards"] if c["card_id"] == "drift-card-subq-snap-pilot")
+        self.assertEqual(subq_card["subq_verdict"], "reviewed_no_proven_contradiction")
+        self.assertEqual(
+            subq_card["verdict_breakdown"],
+            {"different_scope_time": 1, "insufficient_evidence": 3, "consistent": 1, "contradictory": 0},
+        )
+        self.assertIn("ev:episode-price-consistency-note", state["evidence_catalog"])
+        self.assertEqual(
+            state["evidence_catalog"]["ev:episode-price-consistency-note"]["provenance"],
+            "internal_secondary_analysis",
+        )
+
+        # (d) Deputy public-safe mirror & bounded read tools (LIVE-ACCESS-CONTRACT.md)
+        desc = self.app.invoke_deputy_tool({"tool": "describe_data"})["result"]
+        self.assertIn("deputy_public_state", desc["queryable_collections"])
+        self.assertEqual(desc["current_public_mirror"]["active_mandate_version"], "mandate-v1")
+        self.assertEqual(desc["current_public_mirror"]["active_runtime_version"], "tool-v1")
+
+        # Mutate state and verify public mirror updates immediately
+        self.app.commit_mandate({"authenticated_actor": "owner:taras"})
+        self.app.approve_proposal({"authenticated_actor": "owner:taras", "decision": "approve"})
+        self.app.activate_candidate({})
+        q_res = self.app.invoke_deputy_tool(
+            {"tool": "query_data", "arguments": {"collection": "deputy_public_state", "limit": 5}}
+        )["result"]
+        self.assertGreaterEqual(q_res["count"], 1)
+        current_mirror = next(r for r in q_res["records"] if r["_id"] == "deputy_mirror:recplace:current")
+        self.assertEqual(current_mirror["active_mandate_version"], "mandate-v2")
+        self.assertEqual(current_mirror["active_runtime_version"], "tool-v2")
+        self.assertEqual(current_mirror["active_crm_schema_version"], "crm-v2")
+
+        ev_res = self.app.invoke_deputy_tool(
+            {"tool": "read_evidence", "arguments": {"evidence_id": "ev:episode-price-consistency-note"}}
+        )["result"]
+        self.assertEqual(ev_res["evidence"]["provenance"], "internal_secondary_analysis")
+
+        # Direct access to raw_records must be blocked
+        with self.assertRaises(ContractError):
+            self.app.invoke_deputy_tool({"tool": "query_data", "arguments": {"collection": "raw_records"}})
 
 
 if __name__ == "__main__":

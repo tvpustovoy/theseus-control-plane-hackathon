@@ -28,6 +28,7 @@ const HUMAN_REASON_LABELS = {
 
 const HUMAN_VERDICT_LABELS = {
   insufficient_evidence: "Not enough evidence to decide",
+  reviewed_no_proven_contradiction: "No proven contradiction (1× different scope/time, 3× insufficient evidence, 1× consistent low-conf)",
   possible_conflict: "Possible conflict — low confidence (29%)",
   contradicts: "Contradicts proposed rule (simulated preview)",
   different_scope: "The rule applies to a different situation",

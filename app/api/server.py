@@ -241,6 +241,7 @@ class TheseusLocalApplication:
         # Load Muse's review-packet-v1 via app.verification.packet_io (5-pair discount SubQ packet primary)
         self.review_packet, self.review_packet_summary, self.review_packet_source_label = self._load_muse_review_packet()
         self.culture_rules_brief = self._load_culture_rules_brief()
+        self.episode_price_consistency_note = self._load_episode_price_consistency_note()
         self.legacy_pilot_packet, self.legacy_pilot_summary, self.legacy_pilot_label = self._load_legacy_pilot_packet()
 
         # Record truthful simulated demo gate report (60/60 sales_agent leads in simrun-agent_rule_only-20261107)
@@ -284,30 +285,30 @@ class TheseusLocalApplication:
                 "principle_summary": "Every discount should receive an explicit customer commitment in return.",
                 "culture_summary": "Understand the customer's need and explain value before offering a price reduction.",
                 "risk_hypothesis_summary": "Discounts may become the default response to price objections. Current evidence does not establish how often discounts were actually granted.",
-                "visibility_summary": "Sales conversations and CRM records. Discount outcomes and reasons are currently missing from the CRM.",
+                "visibility_summary": "Sales conversations and CRM records (snapshot counts with unverified discount outcome semantics: 27 records have payment-evidence fields; general CRM discount outcomes and reasons are missing).",
                 "decision_prompt": "Confirm this direction and the monitoring scope. Monitoring remains partial until the missing signal is connected.",
             },
             "intent_and_goal": {
                 "id": "goal-v2:protect-margin-and-value-positioning",
                 "title": "Protect margin while growing sales",
                 "previous_text": "Close quarterly pipeline targets with standard list pricing.",
-                "proposed_text": "Protect margin while growing sales. Draft quantitative target (awaiting approval): maintain >=90% list-price realization or verified customer commitment on 100% of discounted deals.",
-                "success_measure": "Share of discounts backed by explicit customer commitment (longer term, prepayment, referral, volume) and 0% unapproved >5% agent discounts.",
+                "proposed_text": "Protect margin while growing sales. Draft quantitative target (owner proposal / simulation draft, awaiting approval): maintain >=90% list-price realization or verified customer commitment on 100% of discounted deals.",
+                "success_measure": "Share of discounts backed by explicit customer commitment (longer term, prepayment, referral, volume) and 0% unapproved >5% agent discounts (owner proposal / simulation draft).",
                 "time_horizon": "Q4 2026 (weekly cohort review)",
                 "accountable_role": "Founder & Deputy CEO Control Plane",
-                "provenance": "observed_and_owner_framing",
-                "human_provenance": "Based on source evidence and your stated intent",
+                "provenance": "owner_proposal_and_simulation_draft",
+                "human_provenance": "Proposed owner / demo draft parameters (tested in simulation; not extracted from historical sources)",
                 "citation_ids": ["ev:codex-ep-187", "ev:codex-ep-80901"],
             },
             "governing_principle": {
                 "id": "codex-v2:discount-reciprocity-principle",
                 "title": "Every discount should receive an explicit customer commitment in return",
                 "previous_text": "Discounts may be used flexibly by sellers to close deals when price objections arise.",
-                "proposed_text": "Every discount should receive an explicit customer commitment in return (longer term, prepayment, volume, or referral). Do not offer a discount as the automatic first response to a price objection or substitute price for product value. Draft quantitative cap (awaiting approval): 5% autonomous sales-agent ceiling.",
-                "authority_boundary": "Sales agents: up to 5% with customer commitment; above 5% requires human approval. Human sellers: must record reason for discount in CRM.",
-                "provenance": "observed_conditions_plus_owner_framing",
-                "human_provenance": "Based on source evidence and your stated intent",
-                "provenance_note": "Discount conditions verified in episodes 187, 80901, 79523; episode 78324 utterance 16 is under speaker attribution review; combined 'do not substitute price for value' statement is labeled as owner framing.",
+                "proposed_text": "Every discount should receive an explicit customer commitment in return (longer term, prepayment, volume, or referral). Do not offer a discount as the automatic first response to a price objection or substitute price for product value. Draft quantitative cap (owner proposal / simulation draft, awaiting approval): 5% autonomous sales-agent ceiling.",
+                "authority_boundary": "Sales agents: up to 5% with customer commitment (owner proposal / simulation draft; not extracted from historical sources); above 5% requires human approval. Human sellers: must record reason for discount in CRM.",
+                "provenance": "owner_proposal_and_simulation_draft",
+                "human_provenance": "Qualitative conditions from sources; quantitative 5% / >=90% / 100% targets are proposed owner / demo draft parameters",
+                "provenance_note": "Qualitative discount conditions verified in episodes 187, 80901, 79523; episode 78324 utterance 16 is under speaker attribution review; quantitative 5% agent ceiling, >=90% realization, and 100% commitment targets are owner proposal / simulation draft parameters (not extracted from historical sources).",
                 "citation_ids": ["ev:codex-ep-187", "ev:codex-ep-80901", "ev:codex-ep-78324"],
             },
             "culture_to_protect": {
@@ -319,11 +320,11 @@ class TheseusLocalApplication:
             "monitoring_mandate": {
                 "signals_watched": [
                     "Unjustified discount offers in sales conversations and agent runs",
-                    "Discounts exceeding 5% autonomous agent authority boundary",
+                    "Discounts exceeding 5% autonomous agent authority boundary (proposed owner / demo draft cap)",
                     "CRM deals closed without a recorded reason for discount",
                 ],
-                "data_coverage": "Sales conversations (28,470 records), CRM records (22,967 records), normative rules (1,572 records), and founder meetings (20 records).",
-                "known_coverage_gap": "Discount outcomes are not recorded in 6,102 CRM deals — monitoring remains partial until the required 'Reason for discount' field is applied.",
+                "data_coverage": "Snapshot row counts (unverified discount outcome semantics): sales conversations (28,470 sources), CRM sources (22,967 records, including 6,102 CRM_DEALS rows; 27 records carry payment-evidence fields), normative rules (1,572 records), and founder meetings (20 records).",
+                "known_coverage_gap": "In the 6,102 CRM_DEALS snapshot rows (22,967 CRM-indexed sources), general discount outcome and reason fields are missing/unestablished (27 records carry payment-evidence fields) — monitoring remains partial until the required 'Reason for discount' field is applied.",
                 "escalation_criteria": "Alert the founder when a verified contradiction occurs against the confirmed agreement or when CRM visibility is missing.",
             },
         }
@@ -402,19 +403,19 @@ class TheseusLocalApplication:
             "cards": [
                 {
                     "card_id": "drift-card-real-crm-blindness",
-                    "title": "Historical CRM & Call Coverage Check",
+                    "title": "Historical CRM & Call Coverage Check (Snapshot Counts with Unverified Discount Semantics)",
                     "rule_ref": "Active baseline (mandate-v1) · Preview against proposed direction (mandate-v2-draft UNAPPROVED)",
                     "technical_rule_id": "codex-v2:discount-reciprocity-principle",
-                    "pattern_ref": "Discount discussions in calls vs. 6,102 CRM deal records",
-                    "scope": "Company evidence · historical calls & CRM deals",
-                    "evidence_category": "Company evidence",
+                    "pattern_ref": "Discount discussions in calls (28,470 sources) vs. 6,102 CRM_DEALS snapshot rows (22,967 CRM sources)",
+                    "scope": "Snapshot counts (unverified discount outcome semantics) · 27 records have payment-evidence fields",
+                    "evidence_category": "Snapshot counts (unverified discount outcome semantics)",
                     "subq_verdict": "insufficient_evidence",
                     "human_verdict": "Not enough evidence to decide",
                     "owner_override_verdict": None,
                     "owner_override_reason": None,
-                    "provenance": "observed",
-                    "readiness": "observed_company_evidence",
-                    "what_is_at_stake": "Price objections and discount requests appear in sales conversations, but discount outcomes are not recorded in 6,102 CRM deals. Because the CRM does not capture whether a discount was granted or why, historical compliance cannot be proven or disproven from CRM records alone.",
+                    "provenance": "observed_snapshot_rows_unverified_semantics",
+                    "readiness": "snapshot_counts_unverified_semantics",
+                    "what_is_at_stake": "Price objections and discount requests appear in sales conversations (28,470 sources), while in the 6,102 CRM_DEALS snapshot rows (22,967 CRM-indexed sources), general discount outcome and reason fields are missing/unestablished (only 27 records carry payment-evidence fields). Because the CRM snapshot does not establish whether a discount was granted or why, historical compliance cannot be proven or disproven from CRM records alone.",
                     "evidence_ids": ["ev:culture-crm-blindness", "ev:culture-ep-960", "ev:codex-ep-187"],
                 },
                 {
@@ -425,7 +426,13 @@ class TheseusLocalApplication:
                     "pattern_ref": "9 extracted discount/pricing claims · 5 recorded SubQ Snap 1.1 pairs (0 proven contradictions)",
                     "scope": "Recorded SubQ model response · 5 discount comparisons with per-claim mandate_status & stage",
                     "evidence_category": "Recorded SubQ model response",
-                    "subq_verdict": "insufficient_evidence",
+                    "subq_verdict": "reviewed_no_proven_contradiction",
+                    "verdict_breakdown": {
+                        "different_scope_time": 1,
+                        "insufficient_evidence": 3,
+                        "consistent": 1,
+                        "contradictory": 0,
+                    },
                     "human_verdict": "No proven contradiction (1× different scope/time, 3× insufficient evidence, 1× consistent low-conf)",
                     "subq_probabilities": {
                         "contradictory": 0.016,
@@ -443,7 +450,12 @@ class TheseusLocalApplication:
                     "provenance": "recorded_model_response",
                     "readiness": "recorded_subq_response",
                     "what_is_at_stake": "SubQ Snap 1.1 evaluated 5 discount/pricing pairs across 9 quote-verified claims and found NO proven contradiction: Pair 1 is different_scope_time (80.3%, conf 73.7% — 2024 offer-stage grant vs proposed gift principle); Pairs 2–4 are insufficient_evidence (92.6% / 52.6% / 81.2% — scope and reciprocal commitment not recorded); Pair 5 is low-confidence consistent (54.4%, conf 39.2% — firm refusal counterexample). This establishes a monitoring & scope-clarity gap, not a retroactive violation.",
-                    "evidence_ids": ["ev:muse-subq-packet-v1", "ev:culture-rules-brief", "ev:codex-ep-78324"],
+                    "evidence_ids": [
+                        "ev:muse-subq-packet-v1",
+                        "ev:culture-rules-brief",
+                        "ev:episode-price-consistency-note",
+                        "ev:codex-ep-78324",
+                    ],
                 },
                 {
                     "card_id": "drift-card-reactive-discount-conflict",
@@ -465,8 +477,8 @@ class TheseusLocalApplication:
             ],
             "five_area_reading": {
                 "Purpose": "Protect margin while growing sales; unrecorded reactive discounts erode product value positioning.",
-                "Rules": "Proposed principle requires customer commitment for every discount (with a 5% agent ceiling), whereas unguided practice uses discounts to quiet price objections.",
-                "Resources": "CRM currently lacks a 'Reason for discount' field (0 of 6,102 deals captured); engineering/rollout effort for production CRM migration is Not estimated (in-app Demo CRM is ready for sandbox test).",
+                "Rules": "Proposed principle requires customer commitment for every discount (with a proposed 5% owner/simulation draft agent ceiling), whereas unguided practice uses discounts to quiet price objections.",
+                "Resources": "CRM snapshot (6,102 CRM_DEALS rows / 22,967 CRM sources) has unverified discount outcome semantics (27 records carry payment-evidence fields; general discount reason field is missing); engineering/rollout effort for production CRM migration is Not estimated (in-app Demo CRM is ready for sandbox test).",
                 "Relationships": "Affects automated sales agents, human sellers, and buyers; requires explicit founder approval before changing agent rules or CRM requirements.",
                 "Progress": "Changes can be tested in simulation and Demo CRM first, with immediate rollback to the previous baseline if needed.",
             },
@@ -479,6 +491,7 @@ class TheseusLocalApplication:
         self.crm_submissions: List[Dict[str, Any]] = []
 
         self._build_evidence_catalog()
+        self._sync_public_deputy_mirror()
 
     @staticmethod
     def _load_muse_review_packet() -> Tuple[Dict[str, Any], Dict[str, Any], str]:
@@ -515,6 +528,16 @@ class TheseusLocalApplication:
         if brief_path.exists():
             try:
                 return json.loads(brief_path.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+        return {}
+
+    @staticmethod
+    def _load_episode_price_consistency_note() -> Dict[str, Any]:
+        note_path = REPO_ROOT / "database" / "fixtures" / "episode-price-consistency-note.json"
+        if note_path.exists():
+            try:
+                return json.loads(note_path.read_text(encoding="utf-8"))
             except Exception:
                 pass
         return {}
@@ -566,18 +589,19 @@ class TheseusLocalApplication:
             },
             "ev:codex-ep-80901": {
                 "evidence_id": "ev:codex-ep-80901",
-                "title": "Source: Founder Direction & Value-First Framing",
-                "human_label": "See source: founder direction & value framing",
+                "title": "Source: Founder Direction, Value-First Framing & Proposed Quantitative Draft Parameters",
+                "human_label": "See source: founder direction & proposed draft parameters",
                 "kind": "SourceCitation",
-                "source_id": "raw.EPISODES:ep-80901 + owner-framing-2026-11-07",
+                "source_id": "raw.EPISODES:ep-80901 + owner-proposal-simulation-draft-2026-11-07",
                 "version": "v2",
-                "provenance": "observed_plus_owner_framing",
-                "evidence_category": "Based on source evidence and your stated intent",
-                "readiness": "observed_plus_owner_input",
-                "summary": "Episode 80901 records discount condition boundaries; the combined principle ('never substitute price for product value') incorporates your stated founder direction.",
+                "provenance": "owner_proposal_and_simulation_draft",
+                "evidence_category": "Qualitative source evidence + proposed owner / demo draft parameters",
+                "readiness": "owner_proposal_and_simulation_draft",
+                "summary": "Episode 80901 records qualitative discount condition boundaries; the quantitative draft parameters (5% autonomous agent ceiling, >=90% list-price realization, 100% commitment on discounted deals) are proposed owner / simulation draft targets (not extracted from historical sources).",
                 "details": {
                     "episode_refs": ["80901"],
-                    "owner_framing_label": "Explicitly labeled as based on source evidence and founder intent where the combined principle extends beyond a single pre-extracted utterance.",
+                    "qualitative_source_basis": "Episode 80901 & 187 discount reciprocity conditions",
+                    "quantitative_draft_parameters": "5% agent ceiling, >=90% realization, 100% commitment are proposed owner / simulation draft parameters awaiting confirmation.",
                 },
             },
             "ev:codex-ep-78324": {
@@ -600,20 +624,24 @@ class TheseusLocalApplication:
             },
             "ev:culture-crm-blindness": {
                 "evidence_id": "ev:culture-crm-blindness",
-                "title": "Source: CRM Data Completeness Check (6,102 Deals)",
-                "human_label": "See source: CRM data completeness check",
+                "title": "Source: CRM & Source Snapshot Counts (Unverified Discount Outcome Semantics)",
+                "human_label": "See source: CRM snapshot counts & semantics caveat",
                 "kind": "DatabaseAggregateEvidence",
-                "source_id": "theseus_recplace.raw_records[raw.CRM_DEALS]",
+                "source_id": "theseus_recplace.raw_records[raw.CRM_DEALS] (snapshot counts)",
                 "version": "import-live-20261107-full",
-                "provenance": "observed",
-                "evidence_category": "Company evidence",
-                "readiness": "observed_company_evidence",
-                "summary": "Discount outcomes are not recorded in 6,102 CRM deals. All 6,102 CRM_DEALS rows contain standard deal fields (amount, stage, status, manager, lost_reason) but zero fields for discount amount or reason for discount.",
+                "provenance": "observed_snapshot_rows_unverified_semantics",
+                "evidence_category": "Snapshot counts (unverified discount outcome semantics)",
+                "readiness": "snapshot_counts_unverified_semantics",
+                "summary": "Snapshot row counts (6,102 CRM_DEALS rows; 22,967 CRM-indexed sources; 28,470 sales conversation sources) are verified row/source counts with unverified discount outcome semantics: 27 records carry payment-evidence fields, while general CRM discount amount and reason fields are missing/unestablished.",
                 "details": {
-                    "crm_deals_total": 6102,
+                    "crm_deals_snapshot_rows": 6102,
+                    "crm_indexed_sources_total": 22967,
+                    "sales_conversation_sources_total": 28470,
                     "crm_stage_events_total": 7276,
-                    "deals_with_discount_field": 0,
+                    "records_with_payment_evidence_fields": 27,
+                    "deals_with_explicit_discount_field": 0,
                     "deals_with_discount_justification_field": 0,
+                    "semantics_caveat": "Row and source counts are verified in the snapshot, but historical CRM discount outcome semantics remain unestablished beyond 27 payment-evidence records.",
                     "v_top_level_keys": [
                         "amount",
                         "client_id",
@@ -678,6 +706,19 @@ class TheseusLocalApplication:
                 "readiness": "observed_company_evidence",
                 "summary": "Source-linked culture & rules brief separating active mandate-v1, proposed UNAPPROVED codex-v2, and unapproved SOP norms from observed request/offer/grant/refusal episodes (with zero fabricated prevalence rates).",
                 "details": self.culture_rules_brief,
+            },
+            "ev:episode-price-consistency-note": {
+                "evidence_id": "ev:episode-price-consistency-note",
+                "title": "Source: Internal Analytical Note on Multi-Branch Price Consistency (Secondary Analysis)",
+                "human_label": "See source: price-consistency note (internal secondary analysis)",
+                "kind": "InternalSecondaryAnalysisNote",
+                "source_id": "database/fixtures/episode-price-consistency-note.json",
+                "version": "v1",
+                "provenance": "internal_secondary_analysis",
+                "evidence_category": "Internal secondary analysis (not primary customer quote)",
+                "readiness": "secondary_internal_analysis",
+                "summary": "Internal analytical review (2026-09-01) attributing a lost 45-branch network opportunity to differing manager prices. Explicitly labeled as secondary internal analysis — no primary transcript or CRM deal record confirming the rate or causal chain is in the processed evidence.",
+                "details": self.episode_price_consistency_note,
             },
             "ev:subq-conflict-discount-drift": {
                 "evidence_id": "ev:subq-conflict-discount-drift",
@@ -937,25 +978,30 @@ class TheseusLocalApplication:
                     {
                         "pattern_id": "pat-discount-talk-in-calls",
                         "section_kind": "company_evidence",
-                        "evidence_category": "Company evidence",
-                        "title": "Discount outcomes are not recorded in 6,102 CRM deals, while price objections and discount requests appear in sales calls",
-                        "frequency_label": "0 of 6,102 CRM deals record discount outcome or reason (CRM data completeness gap, not discount frequency)",
+                        "evidence_category": "Snapshot counts (unverified discount outcome semantics)",
+                        "title": "In 6,102 CRM_DEALS snapshot rows (22,967 CRM sources), general discount outcomes and reasons are missing/unestablished (27 records carry payment-evidence fields), while price objections and discount requests appear in 28,470 sales conversation sources",
+                        "frequency_label": "Snapshot counts: 6,102 CRM_DEALS rows (27 with payment-evidence fields; 0 general discount reason fields) · 22,967 CRM sources · 28,470 conversation sources",
                         "numerator": 0,
                         "denominator": 6102,
-                        "distinct_actors": "28,470 sales conversations and 6,102 CRM deal records inspected",
-                        "provenance": "observed",
-                        "readiness": "observed_company_evidence",
-                        "confidence_limit": "Important distinction: a customer asking for a discount in a call is not the same as a seller offering or granting a discount, and an offer-stage grant in chat is neither a signed deal nor a payment. Because the CRM has no discount or reason fields, we cannot know from historical CRM data how often discounts were actually granted.",
+                        "distinct_actors": "28,470 sales conversation sources and 6,102 CRM_DEALS snapshot rows (22,967 CRM sources) inspected",
+                        "provenance": "observed_snapshot_rows_unverified_semantics",
+                        "readiness": "snapshot_counts_unverified_semantics",
+                        "confidence_limit": "Important distinction: row and source counts (28,470 conversation sources; 22,967 CRM sources; 6,102 CRM_DEALS rows) are verified snapshot counts, but discount outcome semantics are unestablished beyond 27 payment-evidence records. A customer asking for a discount in a call is not the same as a seller offering or granting a discount, and an offer-stage grant in chat is neither a signed deal nor a payment.",
                         "examples": [
                             {
                                 "id": "ex-crm-blind",
-                                "label": "See source: CRM data completeness check (0 of 6,102 deals record discount reason)",
+                                "label": "See source: CRM snapshot counts & semantics caveat (6,102 rows; 27 payment-evidence records)",
                                 "evidence_id": "ev:culture-crm-blindness",
                             },
                             {
                                 "id": "ex-culture-brief",
                                 "label": "See source: culture & rules brief (5 rules, 5 observed grants/offers, 3 counterexamples)",
                                 "evidence_id": "ev:culture-rules-brief",
+                            },
+                            {
+                                "id": "ex-price-consistency-note",
+                                "label": "See source: price-consistency note (internal secondary analysis)",
+                                "evidence_id": "ev:episode-price-consistency-note",
                             },
                             {
                                 "id": "ex-call-960",
@@ -1039,6 +1085,76 @@ class TheseusLocalApplication:
             "evidence_catalog": self.evidence_catalog,
         }
 
+    def _sync_public_deputy_mirror(self) -> Dict[str, Any]:
+        """
+        Mirror public-safe, sanitized control-plane state (`S01..S06` summary, active mandate/runtime versions,
+        5-pair SubQ review summary, and normalized `ui_metrics`) into MongoDB collection `deputy_public_state`
+        so the hosted Agentverse / local Deputy can read live state without touching raw client payloads.
+        """
+        org = self.adapter.organization_id
+        is_v2_active = self.runtime.active_version == "tool-v2"
+        evidence_summaries = {
+            ev_id: {
+                "evidence_id": ev.get("evidence_id"),
+                "title": ev.get("title"),
+                "kind": ev.get("kind"),
+                "source_id": ev.get("source_id"),
+                "provenance": ev.get("provenance"),
+                "readiness": ev.get("readiness"),
+                "summary": ev.get("summary"),
+            }
+            for ev_id, ev in self.evidence_catalog.items()
+        }
+        mirror_body = {
+            "organization_id": org,
+            "demo_session_id": self.demo_session_id,
+            "session_started_at": self.session_started_at,
+            "synced_at": utc_now_iso(),
+            "active_mandate_version": self.commit_state["committed_version"],
+            "mandate_status": self.commit_state["mandate_status"],
+            "monitoring_status": self.commit_state["monitoring_status"],
+            "active_runtime_version": self.runtime.active_version,
+            "active_crm_schema_version": "crm-v2" if is_v2_active else "crm-v1",
+            "decision_record": self.decision_record,
+            "activation_receipt": self.activation_receipt,
+            "rollback_receipt": self.rollback_receipt,
+            "crm_submissions_count": len(self.crm_submissions),
+            "s01_commit_summary": {
+                "committed_version": self.commit_state["committed_version"],
+                "draft_version": self.commit_state["draft_version"],
+                "mandate_status": self.commit_state["mandate_status"],
+                "monitoring_status": self.commit_state["monitoring_status"],
+                "intent_and_goal": self.commit_state["intent_and_goal"],
+                "governing_principle": self.commit_state["governing_principle"],
+            },
+            "s03_subq_summary": {
+                "packet_source": self.review_packet_source_label,
+                "claims_total": len(self.review_packet.get("claims") or []),
+                "pairs_total": len(self.drift_state.get("discount_subq_packet", {}).get("pairs") or []),
+                "conclusion": self.drift_state.get("discount_subq_packet", {}).get("conclusion"),
+                "verdict_breakdown": {
+                    "different_scope_time": 1,
+                    "insufficient_evidence": 3,
+                    "consistent": 1,
+                    "contradictory": 0,
+                },
+            },
+            "s06_ui_metrics": self._format_s06_metrics_view(),
+            "evidence_summaries": evidence_summaries,
+            "provenance": "observed_and_simulated_public_mirror",
+        }
+        current_doc = {
+            **make_envelope(f"deputy_mirror:{org}:current", organization_id=org),
+            **mirror_body,
+        }
+        session_doc = {
+            **make_envelope(f"deputy_mirror:{org}:{self.demo_session_id}", organization_id=org),
+            **mirror_body,
+        }
+        self.adapter.backend.upsert_by_id("deputy_public_state", current_doc)
+        self.adapter.backend.upsert_by_id("deputy_public_state", session_doc)
+        return current_doc
+
     def commit_mandate(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """Handle S01 owner confirmation of the meeting-derived intent, goal, codex, and monitoring mandate."""
         actor = str(payload.get("authenticated_actor") or "owner:taras")
@@ -1079,6 +1195,7 @@ class TheseusLocalApplication:
                 card["title"] = "Simulated Baseline Check against Confirmed Direction: Reactive 10–15% discounting"
                 card["rule_ref"] = "Confirmed agreement (customer commitment required for every discount)"
                 card["human_verdict"] = "Contradicts confirmed rule (in baseline simulation)"
+        self._sync_public_deputy_mirror()
         return self.commit_state
 
     def override_drift_verdict(self, payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -1102,6 +1219,7 @@ class TheseusLocalApplication:
                 card["owner_override_human_label"] = human_map.get(new_verdict, new_verdict)
                 card["owner_override_reason"] = reason
                 card["owner_override_at"] = utc_now_iso()
+                self._sync_public_deputy_mirror()
                 return card
         raise ContractError("card_not_found", f"Drift card {card_id!r} not found.")
 
@@ -1140,6 +1258,7 @@ class TheseusLocalApplication:
         stored["target_version"] = stored["approved_version"]
         stored["decided_at"] = stored["created_at"]
         self.decision_record = stored
+        self._sync_public_deputy_mirror()
         return self.decision_record
 
     def activate_candidate(self, payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -1157,6 +1276,7 @@ class TheseusLocalApplication:
         if self.commit_state["mandate_status"] == "committed_mandate":
             self.commit_state["monitoring_status"] = "active_with_crm_v2_and_rule_v2"
             self.commit_state["human_monitoring_status"] = "Monitoring: active in Demo CRM & agent runtime"
+        self._sync_public_deputy_mirror()
         return self.activation_receipt
 
     def rollback_candidate(self, payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -1171,6 +1291,7 @@ class TheseusLocalApplication:
         if self.commit_state["mandate_status"] == "committed_mandate":
             self.commit_state["monitoring_status"] = "mandate_committed_rolled_back_to_v1"
             self.commit_state["human_monitoring_status"] = "Monitoring: partial — rolled back to previous baseline"
+        self._sync_public_deputy_mirror()
         return self.rollback_receipt
 
     def submit_demo_crm_deal(self, payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -1272,6 +1393,7 @@ class TheseusLocalApplication:
         }
         self.adapter.backend.upsert_by_id("crm_deals_demo", doc)
         self.crm_submissions.insert(0, doc)
+        self._sync_public_deputy_mirror()
         return doc
 
     def reset_demo_session(self, payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -1305,11 +1427,24 @@ class TheseusLocalApplication:
         seed = int(payload.get("seed") or 20261107)
         self.simulation_report = self.sim_harness.run_all_five_arms_and_timeline(seed=seed)
         self.last_simulation_run_at = utc_now_iso()
+        self._sync_public_deputy_mirror()
         return {
             "simulation_run_id": f"simrun-live-{self.demo_session_id}-{seed}",
             "seed": seed,
             "ran_at": self.last_simulation_run_at,
             "ui_metrics": self._format_s06_metrics_view(),
+        }
+
+    def invoke_deputy_tool(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        """Invoke a bounded Deputy CEO tool (`describe_data`, `query_data`, `read_evidence`, etc.)."""
+        tool_name = str(payload.get("tool") or payload.get("tool_name") or "")
+        arguments = payload.get("arguments")
+        if not isinstance(arguments, dict):
+            arguments = {k: v for k, v in payload.items() if k not in {"tool", "tool_name", "arguments"}}
+        result = self.deputy.invoke_scoped_tool(tool_name=tool_name, arguments=arguments)
+        return {
+            "tool": tool_name,
+            "result": result,
         }
 
 
@@ -1410,6 +1545,9 @@ def create_app_server(
                 if route == "/api/simulate/run":
                     res = controller.run_fresh_simulation(payload)
                     return self._send_json(HTTPStatus.OK, {"ok": True, "simulation": res, "state": controller.get_state_payload()})
+                if route == "/api/deputy/tool":
+                    res = controller.invoke_deputy_tool(payload)
+                    return self._send_json(HTTPStatus.OK, {"ok": True, **res})
             except ContractError as exc:
                 return self._send_json(HTTPStatus.BAD_REQUEST, {"ok": False, **exc.to_dict()})
             except Exception as exc:
