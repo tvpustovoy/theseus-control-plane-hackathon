@@ -23,3 +23,7 @@
 - `/api/memory/overview` returned HTTP 200 on Atlas; first and next source pages each returned two distinct metadata records.
 - Two real Opus 5.5 questions succeeded. The discount answer separated verified counts from uncertain outcomes; the unexpected churn/revenue question declined to name a customer or amount. Both returned citation IDs and no raw/private path or credential pattern in the public answer. Private run IDs: `27b0d4febdd54d24b0a7826f4591aad8`, `4e3dab23f05248fdba3eb6d509607af7`.
 - Post-change `POST /api/reset` returned HTTP 200, restored `mandate-v1`, retained `S01`–`S06` and Organization Memory remained available with verified receipt. The sole server is running on localhost port 8765.
+
+## Acceptance — complete
+
+The coordinator independently confirmed HTTP 200 and desktop visual QA in headless Chrome at 1440×1000 (Ours receipt `0E1F8CBE47385801820CD7525527134D4277DB37555CAAC6B5D4972B4AE7E21A`). The opening screen, counts, partial coverage caveat and source metadata table were readable with no observed first-screen layout issue. The screenshot remains temporary at `/private/tmp/theseus-memory-loaded.png`. This closes the earlier desktop visual QA limitation; mobile layout was not checked. Both live Q&A cases and post-change reset were accepted. F04 implementation is complete and ready for coordinator tracker closure.
