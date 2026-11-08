@@ -60,6 +60,37 @@
       #sT .term pre { margin: 0; padding: 10px 14px 12px; font-family: var(--mono); font-size: 19px; line-height: 1.35; color: #cfe3f1; white-space: pre; }
       #sT .term .g { color: #7ee2a8; } #sT .term .a { color: #f5bf45; } #sT .term .p { color: #6fb7ff; }
       #logoT { position: absolute; left: 780px; top: 230px; width: 360px; height: 360px; z-index: 50; }
+      /* S04 drawn: decision on top, three streams below */
+      #dec { position: absolute; left: 330px; top: 36px; width: 1260px; height: 214px; background: #fff; border: 3px solid var(--amber); border-radius: 20px; box-shadow: 0 16px 40px rgba(11,58,94,.10); text-align: center; padding-top: 22px; }
+      #dec .dk { font-family: var(--mono); font-size: 26px; letter-spacing: .12em; text-transform: uppercase; color: var(--glacier); }
+      #dec .dt { margin-top: 8px; font-family: var(--serif); font-size: 64px; color: var(--ink); }
+      #dec .dt em { font-style: italic; color: var(--amber-deep); }
+      #dec .db { margin-top: 10px; display: flex; gap: 14px; justify-content: center; }
+      #dec .bt { font-size: 24px; font-weight: 600; padding: 6px 18px; border-radius: 10px; border: 2px solid var(--ice); color: var(--muted); }
+      #dec .bt.ok { background: var(--ink); border-color: var(--ink); color: #fff; }
+      #links { position: absolute; left: 0; top: 0; }
+      #links path { fill: none; stroke: var(--amber); stroke-width: 4; stroke-dasharray: 10 8; }
+      #s4 .col { position: absolute; top: 318px; width: 560px; }
+      #cP { left: 80px; } #cA { left: 680px; } #cE { left: 1280px; }
+      #s4 .ch { font-family: var(--mono); font-size: 26px; letter-spacing: .1em; text-transform: uppercase; color: var(--glacier); margin-bottom: 10px; text-align: center; }
+      #s4 .pan { border-radius: 16px; overflow: hidden; height: 440px; box-shadow: 0 12px 30px rgba(11,58,94,.10); }
+      #s4 .ptb { height: 42px; display: flex; align-items: center; padding: 0 16px; font-family: var(--mono); font-size: 22px; }
+      #s4 .chatp { background: #fff; border: 2px solid var(--ice); padding-bottom: 12px; }
+      #s4 .chatp .ptb { background: #eef4f9; color: var(--muted); }
+      #s4 .chatp .m { margin: 12px 16px 0; max-width: 420px; font-size: 26px; line-height: 1.25; padding: 10px 14px; border-radius: 14px; background: var(--ice); }
+      #s4 .chatp .m.me { margin-left: auto; background: var(--glacier); color: #fff; }
+      #s4 .file { background: #fff; border: 2px solid var(--ice); }
+      #s4 .file .ptb { background: #eef4f9; color: var(--muted); }
+      #s4 .dl { font-family: var(--mono); font-size: 24px; line-height: 1.3; padding: 12px 18px 0; }
+      #s4 .dl.del { color: #a3473b; text-decoration: line-through; }
+      #s4 .dl.add { color: #2f7a5c; }
+      #s4 .termp { background: #0d1b2a; border: 2px solid #1d3148; }
+      #s4 .termp .ptb { background: #16263a; color: #8aa4bd; }
+      #s4 .tl { font-family: var(--mono); font-size: 23px; line-height: 1.3; padding: 12px 18px 0; color: #cfe3f1; }
+      #s4 .tl.ok { color: #7ee2a8; }
+      #s4 .fld { margin: 26px 18px 0; background: #fffaf0; border: 3px solid var(--amber); border-radius: 12px; padding: 14px 16px; font-size: 26px; font-weight: 700; color: var(--ink); }
+      #s4 .fld b { color: #a3473b; }
+      .shot { position: absolute; left: 352px; top: 34px; width: 1216px; height: 760px; border-radius: 16px; border: 2px solid var(--ice); box-shadow: 0 24px 60px rgba(11,58,94,.14); }
       /* close */
       #logo7 { position: absolute; left: 700px; top: 30px; width: 520px; height: 520px; }
       #s7 .text { position: absolute; left: 140px; right: 140px; top: 560px; text-align: center; }
@@ -88,7 +119,7 @@
   <body>
     <div id="root" data-composition-id="main" data-start="0" data-duration="60" data-width="1920" data-height="1080">
 
-      <div id="s0" class="scene clip" data-start="0.0" data-duration="8.26" data-track-index="1">
+      <div id="s0" class="scene clip" data-start="0.0" data-duration="6.87" data-track-index="1">
         <img id="logo0" src="assets/logo-v8.png" alt="Theseus logo" />
         <div class="text">
           <div class="headline">Let AI employees improve your company. <em>Keep your goals, rules, and culture.</em></div>
@@ -96,42 +127,63 @@
         </div>
       </div>
 
-      <div id="s1" class="scene clip" data-start="8.26" data-duration="7.33" data-track-index="1">
-        <div class="win"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">localhost · theseus / commit</span></div>
-          <div class="body"><img src="assets/logo-v8.png" alt="" /><div class="frame">S01 · Commit</div><div class="title">Goals, principles, culture to protect</div><div class="hint">screen capture goes here</div></div></div>
+      <div id="s1" class="scene clip" data-start="6.87" data-duration="6.35" data-track-index="1">
+        <img class="shot" src="assets/shots/S01.png" alt="Theseus S01 live screen" />
       </div>
 
-      <div id="sT" class="scene clip" data-start="15.59" data-duration="6.35" data-track-index="1">
+      <div id="sT" class="scene clip" data-start="13.22" data-duration="8.03" data-track-index="1">
         <div id="wins" data-layout-allow-overlap></div>
         <img id="logoT" src="assets/logo-v8.png" alt="" />
       </div>
 
-      <div id="s2" class="scene clip" data-start="21.94" data-duration="3.57" data-track-index="1">
-        <div class="win"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">localhost · theseus / observe / culture</span></div>
-          <div class="body"><img src="assets/logo-v8.png" alt="" /><div class="frame">S02 · Culture</div><div class="title">What agents and people actually do</div><div class="hint">screen capture goes here</div></div></div>
+      <div id="s2" class="scene clip" data-start="21.25" data-duration="3.42" data-track-index="1">
+        <img class="shot" src="assets/shots/S02.png" alt="Theseus S02 live screen" />
       </div>
 
-      <div id="s3" class="scene clip" data-start="25.51" data-duration="4.61" data-track-index="1">
+      <div id="s3" class="scene clip" data-start="24.67" data-duration="5.23" data-track-index="1">
         <div class="win"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">localhost · theseus / observe / drift</span></div>
           <div class="body"><img src="assets/logo-v8.png" alt="" /><div class="frame">S03 · Drift</div><div class="title">Committed principle vs. behavior</div><div class="hint">screen capture goes here</div></div></div>
       </div>
 
-      <div id="s4" class="scene clip" data-start="30.12" data-duration="7.03" data-track-index="1">
-        <div class="win"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">localhost · theseus / decide / proposal</span></div>
-          <div class="body"><img src="assets/logo-v8.png" alt="" /><div class="frame">S04 · Correction</div><div class="title">Agents · People · Environment</div><div class="hint">screen capture goes here</div></div></div>
+      <div id="s4" class="scene clip" data-start="29.9" data-duration="7.92" data-track-index="1">
+        <div id="dec">
+          <div class="dk">S04 · Correction · proposal v2</div>
+          <div class="dt">One decision: <em>a discount must buy value</em></div>
+          <div class="db"><span class="bt ok">Approve</span><span class="bt">Revise</span><span class="bt">Reject</span></div>
+        </div>
+        <svg id="links" width="1920" height="1080" viewBox="0 0 1920 1080"><path d="M960 250 C 960 290, 360 270, 360 318" /><path d="M960 250 L 960 318" /><path d="M960 250 C 960 290, 1560 270, 1560 318" /></svg>
+        <div class="col" id="cP"><div class="ch">People · seller training</div>
+          <div class="pan chatp"><div class="ptb">Manager × Seller · 1:1</div>
+            <div class="m">When is a discount OK?</div>
+            <div class="m me">When the client says it's too expensive?</div>
+            <div class="m">Only when it buys something: a longer term, prepayment, a referral.</div>
+            <div class="m me">Got it. Value first.</div></div></div>
+        <div class="col" id="cA"><div class="ch">Agents · memory</div>
+          <div class="pan file"><div class="ptb">agent-112 / memory.md</div>
+            <div class="dl del">- On a price objection: offer 10%</div>
+            <div class="dl add">+ A discount must buy value:</div>
+            <div class="dl add">+   longer term · prepayment · referral</div>
+            <div class="dl add">+ Otherwise: ask a human</div></div></div>
+        <div class="col" id="cE"><div class="ch">Environment · CRM</div>
+          <div class="pan termp"><div class="ptb">dev-agent — zsh</div>
+            <div class="tl">$ crm schema add discount_justification --required</div>
+            <div class="tl ok">✓ migration 0042 applied</div>
+            <div class="tl">$ test: discount without a reason</div>
+            <div class="tl ok">✓ rejected</div>
+            <div class="fld">Discount justification <b>*</b></div></div></div>
       </div>
 
-      <div id="s5" class="scene clip" data-start="37.15" data-duration="4.53" data-track-index="1">
+      <div id="s5" class="scene clip" data-start="37.82" data-duration="3.98" data-track-index="1">
         <div class="win"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">localhost · theseus / decide / apply</span></div>
           <div class="body"><img src="assets/logo-v8.png" alt="" /><div class="frame">S05 · Decision</div><div class="title">Approve · check · apply</div><div class="hint">screen capture goes here</div></div></div>
       </div>
 
-      <div id="s6" class="scene clip" data-start="41.68" data-duration="3.36" data-track-index="1">
+      <div id="s6" class="scene clip" data-start="41.8" data-duration="4.2" data-track-index="1">
         <div class="win"><div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="url">localhost · theseus / track</span></div>
           <div class="body"><img src="assets/logo-v8.png" alt="" /><div class="frame">S06 · Outcome · simulation</div><div class="title">Did the change actually work?</div><div class="hint">screen capture goes here</div></div></div>
       </div>
 
-      <div id="s7" class="scene clip" data-start="45.04" data-duration="5.4" data-track-index="1">
+      <div id="s7" class="scene clip" data-start="46.0" data-duration="4.61" data-track-index="1">
         <img id="logo7" src="assets/logo-v8.png" alt="Theseus logo" />
         <div class="text">
           <div class="headline">Let AI employees improve your company. <em>Keep your goals, rules, and culture.</em></div>
@@ -139,7 +191,7 @@
         </div>
       </div>
 
-      <div id="tech" class="clip" data-start="50.44" data-duration="9.56" data-track-index="2">
+      <div id="tech" class="clip" data-start="50.61" data-duration="9.39" data-track-index="2">
         <img class="tlogo" src="assets/logo-v8.png" alt="" />
         <div class="th1">Models and tools behind Theseus</div>
         <div class="th2">Who built the system and what runs inside it</div>
@@ -147,34 +199,33 @@
           <thead><tr><th>Model / tool</th><th>Role / capability</th><th>What we used it for</th></tr></thead>
           <tbody>
             <tr><td class="tool"><img src="assets/partners/openai.png" alt="" /><b class="">OpenAI Codex</b></td><td class="role">Viveka<br>Coordination</td><td class="what">Coordinated agents and built the ASI:One Deputy CEO</td></tr>
-            <tr><td class="tool"><span class="mono-c">C</span><b class="">Claude Code</b></td><td class="role">Setu<br>Narrative &amp; defense</td><td class="what">Scenario, pitch, 60-second video and voice-over</td></tr>
+            <tr><td class="tool"><img src="assets/partners/claude.svg" alt="" /><b class="">Claude Code</b></td><td class="role">Setu<br>Narrative &amp; defense</td><td class="what">Scenario, pitch, demo video and voice-over</td></tr>
             <tr><td class="tool"><img src="assets/partners/gemini.png" alt="" /><b class="">Gemini 4 Argon<br>via Antigravity</b></td><td class="role">Argon<br>Implementation</td><td class="what">Data import, backend, six UI screens and simulation</td></tr>
-            <tr><td class="tool"><img src="assets/partners/meta.png" alt="" /><b class="teal">Meta Models<br>via Muse Code</b></td><td class="role">Fast &amp; Multimodal<br>Evidence extraction</td><td class="what">18 cited claims from 3 text sources, with provenance checks</td></tr>
-            <tr><td class="tool"><img src="assets/partners/subq.png" alt="" /><b class="">SubQ Snap 1.1</b></td><td class="role">Evidence review &amp;<br>decision management</td><td class="what">Scoped conflict checks after prefiltering. One live pilot</td></tr>
-            <tr><td class="tool"><img src="assets/partners/fetch.png" alt="" /><b class="">Fetch.ai / ASI:One</b></td><td class="role">Deputy CEO runtime</td><td class="what">Hosted agent conversation. Cards and data bridge pending</td></tr>
+            <tr><td class="tool"><img src="assets/partners/meta.png" alt="" /><b class="teal">Meta Models<br>via Muse Code</b></td><td class="role">Fast &amp; Multimodal<br>Evidence extraction</td><td class="what">Cited claims from source records, with provenance checks</td></tr>
+            <tr><td class="tool"><img src="assets/partners/subq.png" alt="" /><b class="">SubQ Snap 1.1</b></td><td class="role">Evidence review &amp;<br>decision management</td><td class="what">Scoped comparisons after prefiltering; uncertainty surfaced</td></tr>
+            <tr><td class="tool"><img src="assets/partners/fetch.png" alt="" /><b class="">Fetch.ai / ASI:One</b></td><td class="role">Deputy CEO runtime</td><td class="what">Conversation, Commit card and website link; data bridge pending</td></tr>
             <tr><td class="tool"><img src="assets/partners/mongodb.png" alt="" /><b class="">MongoDB Atlas</b></td><td class="role">AI-native<br>organization memory</td><td class="what">53,431 raw records, source history and simulation events</td></tr>
           </tbody>
         </table>
-        <div class="tnote">SubQ returned a tentative conflict signal. Outcome comparisons use labeled simulation.</div>
+        <div class="tnote">Latest five SubQ checks: no proven contradiction. Outcome comparisons are labeled simulation.</div>
       </div>
 
       <!--CAPS-->
-        <div class="cap clip" data-start="0.5" data-duration="3.85" data-track-index="5"><span>Your AI-native organization changes every hour.</span></div>
-        <div class="cap clip" data-start="4.2" data-duration="4.16" data-track-index="6"><span>How do you notice it's no longer what you intended?</span></div>
-        <div class="cap clip" data-start="8.56" data-duration="2.74" data-track-index="5"><span>Theseus starts with a commitment:</span></div>
-        <div class="cap clip" data-start="11.15" data-duration="4.54" data-track-index="6"><span>your goals, your principles, and the culture to protect.</span></div>
-        <div class="cap clip" data-start="15.89" data-duration="2.93" data-track-index="5"><span>From then on, hundreds of agents and people work at once.</span></div>
-        <div class="cap clip" data-start="18.67" data-duration="3.37" data-track-index="6"><span>And you no longer have to watch them by reading hundreds of chats.</span></div>
-        <div class="cap clip" data-start="22.24" data-duration="3.26" data-track-index="5"><span>It watches what agents and people actually do.</span></div>
-        <div class="cap clip" data-start="25.81" data-duration="4.31" data-track-index="6"><span>And shows you where behavior drifts from what you committed to.</span></div>
-        <div class="cap clip" data-start="30.42" data-duration="2.63" data-track-index="5"><span>It proposes one fix on three levels:</span></div>
-        <div class="cap clip" data-start="32.9" data-duration="4.35" data-track-index="6"><span>agent rules, people's onboarding, and the environment itself.</span></div>
-        <div class="cap clip" data-start="37.45" data-duration="1.26" data-track-index="5"><span>You approve.</span></div>
-        <div class="cap clip" data-start="38.56" data-duration="1.17" data-track-index="6"><span>Checks run.</span></div>
-        <div class="cap clip" data-start="39.58" data-duration="2.1" data-track-index="5"><span>The new rule applies.</span></div>
-        <div class="cap clip" data-start="41.98" data-duration="3.06" data-track-index="6"><span>Then it tracks whether the change actually worked.</span></div>
-        <div class="cap clip" data-start="45.34" data-duration="3.05" data-track-index="5"><span>Theseus doesn't slow your company down.</span></div>
-        <div class="cap clip" data-start="48.24" data-duration="2.3" data-track-index="6"><span>It shows you where it turned.</span></div>
+        <div class="cap clip" data-start="0.5" data-duration="3.18" data-track-index="5"><span>Your AI-native organization changes every hour.</span></div>
+        <div class="cap clip" data-start="3.53" data-duration="3.44" data-track-index="6"><span>How do you notice it's no longer what you intended?</span></div>
+        <div class="cap clip" data-start="7.17" data-duration="2.69" data-track-index="5"><span>Theseus starts with your commitment:</span></div>
+        <div class="cap clip" data-start="9.71" data-duration="3.61" data-track-index="6"><span>grow sales, protect margin, and keep the culture.</span></div>
+        <div class="cap clip" data-start="13.52" data-duration="3.71" data-track-index="5"><span>From then on, hundreds of agents and people work at once.</span></div>
+        <div class="cap clip" data-start="17.08" data-duration="4.27" data-track-index="6"><span>And you no longer have to watch them by reading hundreds of chats.</span></div>
+        <div class="cap clip" data-start="21.55" data-duration="3.12" data-track-index="5"><span>It watches what agents and people actually do.</span></div>
+        <div class="cap clip" data-start="24.97" data-duration="5.03" data-track-index="6"><span>And flags where behavior may drift from it, or where the evidence is missing.</span></div>
+        <div class="cap clip" data-start="30.2" data-duration="2.71" data-track-index="5"><span>It proposes one fix on three levels:</span></div>
+        <div class="cap clip" data-start="32.76" data-duration="4.56" data-track-index="6"><span>the agents' memory, the sellers' training, and the CRM itself.</span></div>
+        <div class="cap clip" data-start="38.12" data-duration="1.05" data-track-index="5"><span>You approve.</span></div>
+        <div class="cap clip" data-start="39.02" data-duration="2.77" data-track-index="6"><span>Checks run before anything applies.</span></div>
+        <div class="cap clip" data-start="42.1" data-duration="3.91" data-track-index="5"><span>Then it tracks, in simulation, whether the change works.</span></div>
+        <div class="cap clip" data-start="46.3" data-duration="2.59" data-track-index="6"><span>Theseus doesn't slow your company down.</span></div>
+        <div class="cap clip" data-start="48.74" data-duration="1.97" data-track-index="5"><span>It shows you where it turned.</span></div>
         <!--/CAPS-->
 
       <audio id="vo" class="clip" src="assets/voiceover.wav" data-start="0" data-duration="60" data-track-index="9"></audio>
@@ -183,7 +234,7 @@
     <script>
       window.__timelines = window.__timelines || {};
       const DUR = 60;
-      const SCENES = /*SCENES*/ [{"id": "s0", "start": 0.0, "dur": 8.26}, {"id": "s1", "start": 8.26, "dur": 7.33}, {"id": "sT", "start": 15.59, "dur": 6.35}, {"id": "s2", "start": 21.94, "dur": 3.57}, {"id": "s3", "start": 25.51, "dur": 4.61}, {"id": "s4", "start": 30.12, "dur": 7.03}, {"id": "s5", "start": 37.15, "dur": 4.53}, {"id": "s6", "start": 41.68, "dur": 3.36}, {"id": "s7", "start": 45.04, "dur": 5.4}, {"id": "tech", "start": 50.44, "dur": 9.56}] /*/SCENES*/;
+      const SCENES = /*SCENES*/ [{"id": "s0", "start": 0.0, "dur": 6.87}, {"id": "s1", "start": 6.87, "dur": 6.35}, {"id": "sT", "start": 13.22, "dur": 8.03}, {"id": "s2", "start": 21.25, "dur": 3.42}, {"id": "s3", "start": 24.67, "dur": 5.23}, {"id": "s4", "start": 29.9, "dur": 7.92}, {"id": "s5", "start": 37.82, "dur": 3.98}, {"id": "s6", "start": 41.8, "dur": 4.2}, {"id": "s7", "start": 46.0, "dur": 4.61}, {"id": "tech", "start": 50.61, "dur": 9.39}] /*/SCENES*/;
       const at = Object.fromEntries(SCENES.map(s => [s.id, s]));
 
       // thesis: deterministic cascade of chat windows and agent terminals (seeded), built once at load
@@ -233,7 +284,7 @@
       SCENES.forEach(s => {
         if (s.id === "tech") { tl.fromTo("#tech", { opacity: 0 }, { opacity: 1, duration: 0.6 }, s.start); return; }
         inOut("#" + s.id, s.start, s.dur);
-        if (/^s[1-6]$/.test(s.id)) tl.fromTo("#" + s.id + " .body img", { scale: 0.9 }, { scale: 1, duration: s.dur - 0.4, ease: "none" }, s.start);
+        if (/^s[356]$/.test(s.id)) tl.fromTo("#" + s.id + " .body img", { scale: 0.9 }, { scale: 1, duration: s.dur - 0.4, ease: "none" }, s.start);
       });
       if (at.s0) tl.fromTo("#logo0", { scale: 0.93 }, { scale: 1, duration: at.s0.dur - 0.4, ease: "none" }, 0);
       if (at.s7) tl.fromTo("#logo7", { scale: 0.94 }, { scale: 1, duration: at.s7.dur - 0.4, ease: "none" }, at.s7.start);
@@ -242,6 +293,16 @@
         tl.fromTo("#sT .w", { opacity: 0, scale: 0.85, y: 20 }, { opacity: 1, scale: 1, y: 0, duration: 0.3, stagger: (T.dur * 0.5) / 24 }, T.start + 0.1);
         tl.to("#sT .w", { opacity: 0.1, duration: 0.8 }, T.start + T.dur * 0.62);
         tl.fromTo("#logoT", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" }, T.start + T.dur * 0.62);
+      }
+      ["s1", "s2"].forEach(id => { if (at[id]) tl.fromTo("#" + id + " .shot", { scale: 1 }, { scale: 1.03, duration: at[id].dur, ease: "none" }, at[id].start); });
+      if (at.s4) {
+        const F = at.s4.start;
+        tl.fromTo("#dec", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5 }, F + 0.2);
+        document.querySelectorAll("#links path").forEach((p, k) => { const L = p.getTotalLength(); tl.fromTo(p, { strokeDashoffset: L, opacity: 0 }, { strokeDashoffset: 0, opacity: 1, duration: 0.6 }, F + 0.8 + k * 0.15); });
+        ["#cP", "#cA", "#cE"].forEach((c, k) => {
+          tl.fromTo(c, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45 }, F + 1.3 + k * 0.7);
+          tl.fromTo(c + " .m, " + c + " .dl, " + c + " .tl, " + c + " .fld", { opacity: 0 }, { opacity: 1, duration: 0.25, stagger: 0.32 }, F + 1.6 + k * 0.7);
+        });
       }
       document.querySelectorAll(".cap").forEach(el => {
         const s = parseFloat(el.dataset.start), d = parseFloat(el.dataset.duration);

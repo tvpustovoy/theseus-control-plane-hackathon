@@ -45,3 +45,15 @@ partner), ElevenLabs `eleven_v3` as backup; music optional. Keys come from a sec
 - Tools slide rebuilt in HTML with a Claude Code row (neutral "C" badge until an official mark is supplied); the voice
   now names OpenAI Codex and Claude («на последнем слайде нет claude И ты не говоришь про openai»). Deck copy:
   `reports/2-scenarios/THESEUS-MODELS-AND-TOOLS-v2.png` (frame from the render).
+
+## Draft run 4 (16:14)
+
+- S01 and S02 are real captures of the live app (`http://127.0.0.1:8765/#S01`, `#S02`, 1280×800, headless Chrome;
+  both passed Viveka's visual review). S03, S05, S06 stay placeholders until Viveka's recheck.
+- S04 drawn in the video (owner: «экран agents people env мы сами можем отрисовать»): decision on top; three streams —
+  people (manager–seller training talk), agents (agent memory diff), environment (developer agent adds the required
+  CRM field).
+- Narration aligned with verified facts (one goal: grow sales, protect margin; SubQ found no proven contradiction —
+  "may drift … or where the evidence is missing"; checks before anything applies; outcome "in simulation").
+- Voice: Gemini TTS free tier hit its 10 requests/day limit, so all lines were re-voiced with ElevenLabs `eleven_v3`,
+  female voice Sarah (`--engine eleven`, key `elevenlabs_api_key` in cortex). Tools slide: real Claude mark.

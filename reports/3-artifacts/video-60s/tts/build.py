@@ -19,26 +19,26 @@ OUT = HERE / "out"
 INDEX = HERE.parent / "index.html"
 DUR = 60.0
 GAP = 0.35
-EXTRA = {"03_culture": 0.1, "04_drift": 0.1, "06_decision": 0.1, "07_outcome": 0.1}
+EXTRA = {"03_culture": 0.1, "05_correction": 0.6, "06_decision": 0.1, "07_outcome": 0.1}
 
 # (id, scene element id, style, text)
 LINES = [
     ("01_opening", "s0", "calm, thoughtful documentary narrator",
      "Your AI-native organization changes every hour. <short pause> How do you notice it's no longer what you intended?"),
     ("02_commit", "s1", "warm, confident, unhurried",
-     "Theseus starts with a commitment: your goals, your principles, and the culture to protect."),
+     "Theseus starts with your commitment: grow sales, protect margin, and keep the culture."),
     ("02b_thesis", "sT", "confident, brisk, a little faster than usual",
      "From then on, hundreds of agents and people work at once. <short pause> And you NO LONGER have to watch them by reading hundreds of chats."),
     ("03_culture", "s2", "attentive, clear",
      "It watches what agents and people actually do."),
     ("04_drift", "s3", "focused, slightly serious",
-     "And shows you where behavior drifts from what you committed to."),
+     "And flags where behavior may drift from it, <short pause> or where the evidence is missing."),
     ("05_correction", "s4", "clear, practical",
-     "It proposes one fix on three levels: agent rules, people's onboarding, and the environment itself."),
+     "It proposes one fix on three levels: the agents' memory, the sellers' training, and the CRM itself."),
     ("06_decision", "s5", "calm, decisive",
-     "You approve. <short pause> Checks run. <short pause> The new rule applies."),
+     "You approve. <short pause> Checks run before anything applies."),
     ("07_outcome", "s6", "assured",
-     "Then it tracks whether the change actually worked."),
+     "Then it tracks, in simulation, whether the change works."),
     ("08_close", "s7", "warm, uplifting, finishing strong",
      "Theseus doesn't slow your company down. <short pause> It shows you where it turned."),
     ("09_tech", "tech", "friendly, matter-of-fact",
@@ -67,20 +67,39 @@ def chunks(text):
     return [p for p in out if p]
 
 
+def synth_eleven(text, key, voice="EXAVITQu4vr4xnSDxMaL"):
+    """ElevenLabs eleven_v3, voice Sarah (female); returns WAV bytes via ffmpeg."""
+    import urllib.request
+    t = re.sub(r"<short pause>|<long pause>", "...", text).replace("NO LONGER", "no longer")
+    body = json.dumps({"text": t, "model_id": "eleven_v3",
+                       "voice_settings": {"stability": 0.5, "similarity_boost": 0.8}}).encode()
+    req = urllib.request.Request(f"https://api.elevenlabs.io/v1/text-to-speech/{voice}?output_format=mp3_44100_128",
+                                 data=body, headers={"xi-api-key": key, "Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=120) as r:
+        mp3 = r.read()
+    return subprocess.run(["ffmpeg", "-loglevel", "error", "-f", "mp3", "-i", "pipe:0", "-f", "wav", "pipe:1"],
+                          input=mp3, capture_output=True, check=True).stdout
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--voice", default="Kore")
     ap.add_argument("--tempo", type=float, default=1.12)
+    ap.add_argument("--engine", choices=["gemini", "eleven"], default="gemini")
     a = ap.parse_args()
     OUT.mkdir(exist_ok=True)
     key = os.environ.get("GEMINI_API_KEY")
     timeline, t = [], 0.5
     for lid, scene, style, text in LINES:
-        raw = OUT / f"{lid}.wav"
+        raw = OUT / (f"{lid}.wav" if a.engine == "gemini" else f"{lid}.el.wav")
         if not raw.exists():
-            if not key:
-                sys.exit("Set GEMINI_API_KEY to synthesize " + lid)
-            raw.write_bytes(synth(text, style, a.voice, key)); time.sleep(2)
+            if a.engine == "eleven":
+                xi = os.environ.get("XI") or sys.exit("Set XI (ElevenLabs key) to synthesize " + lid)
+                raw.write_bytes(synth_eleven(text, xi))
+            else:
+                if not key:
+                    sys.exit("Set GEMINI_API_KEY to synthesize " + lid)
+                raw.write_bytes(synth(text, style, a.voice, key)); time.sleep(2)
         fast = OUT / f"{lid}.fast.wav"
         subprocess.check_call(["ffmpeg", "-y", "-loglevel", "error", "-i", str(raw), "-filter:a", f"atempo={a.tempo}", str(fast)])
         d = dur(fast)
