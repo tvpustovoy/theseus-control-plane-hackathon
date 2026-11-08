@@ -1,6 +1,8 @@
 """Offline contract checks for the bounded public demo reader."""
 import importlib.util
+import ast
 import os
+import re
 from pathlib import Path
 import sys
 import types
@@ -16,6 +18,35 @@ spec.loader.exec_module(module)
 
 
 class MemoryContract(unittest.TestCase):
+    def test_reset_mirror_does_not_reuse_historical_approval(self):
+        memory = {"current_state_records": [{"demo_session_id": "fresh", "decision_record": None}],
+                  "records": [{"decision_id": "old", "decision": "approve"}]}
+        result = module.current_decisions(memory, {"operation": "search"})
+        self.assertEqual(result["records"], [])
+        self.assertEqual(result["demo_session_id"], "fresh")
+
+    def test_current_receipt_is_visible_and_lookup_cannot_escape_session(self):
+        memory = {"current_state_records": [{"demo_session_id": "fresh",
+                  "decision_record": {"decision_id": "new", "decision": "approve"}}]}
+        self.assertEqual(module.current_decisions(memory, {"operation": "count"})["count"], 1)
+        self.assertEqual(module.current_decisions(memory, {"operation": "read", "record_id": "old"})["records"], [])
+
+    def test_missing_mirror_cannot_prove_approval(self):
+        self.assertIn("error", module.current_decisions({}, {"operation": "search"}))
+
+    def test_natural_strategy_question_attaches_card_only_to_pending_direction(self):
+        tree = ast.parse(Path(__file__).with_name("protocols.py").read_text())
+        functions = [node for node in tree.body if isinstance(node, ast.FunctionDef)
+                     and node.name in {"wants_direction_card", "decision_card_for"}]
+        namespace = {"re": re, "commit_metadata": lambda: {"card_kind": "detail"}}
+        exec(compile(ast.Module(body=functions, type_ignores=[]), "card-intent", "exec"), namespace)
+        memory = {"connected": True, "current_state_records": [{"mandate_status": "draft_pending_owner_commit"}]}
+        for question in ("@theseus-deputy-ceo What is our discount strategy?", "Какая у нас стратегия скидок?", "Show the decision card"):
+            self.assertIsNotNone(namespace["decision_card_for"](question, memory))
+        self.assertIsNone(namespace["decision_card_for"]("How many CRM records are loaded?", memory))
+        memory["current_state_records"][0]["mandate_status"] = "committed_mandate"
+        self.assertIsNone(namespace["decision_card_for"]("What is our discount strategy?", memory))
+
     def setUp(self):
         self.environment = patch.dict(os.environ, {"THESEUS_MEMORY_URL": ""})
         self.environment.start()
