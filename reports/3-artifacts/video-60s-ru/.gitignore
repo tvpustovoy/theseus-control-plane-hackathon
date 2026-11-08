@@ -1,0 +1,5 @@
+renders/
+tts/out/
+.hyperframes/
+node_modules/
+assets/voiceover.wav

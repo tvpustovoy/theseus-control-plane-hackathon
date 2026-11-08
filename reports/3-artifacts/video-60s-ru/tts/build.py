@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""Build voice-over, scene timings and subtitles for the Russian Theseus 60 s video. Setu.Hackathon, 07.11.2026.
+Russian copy of ../../video-60s/tts/build.py: ElevenLabs eleven_v3, voice Sarah; run:
+  cortex secret run --map elevenlabs_api_key=XI -- python3 tts/build.py --tempo 1.0
+
+Usage:  cortex secret run --map gemini_api_key=GEMINI_API_KEY -- python3 build.py [--voice Kore] [--tempo 1.12]
+
+1. Synthesizes missing lines with Gemini 3.8 Flash TTS (tts.synth) into out/<id>.wav (existing files are kept).
+2. Speeds every line up by --tempo (ffmpeg atempo, pitch preserved) into out/<id>.fast.wav.
+3. Places lines back to back with short gaps; each scene starts 0.3 s before its line.
+4. Mixes ../assets/voiceover.wav (60 s) and rewrites in ../index.html: scene data-start/data-duration, the SCENES
+   block for GSAP, and sentence-level subtitles for the screen scenes (the same words the voice reads, TTS tags removed).
+"""
+import argparse, json, os, re, subprocess, sys, time
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent))
+from tts import synth, dur  # noqa: E402
+
+HERE = Path(__file__).parent
+OUT = HERE / "out"
+INDEX = HERE.parent / "index.html"
+DUR = 60.0
+GAP = 0.35
+EXTRA = {"03_culture": 0.1, "05_correction": 0.6, "06_decision": 0.1, "07_outcome": 0.1}
+
+# (id, scene element id, style, text) — Russian version; SAY below changes only how names are pronounced, subtitles keep the written form
+LINES = [
+    ("01_opening", "s0", "calm, thoughtful documentary narrator",
+     "Ваша AI-native организация меняется каждый час. <short pause> Как заметить, что она уже не такая, какой вы её задумали?"),
+    ("02_commit", "s1", "warm, confident, unhurried",
+     "Тесей начинает с ваших целей: растить продажи, беречь маржу и сохранять культуру."),
+    ("02b_thesis", "sT", "confident, brisk, a little faster than usual",
+     "Дальше сотни агентов и людей работают параллельно. <short pause> И вам БОЛЬШЕ НЕ нужно следить за ними, читая сотни чатов."),
+    ("03_culture", "s2", "attentive, clear",
+     "Он видит, что агенты и люди делают на самом деле."),
+    ("04_drift", "s3", "focused, slightly serious",
+     "И отмечает, где поведение может расходиться с целями, <short pause> или где не хватает данных."),
+    ("05_correction", "s4", "clear, practical",
+     "Он предлагает одно решение на трёх уровнях: память агентов, обучение продавцов и сама CRM."),
+    ("06_decision", "s5", "calm, decisive",
+     "Вы утверждаете. <short pause> Проверки идут до того, как что-то изменится."),
+    ("07_outcome", "s6", "assured",
+     "Затем он проверяет на симуляции, работает ли изменение."),
+    ("08_close", "s7", "warm, uplifting, finishing strong",
+     "Тесей не тормозит вашу компанию. <short pause> Он показывает, где она свернула."),
+    ("09_tech", "tech", "friendly, matter-of-fact",
+     "Сделано с помощью OpenAI Codex, Claude, Gemini, Meta, SubQ, Fetch AI и MongoDB."),
+]
+SUB_SCENES = {"s0", "s1", "sT", "s2", "s3", "s4", "s5", "s6", "s7"}  # screen text and narration differ: the banner line is on screen, the voice and subtitles carry their own words; the tools slide has no subtitles
+CAPTION_FIX = {"Fetch AI": "Fetch.ai", "БОЛЬШЕ НЕ": "больше не"}
+SAY = {"Тесей": "Тесе́й", "AI-native": "эй-ай нэйтив", "CRM": "си-ар-эм", "OpenAI Codex": "Оупен-эй-ай Кодекс", "Claude": "Клод",
+       "Gemini": "Джемини", "Meta": "Мета", "SubQ": "Саб Кью", "Fetch AI": "Фетч эй-ай", "MongoDB": "Монго ди-би"}
+
+
+def clean(text):
+    t = re.sub(r"<[^>]+>", "", text)
+    for a, b in CAPTION_FIX.items():
+        t = t.replace(a, b)
+    return re.sub(r"\s+", " ", t).strip()
+
+
+def chunks(text):
+    parts = re.split(r"(?<=[.?!])\s+", clean(text))
+    out = []
+    for p in parts:
+        if len(p) > 72 and ":" in p:
+            a, b = p.split(":", 1)
+            out += [a + ":", b.strip()]
+        else:
+            out.append(p)
+    return [p for p in out if p]
+
+
+def synth_eleven(text, key, voice="EXAVITQu4vr4xnSDxMaL"):
+    """ElevenLabs eleven_v3, voice Sarah (female); returns WAV bytes via ffmpeg."""
+    import urllib.request
+    t = re.sub(r"<short pause>|<long pause>", "...", text)
+    for a_, b_ in SAY.items():
+        t = t.replace(a_, b_)
+    body = json.dumps({"text": t, "model_id": "eleven_v3",
+                       "voice_settings": {"stability": 0.5, "similarity_boost": 0.8}}).encode()
+    req = urllib.request.Request(f"https://api.elevenlabs.io/v1/text-to-speech/{voice}?output_format=mp3_44100_128",
+                                 data=body, headers={"xi-api-key": key, "Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=120) as r:
+        mp3 = r.read()
+    return subprocess.run(["ffmpeg", "-loglevel", "error", "-f", "mp3", "-i", "pipe:0", "-f", "wav", "pipe:1"],
+                          input=mp3, capture_output=True, check=True).stdout
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--voice", default="Kore")
+    ap.add_argument("--tempo", type=float, default=1.0)
+    ap.add_argument("--engine", choices=["gemini", "eleven"], default="eleven")
+    a = ap.parse_args()
+    OUT.mkdir(exist_ok=True)
+    key = os.environ.get("GEMINI_API_KEY")
+    timeline, t = [], 0.5
+    for lid, scene, style, text in LINES:
+        raw = OUT / (f"{lid}.wav" if a.engine == "gemini" else f"{lid}.el.wav")
+        if not raw.exists():
+            if a.engine == "eleven":
+                xi = os.environ.get("XI") or sys.exit("Set XI (ElevenLabs key) to synthesize " + lid)
+                raw.write_bytes(synth_eleven(text, xi))
+            else:
+                if not key:
+                    sys.exit("Set GEMINI_API_KEY to synthesize " + lid)
+                raw.write_bytes(synth(text, style, a.voice, key)); time.sleep(2)
+        fast = OUT / f"{lid}.fast.wav"
+        subprocess.check_call(["ffmpeg", "-y", "-loglevel", "error", "-i", str(raw), "-filter:a", f"atempo={a.tempo}", str(fast)])
+        d = dur(fast)
+        timeline.append({"id": lid, "scene": scene, "start": round(t, 2), "dur": round(d, 2), "text": text})
+        t += d + GAP + EXTRA.get(lid, 0)
+    end = timeline[-1]["start"] + timeline[-1]["dur"]
+    if end > DUR - 0.2:
+        sys.exit(f"Voice ends at {end:.2f}s, over {DUR}s: raise --tempo or shorten lines")
+    # scenes
+    scenes = []
+    for i, ln in enumerate(timeline):
+        s0 = 0.0 if i == 0 else round(ln["start"] - 0.3, 2)
+        s1 = DUR if i == len(timeline) - 1 else round(timeline[i + 1]["start"] - 0.3, 2)
+        scenes.append({"id": ln["scene"], "start": s0, "dur": round(s1 - s0, 2)})
+    tech = scenes[-1]
+    if tech["dur"] < 5:
+        sys.exit(f"Tools slide only {tech['dur']}s; owner asked for at least 5 s")
+    # mix
+    cmd = ["ffmpeg", "-y", "-loglevel", "error"]
+    for ln in timeline:
+        cmd += ["-i", str(OUT / f"{ln['id']}.fast.wav")]
+    delays = "".join(f"[{i}]adelay={int(ln['start']*1000)}|{int(ln['start']*1000)}[d{i}];" for i, ln in enumerate(timeline))
+    mix = "".join(f"[d{i}]" for i in range(len(timeline)))
+    cmd += ["-filter_complex", f"{delays}{mix}amix=inputs={len(timeline)}:normalize=0,apad=whole_dur={int(DUR)},loudnorm=I=-16[a]",
+            "-map", "[a]", "-t", str(int(DUR)), "-ar", "48000", str(HERE.parent / "assets" / "voiceover.wav")]
+    subprocess.check_call(cmd)
+    # subtitles: split each line's time over its sentences by character share
+    caps = []
+    for ln in timeline:
+        if ln["scene"] not in SUB_SCENES:
+            continue
+        cs = chunks(ln["text"]); total = sum(len(c) for c in cs); t0 = ln["start"]
+        for c in cs:
+            d = ln["dur"] * len(c) / total
+            caps.append((round(t0, 2), round(d + 0.15, 2), c)); t0 += d
+    html = INDEX.read_text()
+    for sc in scenes:
+        html, n = re.subn(r'(id="%s" class="[^"]*clip[^"]*"[^>]*?data-start=")[0-9.]+(" data-duration=")[0-9.]+' % sc["id"],
+                          r"\g<1>%s\g<2>%s" % (sc["start"], sc["dur"]), html)
+        if n != 1:
+            sys.exit("scene not found in index.html: " + sc["id"])
+    block = "\n".join(f'        <div class="cap clip" data-start="{s}" data-duration="{d}" data-track-index="{5 + i % 2}"><span>{c}</span></div>'
+                      for i, (s, d, c) in enumerate(caps))
+    html = re.sub(r"<!--CAPS-->.*?<!--/CAPS-->", "<!--CAPS-->\n" + block + "\n        <!--/CAPS-->", html, flags=re.S)
+    html = re.sub(r"/\*SCENES\*/.*?/\*/SCENES\*/", "/*SCENES*/ " + json.dumps(scenes) + " /*/SCENES*/", html, flags=re.S)
+    INDEX.write_text(html)
+    for ln in timeline:
+        print(f"{ln['id']:14} start={ln['start']:6.2f} dur={ln['dur']:5.2f}")
+    print(f"voice ends {end:.2f}s · tools slide {tech['start']}–60 s ({tech['dur']} s) · {len(caps)} subtitles")
+
+
+if __name__ == "__main__":
+    main()

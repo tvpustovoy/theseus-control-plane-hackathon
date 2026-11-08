@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="ru" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;1,400;1,500&display=block" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <!--
+      Theseus Control Plane — 60 s video, Russian version (copy of ../video-60s). Setu.Hackathon, 07.11.2026.
+      Order (reports/2-scenarios/SCENARIO-S01-S06.md): opening → S01 Commit → thesis "hundreds of agents and people" →
+      S02–S06 → close → models-and-tools slide at the end (owner: at least 5 s). Placeholder windows are replaced by
+      captures of the real Theseus screens. Timings, subtitles and the SCENES block are written by tts/build.py.
+    -->
+    <style>
+      :root {
+        --ink: #0b3a5e; --glacier: #3fa6e8; --ice: #dde9f2; --amber: #f5bf45; --amber-deep: #c98a12;
+        --snow: #f6f9fc; --surface: #ffffff; --muted: #5a7389;
+        --sans: "Geist", -apple-system, "Segoe UI", sans-serif;
+        --serif: "Lora", Georgia, serif;
+        --mono: "Geist Mono", ui-monospace, monospace;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--snow); }
+      #root { position: relative; width: 100%; height: 100%; font-family: var(--sans); color: var(--ink); }
+      .scene { position: absolute; inset: 0; }
+      .headline { font-family: var(--serif); font-size: 92px; line-height: 1.03; color: var(--ink); }
+      .headline em { font-style: italic; color: var(--amber-deep); }
+      .sub { margin-top: 26px; font-size: 40px; line-height: 1.3; color: var(--muted); }
+      .kicker { font-family: var(--mono); font-size: 28px; letter-spacing: .16em; text-transform: uppercase; color: var(--glacier); margin-bottom: 22px; }
+      /* opening */
+      #logo0 { position: absolute; left: 120px; top: 190px; width: 680px; height: 680px; }
+      #s0 .text { position: absolute; left: 860px; top: 250px; width: 960px; }
+      #s0 .headline { font-size: 66px; line-height: 1.12; }
+      .name { margin-top: 26px; font-family: var(--mono); font-size: 30px; letter-spacing: .2em; text-transform: uppercase; color: var(--glacier); }
+      /* placeholder product window */
+      .win { position: absolute; left: 230px; top: 50px; width: 1460px; height: 740px; background: var(--surface); border: 2px solid var(--ice); border-radius: 22px; box-shadow: 0 24px 60px rgba(11,58,94,.10); overflow: hidden; }
+      .bar { height: 60px; background: #eef4f9; border-bottom: 2px solid var(--ice); display: flex; align-items: center; padding: 0 26px; gap: 12px; }
+      .dot { width: 16px; height: 16px; border-radius: 50%; background: #c9d8e4; }
+      .url { margin-left: 22px; font-family: var(--mono); font-size: 28px; color: var(--muted); }
+      .body { position: absolute; top: 60px; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+      .body img { width: 280px; height: 280px; opacity: .9; }
+      .frame { margin-top: 16px; font-family: var(--mono); font-size: 30px; letter-spacing: .14em; text-transform: uppercase; color: var(--glacier); }
+      .title { margin-top: 8px; font-family: var(--serif); font-size: 74px; color: var(--ink); }
+      .hint { margin-top: 10px; font-family: var(--mono); font-size: 28px; color: var(--amber-deep); }
+      /* thesis: hundreds of agents and people — many chat windows and agent terminals */
+      #sT .w { position: absolute; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 26px rgba(11,58,94,.16); }
+      #sT .w .tb { height: 34px; display: flex; align-items: center; gap: 7px; padding: 0 12px; font-family: var(--mono); font-size: 18px; }
+      #sT .w .tb i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+      #sT .chat { width: 400px; background: #fff; border: 2px solid var(--ice); }
+      #sT .chat .tb { background: #eef4f9; color: var(--muted); }
+      #sT .chat .tb i { background: #c9d8e4; }
+      #sT .chat .msgs { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 8px; }
+      #sT .chat .m { max-width: 300px; font-size: 20px; line-height: 1.25; padding: 7px 11px; border-radius: 12px; background: var(--ice); color: var(--ink); }
+      #sT .chat .m.me { align-self: flex-end; background: var(--glacier); color: #fff; }
+      #sT .chat .m.warn { background: #fff4d6; border: 1px solid var(--amber); }
+      #sT .term { width: 440px; background: #0d1b2a; border: 2px solid #1d3148; }
+      #sT .term .tb { background: #16263a; color: #8aa4bd; }
+      #sT .term .tb i { background: #2c4560; }
+      #sT .term pre { margin: 0; padding: 10px 14px 12px; font-family: var(--mono); font-size: 19px; line-height: 1.35; color: #cfe3f1; white-space: pre; }
+      #sT .term .g { color: #7ee2a8; } #sT .term .a { color: #f5bf45; } #sT .term .p { color: #6fb7ff; }
+      #logoT { position: absolute; left: 780px; top: 230px; width: 360px; height: 360px; z-index: 50; }
+      /* S04 drawn: decision on top, three streams below */
+      #dec { position: absolute; left: 330px; top: 36px; width: 1260px; height: 214px; background: #fff; border: 3px solid var(--amber); border-radius: 20px; box-shadow: 0 16px 40px rgba(11,58,94,.10); text-align: center; padding-top: 22px; }
+      #dec .dk { font-family: var(--mono); font-size: 26px; letter-spacing: .12em; text-transform: uppercase; color: var(--glacier); }
+      #dec .dt { margin-top: 8px; font-family: var(--serif); font-size: 44px; color: var(--ink); }
+      #dec .dt em { font-style: italic; color: var(--amber-deep); }
+      #dec .db { margin-top: 10px; display: flex; gap: 14px; justify-content: center; }
+      #dec .bt { font-size: 24px; font-weight: 600; padding: 6px 18px; border-radius: 10px; border: 2px solid var(--ice); color: var(--muted); }
+      #dec .bt.ok { background: var(--ink); border-color: var(--ink); color: #fff; }
+      #links { position: absolute; left: 0; top: 0; }
+      #links path { fill: none; stroke: var(--amber); stroke-width: 4; stroke-dasharray: 10 8; }
+      #s4 .col { position: absolute; top: 318px; width: 560px; }
+      #cP { left: 80px; } #cA { left: 680px; } #cE { left: 1280px; }
+      #s4 .ch { font-family: var(--mono); font-size: 26px; letter-spacing: .1em; text-transform: uppercase; color: var(--glacier); margin-bottom: 10px; text-align: center; }
+      #s4 .pan { border-radius: 16px; overflow: hidden; height: 440px; box-shadow: 0 12px 30px rgba(11,58,94,.10); }
+      #s4 .ptb { height: 42px; display: flex; align-items: center; padding: 0 16px; font-family: var(--mono); font-size: 22px; }
+      #s4 .chatp { background: #fff; border: 2px solid var(--ice); padding-bottom: 12px; }
+      #s4 .chatp .ptb { background: #eef4f9; color: var(--muted); }
+      #s4 .chatp .m { margin: 12px 16px 0; max-width: 420px; font-size: 26px; line-height: 1.25; padding: 10px 14px; border-radius: 14px; background: var(--ice); }
+      #s4 .chatp .m.me { margin-left: auto; background: var(--glacier); color: #fff; }
+      #s4 .file { background: #fff; border: 2px solid var(--ice); }
+      #s4 .file .ptb { background: #eef4f9; color: var(--muted); }
+      #s4 .dl { font-family: var(--mono); font-size: 24px; line-height: 1.3; padding: 12px 18px 0; }
+      #s4 .dl.del { color: #a3473b; text-decoration: line-through; }
+      #s4 .dl.add { color: #2f7a5c; }
+      #s4 .termp { background: #0d1b2a; border: 2px solid #1d3148; }
+      #s4 .termp .ptb { background: #16263a; color: #8aa4bd; }
+      #s4 .tl { font-family: var(--mono); font-size: 23px; line-height: 1.3; padding: 12px 18px 0; color: #cfe3f1; }
+      #s4 .tl.ok { color: #7ee2a8; }
+      #s4 .fld { margin: 26px 18px 0; background: #fffaf0; border: 3px solid var(--amber); border-radius: 12px; padding: 14px 16px; font-size: 26px; font-weight: 700; color: var(--ink); }
+      #s4 .fld b { color: #a3473b; }
+      .shot { position: absolute; left: 352px; top: 34px; width: 1216px; height: 760px; border-radius: 16px; border: 2px solid var(--ice); box-shadow: 0 24px 60px rgba(11,58,94,.14); }
+      /* drawn S03 / S05 / S06 (verified facts only) */
+      .dr { position: absolute; left: 160px; top: 40px; width: 1600px; height: 760px; }
+      .drk { font-family: var(--mono); font-size: 28px; letter-spacing: .12em; text-transform: uppercase; color: var(--glacier); text-align: center; margin-bottom: 22px; }
+      .two { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+      .cd { background: #fff; border: 3px solid var(--ice); border-radius: 18px; padding: 24px 28px; box-shadow: 0 12px 30px rgba(11,58,94,.08); min-height: 300px; }
+      .cd.nv { border-color: var(--ink); } .cd.am { border-color: var(--amber); }
+      .cl { font-family: var(--mono); font-size: 24px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+      .ct { font-family: var(--serif); font-size: 44px; line-height: 1.15; color: var(--ink); }
+      .cs { margin-top: 14px; font-size: 28px; line-height: 1.3; color: var(--muted); }
+      .sq { margin-top: 30px; display: flex; gap: 14px; justify-content: center; align-items: center; flex-wrap: wrap; }
+      .sql { font-family: var(--mono); font-size: 26px; color: var(--ink); margin-right: 8px; }
+      .vc { font-size: 28px; font-weight: 600; padding: 8px 16px; border-radius: 999px; background: #fff4d6; border: 2px solid var(--amber); color: #6b4a00; }
+      .gap { margin-top: 22px; text-align: center; font-size: 34px; font-weight: 600; color: var(--ink); }
+      .db2 { margin-top: 18px; display: flex; gap: 12px; } .db2 .bt { font-size: 26px; font-weight: 600; padding: 8px 18px; border-radius: 10px; border: 2px solid var(--ice); color: var(--muted); } .db2 .bt.ok { background: var(--ink); border-color: var(--ink); color: #fff; }
+      .ck { font-size: 32px; line-height: 1.5; color: #2f7a5c; font-weight: 600; } .ck.st { color: var(--muted); font-weight: 500; font-size: 28px; margin-top: 6px; }
+      .fld2 { margin: 34px auto 0; width: 900px; background: #fffaf0; border: 3px solid var(--amber); border-radius: 14px; padding: 18px 22px; font-size: 32px; font-weight: 700; color: var(--ink); text-align: center; }
+      .fld2 b { color: #a3473b; } .fld2 span { font-family: var(--mono); font-size: 24px; font-weight: 500; color: var(--muted); margin-left: 14px; }
+      .simb { margin: 0 auto 26px; width: fit-content; font-family: var(--mono); font-size: 26px; padding: 8px 18px; border-radius: 10px; background: #fff4d6; border: 2px solid var(--amber); color: #6b4a00; }
+      .bars { display: flex; flex-direction: column; gap: 22px; }
+      .br { display: grid; grid-template-columns: 560px 1fr 400px; align-items: center; gap: 22px; }
+      .bn { font-size: 30px; font-weight: 600; color: var(--ink); text-align: right; }
+      .bb { position: relative; height: 46px; background: var(--ice); border-radius: 10px; overflow: hidden; }
+      .bb i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 10px; }
+      .bb .b0 { background: #9fb6c8; z-index: 2; height: 46px; } .bb .b1 { background: var(--glacier); width: 0; }
+      .br.tot .bb .b1 { background: var(--amber); }
+      .bv { font-family: var(--mono); font-size: 28px; color: var(--ink); }
+      /* close */
+      #logo7 { position: absolute; left: 700px; top: 30px; width: 520px; height: 520px; }
+      #s7 .text { position: absolute; left: 140px; right: 140px; top: 560px; text-align: center; }
+      #s7 .headline { font-size: 60px; line-height: 1.12; }
+      /* tools slide */
+      #tech { position: absolute; inset: 0; width: 1920px; height: 1080px; background: #f3f7fa; padding: 64px 96px; font-family: var(--sans); }
+      #tech .tlogo { position: absolute; right: 96px; top: 40px; width: 190px; height: 190px; }
+      #tech .th1 { font-size: 64px; font-weight: 700; color: var(--ink); }
+      #tech .th2 { margin-top: 10px; font-size: 32px; color: var(--muted); }
+      #tech table { margin-top: 40px; width: 100%; border-collapse: collapse; background: #fff; border: 2px solid #e3ecf3; }
+      #tech th { text-align: left; font-size: 22px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink); background: #e8f1f8; padding: 16px 24px; font-weight: 700; }
+      #tech td { padding: 13px 24px; border-top: 2px solid #eef3f7; vertical-align: middle; }
+      #tech td.tool { width: 470px; font-size: 30px; color: var(--ink); }
+      #tech td.tool img, #tech .mono-c { width: 56px; height: 56px; object-fit: contain; vertical-align: middle; margin-right: 18px; }
+      #tech td.tool b { display: inline-block; vertical-align: middle; font-weight: 700; line-height: 1.15; }
+      #tech td.tool b.teal { color: #40877c; }
+      #tech .mono-c { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: #d97757; color: #fff; font-weight: 700; font-size: 32px; }
+      #tech td.role { width: 380px; font-size: 24px; color: var(--muted); line-height: 1.2; }
+      #tech td.what { font-size: 27px; color: var(--ink); line-height: 1.25; }
+      #tech .tnote { margin-top: 18px; font-size: 22px; color: var(--muted); }
+      /* subtitles: readable, above player controls */
+      .cap { position: absolute; left: 0; right: 0; top: 842px; text-align: center; }
+      .cap span { display: inline-block; max-width: 1560px; font-family: var(--sans); font-size: 44px; line-height: 1.3; font-weight: 600; color: #ffffff; background: rgba(8, 24, 40, .82); padding: 12px 28px; border-radius: 12px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="60" data-width="1920" data-height="1080">
+
+      <div id="s0" class="scene clip" data-start="0.0" data-duration="8.34" data-track-index="1">
+        <img id="logo0" src="assets/logo-v8.png" alt="Theseus logo" />
+        <div class="text">
+          <div class="headline">Пусть ИИ-сотрудники улучшают вашу компанию. <em>Сохраните свои цели, правила и культуру.</em></div>
+          <div class="name">Theseus Control Plane</div>
+        </div>
+      </div>
+
+      <div id="s1" class="scene clip" data-start="8.34" data-duration="6.27" data-track-index="1">
+        <img class="shot" src="assets/shots/S01.png" alt="Theseus S01 live screen" />
+      </div>
+
+      <div id="sT" class="scene clip" data-start="14.61" data-duration="6.63" data-track-index="1">
+        <div id="wins" data-layout-allow-overlap></div>
+        <img id="logoT" src="assets/logo-v8.png" alt="" />
+      </div>
+
+      <div id="s2" class="scene clip" data-start="21.24" data-duration="3.45" data-track-index="1">
+        <img class="shot" src="assets/shots/S02.png" alt="Theseus S02 live screen" />
+      </div>
+
+      <div id="s3" class="scene clip" data-start="24.69" data-duration="5.25" data-track-index="1">
+        <div class="dr"><div class="drk">S03 · Совпадает ли поведение с целями?</div>
+          <div class="two">
+            <div class="cd nv"><div class="cl">Принято · мандат v1 (действует)</div><div class="ct">Скидки гибкие, по ситуации.</div><div class="cs">Предложена v2, не утверждена: скидка должна покупать обязательство клиента.</div></div>
+            <div class="cd am"><div class="cl">Наблюдаемая практика</div><div class="ct">Скидки по ситуации, иногда сразу.</div><div class="cs">Обязательство взамен не записано · твёрдые отказы ниже минимальной цены тоже бывают.</div></div>
+          </div>
+          <div class="sq"><span class="sql">SubQ Snap 1.1 · 5 сравнений</span><span class="vc">1 · другой охват / время</span><span class="vc">3 · мало данных</span><span class="vc">1 · совпадает, низкая уверенность</span></div>
+          <div class="gap">Противоречие не доказано. Пробел: итоги и причины скидок не записываются.</div></div>
+      </div>
+
+      <div id="s4" class="scene clip" data-start="29.94" data-duration="7.94" data-track-index="1">
+        <div id="dec">
+          <div class="dk">S04 · Коррекция · предложение v2</div>
+          <div class="dt">Одно решение: <em>скидка должна покупать ценность</em></div>
+          <div class="db"><span class="bt ok">Утвердить</span><span class="bt">Доработать</span><span class="bt">Отклонить</span></div>
+        </div>
+        <svg id="links" width="1920" height="1080" viewBox="0 0 1920 1080"><path d="M960 250 C 960 290, 360 270, 360 318" /><path d="M960 250 L 960 318" /><path d="M960 250 C 960 290, 1560 270, 1560 318" /></svg>
+        <div class="col" id="cP"><div class="ch">Люди · обучение продавцов</div>
+          <div class="pan chatp"><div class="ptb">Менеджер × продавец · 1:1</div>
+            <div class="m">Когда скидка уместна?</div>
+            <div class="m me">Когда клиент говорит «дорого»?</div>
+            <div class="m">Только если она что-то покупает: длинный срок, предоплату, рекомендацию.</div>
+            <div class="m me">Понял. Сначала ценность.</div></div></div>
+        <div class="col" id="cA"><div class="ch">Агенты · память</div>
+          <div class="pan file"><div class="ptb">agent-112 / memory.md</div>
+            <div class="dl del">- Возражение по цене: дать 10%</div>
+            <div class="dl add">+ Скидка должна покупать ценность:</div>
+            <div class="dl add">+   срок · предоплата · рекомендация</div>
+            <div class="dl add">+ Иначе: спросить человека</div></div></div>
+        <div class="col" id="cE"><div class="ch">Среда · CRM</div>
+          <div class="pan termp"><div class="ptb">dev-agent — zsh</div>
+            <div class="tl">$ crm schema add discount_justification --required</div>
+            <div class="tl ok">✓ миграция 0042 применена</div>
+            <div class="tl">$ test: скидка без причины</div>
+            <div class="tl ok">✓ отклонена</div>
+            <div class="fld">Обоснование скидки <b>*</b></div></div></div>
+      </div>
+
+      <div id="s5" class="scene clip" data-start="37.88" data-duration="4.54" data-track-index="1">
+        <div class="dr"><div class="drk">S05 · Решение · демо-среда</div>
+          <div class="two">
+            <div class="cd nv"><div class="cl">Решение основателя</div><div class="ct">Инструмент скидок v2</div><div class="db2"><span class="bt ok">Утверждено</span><span class="bt">точная версия v2</span></div></div>
+            <div class="cd"><div class="cl">Проверки до применения</div><div class="ck">✓ утверждение привязано к v2</div><div class="ck">✓ право владельца</div><div class="ck">✓ приложен отчёт оценки</div><div class="ck st">Активация: отдельный шаг, после проверок</div></div>
+          </div>
+          <div class="fld2">CRM · Обоснование скидки <b>*</b> <span>обязательно в v2</span></div></div>
+      </div>
+
+      <div id="s6" class="scene clip" data-start="42.42" data-duration="3.82" data-track-index="1">
+        <div class="dr"><div class="drk">S06 · Результат · доля скидок, которые покупают ценность</div>
+          <div class="simb">СИМУЛЯЦИЯ · 120 синтетических лидов · 4 синтетические недели · детерминированные акторы</div>
+          <div class="bars">
+            <div class="br"><div class="bn">Агенты продаж · правило v2</div><div class="bb"><i class="b0" style="width:18.6%"></i><i class="b1" data-w="100"></i></div><div class="bv">19% → 100% · оставить</div></div>
+            <div class="br"><div class="bn">Продавцы-люди (модель) · онбординг v2</div><div class="bb"><i class="b0" style="width:43.9%"></i><i class="b1" data-w="55"></i></div><div class="bv">44% → 55% · кандидат</div></div>
+            <div class="br"><div class="bn">Среда · поле CRM</div><div class="bb"><i class="b0" style="width:30.95%"></i><i class="b1" data-w="91.4"></i></div><div class="bv">31% → 91% · оставить</div></div>
+            <div class="br tot"><div class="bn">Все три · 26/84 → 64/68 скидок</div><div class="bb"><i class="b0" style="width:30.95%"></i><i class="b1" data-w="94.1"></i></div><div class="bv">31% → 94%</div></div>
+          </div></div>
+      </div>
+
+      <div id="s7" class="scene clip" data-start="46.24" data-duration="4.37" data-track-index="1">
+        <img id="logo7" src="assets/logo-v8.png" alt="Theseus logo" />
+        <div class="text">
+          <div class="headline">Пусть ИИ-сотрудники улучшают вашу компанию. <em>Сохраните свои цели, правила и культуру.</em></div>
+          <div class="name">Theseus Control Plane</div>
+        </div>
+      </div>
+
+      <div id="tech" class="clip" data-start="50.61" data-duration="9.39" data-track-index="2">
+        <img class="tlogo" src="assets/logo-v8.png" alt="" />
+        <div class="th1">Модели и инструменты Theseus</div>
+        <div class="th2">Кто строил систему и что работает внутри</div>
+        <table>
+          <thead><tr><th>Модель / инструмент</th><th>Роль / возможность</th><th>Для чего использовали</th></tr></thead>
+          <tbody>
+            <tr><td class="tool"><img src="assets/partners/openai.png" alt="" /><b class="">OpenAI Codex</b></td><td class="role">Viveka<br>Координация</td><td class="what">Координировал агентов и собрал Deputy CEO в ASI:One</td></tr>
+            <tr><td class="tool"><img src="assets/partners/claude.svg" alt="" /><b class="">Claude Code</b></td><td class="role">Setu<br>Нарратив и защита</td><td class="what">Сценарий, питч, демо-ролик и озвучка</td></tr>
+            <tr><td class="tool"><img src="assets/partners/gemini.png" alt="" /><b class="">Gemini 4 Argon<br>via Antigravity</b></td><td class="role">Argon<br>Реализация</td><td class="what">Импорт данных, бэкенд, шесть экранов и симуляция</td></tr>
+            <tr><td class="tool"><img src="assets/partners/meta.png" alt="" /><b class="teal">Meta Models<br>via Muse Code</b></td><td class="role">Быстрые, мультимодальные<br>Извлечение фактов</td><td class="what">Утверждения со ссылками на исходные записи и проверкой происхождения</td></tr>
+            <tr><td class="tool"><img src="assets/partners/subq.png" alt="" /><b class="">SubQ Snap 1.1</b></td><td class="role">Разбор доказательств,<br>управление решениями</td><td class="what">Сравнения в заданных рамках после отбора; неопределённость видна</td></tr>
+            <tr><td class="tool"><img src="assets/partners/fetch.png" alt="" /><b class="">Fetch.ai / ASI:One</b></td><td class="role">Среда Deputy CEO</td><td class="what">Диалог, карточка Commit и ссылка на сайт; мост к данным в работе</td></tr>
+            <tr><td class="tool"><img src="assets/partners/mongodb.png" alt="" /><b class="">MongoDB Atlas</b></td><td class="role">Память<br>AI-native организации</td><td class="what">53 431 исходная запись, история источников и события симуляции</td></tr>
+          </tbody>
+        </table>
+        <div class="tnote">Последние пять проверок SubQ: противоречие не доказано. Сравнения результатов помечены как симуляция.</div>
+      </div>
+
+      <!--CAPS-->
+        <div class="cap clip" data-start="0.5" data-duration="3.67" data-track-index="5"><span>Ваша AI-native организация меняется каждый час.</span></div>
+        <div class="cap clip" data-start="4.02" data-duration="4.42" data-track-index="6"><span>Как заметить, что она уже не такая, какой вы её задумали?</span></div>
+        <div class="cap clip" data-start="8.64" data-duration="2.3" data-track-index="5"><span>Тесей начинает с ваших целей:</span></div>
+        <div class="cap clip" data-start="10.79" data-duration="3.92" data-track-index="6"><span>растить продажи, беречь маржу и сохранять культуру.</span></div>
+        <div class="cap clip" data-start="14.91" data-duration="3.08" data-track-index="5"><span>Дальше сотни агентов и людей работают параллельно.</span></div>
+        <div class="cap clip" data-start="17.84" data-duration="3.5" data-track-index="6"><span>И вам больше не нужно следить за ними, читая сотни чатов.</span></div>
+        <div class="cap clip" data-start="21.54" data-duration="3.15" data-track-index="5"><span>Он видит, что агенты и люди делают на самом деле.</span></div>
+        <div class="cap clip" data-start="24.99" data-duration="5.05" data-track-index="6"><span>И отмечает, где поведение может расходиться с целями, или где не хватает данных.</span></div>
+        <div class="cap clip" data-start="30.24" data-duration="3.53" data-track-index="5"><span>Он предлагает одно решение на трёх уровнях:</span></div>
+        <div class="cap clip" data-start="33.62" data-duration="3.76" data-track-index="6"><span>память агентов, обучение продавцов и сама CRM.</span></div>
+        <div class="cap clip" data-start="38.18" data-duration="1.19" data-track-index="5"><span>Вы утверждаете.</span></div>
+        <div class="cap clip" data-start="39.22" data-duration="3.21" data-track-index="6"><span>Проверки идут до того, как что-то изменится.</span></div>
+        <div class="cap clip" data-start="42.72" data-duration="3.51" data-track-index="5"><span>Затем он проверяет на симуляции, работает ли изменение.</span></div>
+        <div class="cap clip" data-start="46.54" data-duration="2.16" data-track-index="6"><span>Тесей не тормозит вашу компанию.</span></div>
+        <div class="cap clip" data-start="48.55" data-duration="2.16" data-track-index="5"><span>Он показывает, где она свернула.</span></div>
+        <!--/CAPS-->
+
+      <audio id="vo" class="clip" src="assets/voiceover.wav" data-start="0" data-duration="60" data-track-index="9"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const DUR = 60;
+      const SCENES = /*SCENES*/ [{"id": "s0", "start": 0.0, "dur": 8.34}, {"id": "s1", "start": 8.34, "dur": 6.27}, {"id": "sT", "start": 14.61, "dur": 6.63}, {"id": "s2", "start": 21.24, "dur": 3.45}, {"id": "s3", "start": 24.69, "dur": 5.25}, {"id": "s4", "start": 29.94, "dur": 7.94}, {"id": "s5", "start": 37.88, "dur": 4.54}, {"id": "s6", "start": 42.42, "dur": 3.82}, {"id": "s7", "start": 46.24, "dur": 4.37}, {"id": "tech", "start": 50.61, "dur": 9.39}] /*/SCENES*/;
+      const at = Object.fromEntries(SCENES.map(s => [s.id, s]));
+
+      // thesis: deterministic cascade of chat windows and agent terminals (seeded), built once at load
+      const chats = [
+        ["Чат продавца · сделка 2817", [["Это окончательная цена?", ""], ["Уточню у руководителя", "me"], ["Конкурент даёт скидку 15%", "warn"]]],
+        ["Поддержка · тикет 4410", [["Всё ещё жду КП", ""], ["Отправим сегодня!", "me"]]],
+        ["Команда · #sales", [["Кто одобрил 20% для Acme?", "warn"], ["агент 088", "me"]]],
+        ["Клиент · Ривера", [["Пришлёте новое КП?", ""], ["Уже делаю", "me"]]],
+        ["Чат продавца · сделка 3104", [["Для нас дорого", "warn"], ["Можем дать 10%", "me"]]],
+        ["Операции · онбординг", [["Новый продавец с понедельника", ""], ["Учится у агента 301", "me"]]],
+      ];
+      const terms = [
+        ["agent-112", ["$ run quote --deal 2817", "> возражение по цене", "<a>> скидка 10% применена</a>", "<g>✓ КП отправлено</g>"]],
+        ["agent-088", ["$ crm.update stage=negotiation", "<a>> скидка 20% (без причины)</a>", "<g>✓ сохранено</g>"]],
+        ["agent-219", ["$ follow-up --batch 42", "> 42 сообщения в очереди", "<g>✓ готово за 3,1 с</g>"]],
+        ["agent-301", ["$ onboarding.shadow seller=17", "> расшифровка 14:02 загружена", "<p>… обучение</p>"]],
+        ["agent-007", ["$ retry send_quote", "> таймаут, повтор (2/3)", "<g>✓ отправлено</g>"]],
+        ["agent-041", ["$ crm.close deal=3104", "<a>> проиграна: 7 дней тишины</a>", "<g>✓ ок</g>"]],
+      ];
+      const fmt = l => l.replace(/<a>(.*)<\/a>/, '<span class="a">$1</span>').replace(/<g>(.*)<\/g>/, '<span class="g">$1</span>').replace(/<p>(.*)<\/p>/, '<span class="p">$1</span>');
+      let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+      const wins = document.getElementById("wins");
+      for (let i = 0; i < 24; i++) {
+        const w = document.createElement("div");
+        if (i % 2 === 0) {
+          const [title, msgs] = chats[(i / 2) % chats.length];
+          w.className = "w chat";
+          w.innerHTML = '<div class="tb"><i></i><i></i><i></i>&nbsp;' + title + '</div><div class="msgs">' +
+            msgs.map(([t, k]) => '<div class="m ' + k + '">' + t + '</div>').join("") + '</div>';
+        } else {
+          const [name, lines] = terms[((i - 1) / 2) % terms.length];
+          w.className = "w term";
+          w.innerHTML = '<div class="tb"><i></i><i></i><i></i>&nbsp;' + name + ' — zsh</div><pre>' + lines.map(fmt).join("\n") + '</pre>';
+        }
+        w.style.left = Math.round(20 + rnd() * 1440) + "px";
+        w.style.top = Math.round(10 + rnd() * 600) + "px";
+        w.style.zIndex = String(i);
+        wins.appendChild(w);
+      }
+
+      const tl = gsap.timeline({ paused: true });
+      tl.to({ t: 0 }, { t: DUR, duration: DUR, ease: "none" }, 0);
+      const inOut = (sel, start, len) => {
+        tl.fromTo(sel, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, start);
+        tl.to(sel, { opacity: 0, y: -16, duration: 0.35, ease: "power2.in" }, start + len - 0.35);
+      };
+      SCENES.forEach(s => {
+        if (s.id === "tech") { tl.fromTo("#tech", { opacity: 0 }, { opacity: 1, duration: 0.6 }, s.start); return; }
+        inOut("#" + s.id, s.start, s.dur);
+        if (false) tl.fromTo("#" + s.id + " .body img", { scale: 0.9 }, { scale: 1, duration: s.dur - 0.4, ease: "none" }, s.start);
+      });
+      if (at.s0) tl.fromTo("#logo0", { scale: 0.93 }, { scale: 1, duration: at.s0.dur - 0.4, ease: "none" }, 0);
+      if (at.s7) tl.fromTo("#logo7", { scale: 0.94 }, { scale: 1, duration: at.s7.dur - 0.4, ease: "none" }, at.s7.start);
+      if (at.sT) {
+        const T = at.sT;
+        tl.fromTo("#sT .w", { opacity: 0, scale: 0.85, y: 20 }, { opacity: 1, scale: 1, y: 0, duration: 0.3, stagger: (T.dur * 0.5) / 24 }, T.start + 0.1);
+        tl.to("#sT .w", { opacity: 0.1, duration: 0.8 }, T.start + T.dur * 0.62);
+        tl.fromTo("#logoT", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.8, ease: "power2.out" }, T.start + T.dur * 0.62);
+      }
+      ["s1", "s2"].forEach(id => { if (at[id]) tl.fromTo("#" + id + " .shot", { scale: 1 }, { scale: 1.03, duration: at[id].dur, ease: "none" }, at[id].start); });
+      if (at.s3) { const F = at.s3.start; tl.fromTo("#s3 .cd", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.4, stagger: 0.35 }, F + 0.3); tl.fromTo("#s3 .vc", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.3, stagger: 0.25 }, F + 1.4); tl.fromTo("#s3 .gap", { opacity: 0 }, { opacity: 1, duration: 0.4 }, F + 2.4); }
+      if (at.s5) { const F = at.s5.start; tl.fromTo("#s5 .cd", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.35, stagger: 0.3 }, F + 0.2); tl.fromTo("#s5 .ck", { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.25, stagger: 0.3 }, F + 0.9); tl.fromTo("#s5 .fld2", { opacity: 0 }, { opacity: 1, duration: 0.4 }, F + 2.2); }
+      if (at.s6) { const F = at.s6.start; document.querySelectorAll("#s6 .b1").forEach((b, k) => tl.fromTo(b, { width: "0%" }, { width: b.dataset.w + "%", duration: 1.0, ease: "power2.out" }, F + 0.6 + k * 0.35)); }
+      if (at.s4) {
+        const F = at.s4.start;
+        tl.fromTo("#dec", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5 }, F + 0.2);
+        document.querySelectorAll("#links path").forEach((p, k) => { const L = p.getTotalLength(); tl.fromTo(p, { strokeDashoffset: L, opacity: 0 }, { strokeDashoffset: 0, opacity: 1, duration: 0.6 }, F + 0.8 + k * 0.15); });
+        ["#cP", "#cA", "#cE"].forEach((c, k) => {
+          tl.fromTo(c, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45 }, F + 1.3 + k * 0.7);
+          tl.fromTo(c + " .m, " + c + " .dl, " + c + " .tl, " + c + " .fld", { opacity: 0 }, { opacity: 1, duration: 0.25, stagger: 0.32 }, F + 1.6 + k * 0.7);
+        });
+      }
+      document.querySelectorAll(".cap").forEach(el => {
+        const s = parseFloat(el.dataset.start), d = parseFloat(el.dataset.duration);
+        tl.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.15 }, s);
+        tl.to(el, { opacity: 0, duration: 0.15 }, s + d - 0.15);
+      });
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
