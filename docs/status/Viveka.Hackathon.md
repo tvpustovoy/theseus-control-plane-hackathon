@@ -1,5 +1,13 @@
 # Viveka.Hackathon · Agentverse setup
 
+## 17:11 PST — Natural strategy question includes the Commit card
+
+Taras reported that a normal discount-strategy question produced text without a card. Previously only `Show Commit` attached card metadata. Added English/Russian matching for discount strategy/rules and explicit decision-card requests; while the current mirror awaits owner commitment, the response now carries the existing native Commit card. This is navigation, never chat approval.
+
+Deployed `protocols.py` and `http_client.py`, verified persisted code, restarted, and tested in Taras's actual rehearsal chat. At 17:10 the natural question `What is our discount strategy, and what direction should I review?` returned the three-row card. At 17:11 Review direction returned the local link; opening it displayed S01 / Agree our direction / Pending your confirmation. No approval or reset was performed. Screenshot: `reports/evidence/deputy-natural-commit-card.png`. Eleven offline reader/card tests pass.
+
+Decision queries default to current-mirror receipts; explicit history remains available but labeled non-authoritative for the current run. The actual current mirror contained a 00:57 UTC approval while Commit remained pending: this was not merely stale chat history. A clean rehearsal still requires Start fresh demo. The reply remains model-generated and the card is the existing recorded draft, not a generated policy or a complete set of workflow cards.
+
 ## Live MongoDB Deputy accepted · November 7, 2026, 16:50 PST
 
 Taras prioritized a working agent over video, then authorized a Cloudflare HTTPS bridge and search across all RecPlace records. Implemented a fixed-database, bounded read adapter and hosted ASI tool loop; restricted private data to the owner's observed ASI protocol sender; set replies to English. Direct hosted PyMongo blocked, while local PyMongo worked, so the active route is Deputy → authenticated temporary HTTPS bridge → Atlas. The main app is not tunneled.

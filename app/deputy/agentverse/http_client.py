@@ -69,12 +69,34 @@ def _get_client():
     return _client
 
 
-def ask_asi1(messages):
+def current_decisions(memory, args):
+    """Current rehearsal authority comes from its mirror, never a past audit row."""
+    states = memory.get("current_state_records") or []
+    if not states:
+        return {"error": "Current session unavailable; no approval may be inferred."}
+    state = states[0]
+    records = [state[key] for key in ("decision_record", "activation_receipt", "rollback_receipt")
+               if state.get(key)]
+    if args.get("operation") == "read":
+        rid = args.get("record_id")
+        records = [row for row in records if rid in [row.get(key) for key in
+                   ("_id", "record_id", "decision_id", "receipt_id")]]
+    result = {"collection": "decisions", "scope": "current_demo_session",
+              "demo_session_id": state.get("demo_session_id"), "synced_at": state.get("synced_at"),
+              "note": "Only current-session receipts. Older rehearsal decisions do not authorize this run."}
+    if args.get("operation") == "count":
+        result["count"] = len(records)
+    else:
+        result["records"] = records
+    return result
+
+
+def ask_asi1(messages, memory=None):
     """Call ASI:One with a prepared message list; returns reply text or None."""
     client = _get_client()
     if client is None:
         return None
-    memory = read_memory()
+    memory = read_memory() if memory is None else memory
     if not memory.get("connected"):
         return ("I cannot read the organizational memory right now. "
                 "I will not answer from stale data. Please retry shortly. "
@@ -87,12 +109,18 @@ def ask_asi1(messages):
         "Read time is NOT the date of the evidence. Curated context is a dated snapshot. "
         "current_state_records and deputy_public_state are the website state mirror: report their synced_at "
         "and version, and prefer the freshest mirror for current policy questions. If data is absent, say so. "
+        "CURRENT AUTHORITY: only the exact current_state_records mirror determines this demo run's approvals. "
+        "If decision_record is null, there is NO approved correction in this run, even if old audit rows or "
+        "earlier chat messages describe an approval. Historical approvals belong to previous rehearsals. "
+        "mandate-v1 is a prepared demo baseline, not a verified company strategy. "
+        "Keep the answer under 120 words. For discount strategy: say what is established, one evidence-backed "
+        "observation and the proposed next decision. Do not list simulation outcomes unless explicitly asked. "
         "Do not infer a company-wide strategy or prevalence from this small selected sample. "
         "For source links use only source_url supplied in records.\n" + json.dumps(memory, default=str)
     )}, *messages[1:]]
     for _ in range(4):
         completion = client.chat.completions.create(model=MODEL, messages=messages,
-            tools=MEMORY_TOOLS, max_tokens=2400)
+            tools=MEMORY_TOOLS, max_tokens=4096)
         message = completion.choices[0].message
         if not message.tool_calls:
             return message.content or ""
@@ -104,12 +132,17 @@ def ask_asi1(messages):
                 if call.function.name != "query_memory":
                     raise ValueError("Unknown tool")
                 args = json.loads(call.function.arguments)
-                response = requests.post(os.environ["THESEUS_MEMORY_URL"].rstrip('/') + '/query',
-                    headers={"Authorization": "Bearer " + os.environ["THESEUS_MEMORY_TOKEN"]},
-                    json=args, timeout=15, allow_redirects=False)
-                if response.status_code != 200 or len(response.content) > 100000:
-                    raise ValueError("Query unavailable")
-                result = response.json()
+                if args.get("collection") == "decisions" and args.get("scope") != "history":
+                    result = current_decisions(memory, args)
+                else:
+                    response = requests.post(os.environ["THESEUS_MEMORY_URL"].rstrip('/') + '/query',
+                        headers={"Authorization": "Bearer " + os.environ["THESEUS_MEMORY_TOKEN"]},
+                        json=args, timeout=15, allow_redirects=False)
+                    if response.status_code != 200 or len(response.content) > 100000:
+                        raise ValueError("Query unavailable")
+                    result = response.json()
+                    if args.get("scope") == "history":
+                        result["authority_note"] = "Historical audit only; NOT approval for the current demo session."
             except Exception:
                 result = {"error": "Read query failed; do not infer an answer"}
             messages.append({"role":"tool", "tool_call_id":call.id, "content":json.dumps(result,default=str)})
@@ -124,6 +157,7 @@ MEMORY_TOOLS = [{"type":"function", "function":{
         "collection":{"type":"string","enum":["sources","raw_records","claims","source_chunks","decisions","review_signals","extraction_runs","import_runs","simulation_events","simulation_runs","crm_deals_demo","deputy_public_state","fact_refs","model_versions"]},
         "query":{"type":"string","description":"Single literal keyword or short phrase; empty means all records within filters"},
         "record_id":{"type":"string"},
+        "scope":{"type":"string","enum":["current","history"],"description":"For decisions, default current uses only the current demo mirror receipts. Use history only for an explicit historical audit question; old receipts never authorize the current run."},
         "filters":{"type":"object","description":"Optional scalar equality fields: source_type, source_table, source_id, claim_id, record_id, period, arm, status, actor_type, kind, organization_id, day"},
         "limit":{"type":"integer","minimum":1,"maximum":8}},
     "required":["operation","collection"],"additionalProperties":False}}}]

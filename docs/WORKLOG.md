@@ -163,3 +163,7 @@ Viveka.Datamaster committed a data-boundary clarification in `91dd768` and repor
 ## 2026-11-07 16:59 PST — Deputy Commit navigation verified
 
 Viveka.Hackathon fixed the native Commit card mention prefix. At 16:58 it rendered in ASI:One; at 16:59 its Review direction click opened the correct website `#S01` screen. No approval was clicked by the agent. The bridge, read tools, acceptance record, runbook and screenshots are checkpointed in `4b490f3`. The coordinator recorded these worker-observed results without repeating the hosted click. The remaining demo task is one full live rehearsal and final submission; the authenticated bridge/tunnel and local app must remain running.
+
+## 2026-11-07 17:11 PST — Natural-question card repair
+
+At Taras's request, Viveka attached the native Commit card to natural discount-strategy questions while the current mandate is pending, instead of requiring the exact Show Commit command. Deployed and verified in Taras's real ASI chat: ordinary question → card → Review direction → local S01. Eleven offline checks pass. Current decision queries use current-mirror receipts; historical audit reads remain explicitly separate. The live mirror still contained a rehearsal approval with Commit pending; no reset or business approval was performed. See `docs/status/Viveka.Hackathon.md` and `reports/evidence/deputy-natural-commit-card.png`.
