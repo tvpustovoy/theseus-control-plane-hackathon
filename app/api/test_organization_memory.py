@@ -27,6 +27,8 @@ class OrganizationMemoryTests(unittest.TestCase):
         self.assertEqual(overview["snapshot"]["raw_records"], 28)
         self.assertEqual(overview["snapshot"]["state"], "verified_snapshot")
         self.assertEqual(overview["distillation"]["state"], "partial_candidate_grade")
+        self.assertEqual(overview["distillation"]["storage"], "local_private_muse_packet_not_atlas_claims")
+        self.assertEqual(overview["atlas_derived"]["claims"], 0)
         self.assertGreater(overview["distillation"]["candidate_text_hashes"], overview["distillation"]["distinct_source_ids"])
         self.assertEqual(overview["review"]["proven_contradictions"], 0)
 

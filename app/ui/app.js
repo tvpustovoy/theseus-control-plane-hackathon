@@ -134,6 +134,7 @@ function renderMemory() {
   const snapshot = o.snapshot || {};
   const dist = o.distillation || {};
   const review = o.review || {};
+  const atlasDerived = o.atlas_derived || {};
   const rows = (stateStore.memorySources?.items || []).map(item => `
     <tr><td class="mono">${esc(item.source_id)}</td><td>${esc(item.source_type)}</td>
     <td>${esc(item.day || "Unknown")}</td><td>${esc(item.source_version)}</td></tr>`).join("");
@@ -150,7 +151,8 @@ function renderMemory() {
         <div><strong>${dist.state === "partial_candidate_grade" ? Number(dist.candidate_claims).toLocaleString() : "—"}</strong><span>candidate claims · partial extraction</span></div>
         <div><strong>${review.discount_pairs ?? "—"}</strong><span>discount pairs · ${review.proven_contradictions ?? "—"} proven contradictions</span></div>
       </div>
-      <p class="memory-provenance">Import verified ${esc(snapshot.verified_at || "date unavailable")} · Muse checkpoint batch ${esc(dist.batch || "unavailable")}: ${esc(dist.distinct_source_ids || "—")} distinct source IDs / ${esc(dist.candidate_text_hashes || "—")} candidate text hashes. Candidate claims are not confirmed frequencies.</p>
+      <p class="memory-provenance">Import verified ${esc(snapshot.verified_at || "date unavailable")} · Muse checkpoint batch ${esc(dist.batch || "unavailable")}: ${esc(dist.distinct_source_ids || "—")} distinct source IDs / ${esc(dist.candidate_text_hashes || "—")} candidate text hashes. Candidate claims are in a local private packet, not Atlas facts or confirmed frequencies.</p>
+      <p class="memory-provenance">Atlas derived collections now: ${esc(atlasDerived.claims ?? "—")} claims · ${esc(atlasDerived.source_chunks ?? "—")} source chunks · ${esc(atlasDerived.extraction_runs ?? "—")} extraction runs.</p>
     </div>
     <div class="card">
       <div class="card-kicker">READ-ONLY INVENTORY</div><h3>Browse sources</h3>

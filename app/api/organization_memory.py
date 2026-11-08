@@ -34,6 +34,7 @@ def _checkpoint() -> Dict[str, Any]:
     batch, claims, sources, hashes, candidate = matches[-1]
     return {
         "state": "partial_candidate_grade",
+        "storage": "local_private_muse_packet_not_atlas_claims",
         "batch": int(batch),
         "candidate_claims": int(claims.replace(",", "")),
         "distinct_source_ids": int(sources.replace(",", "")),
@@ -68,10 +69,14 @@ class OrganizationMemory:
         if receipt is None:
             receipt = {"state": "unverified", "provenance": "verification receipt unavailable"}
         handoff = json.loads(HANDOFF.read_text(encoding="utf-8"))
+        org = self.controller.adapter.organization_id
+        atlas_derived = {name: self.controller.adapter.backend.count(name, {"organization_id": org})
+                         for name in ("claims", "source_chunks", "extraction_runs")}
         return {
             "backend_mode": self.controller.backend_mode,
             "snapshot": receipt,
             "distillation": _checkpoint(),
+            "atlas_derived": atlas_derived,
             "review": {
                 "discount_pairs": len(handoff["subq_statuses"]["discount_pairs"]),
                 "proven_contradictions": 0,
@@ -119,6 +124,7 @@ class OrganizationMemory:
         ]
         context = {"snapshot": {**overview["snapshot"], "citation_id": "ev:import-live-20261107-full"},
                    "distillation": {**overview["distillation"], "citation_id": "memory:muse-status"},
+                   "atlas_derived": overview["atlas_derived"],
                    "review": {**overview["review"], "citation_id": "ev:muse-subq-packet-v1"},
                    "scope": overview["scope"], "limitations": overview["limitations"],
                    "evidence": selected}
