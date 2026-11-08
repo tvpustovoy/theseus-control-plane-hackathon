@@ -167,3 +167,7 @@ Viveka.Hackathon fixed the native Commit card mention prefix. At 16:58 it render
 ## 2026-11-07 17:11 PST — Natural-question card repair
 
 At Taras's request, Viveka attached the native Commit card to natural discount-strategy questions while the current mandate is pending, instead of requiring the exact Show Commit command. Deployed and verified in Taras's real ASI chat: ordinary question → card → Review direction → local S01. Eleven offline checks pass. Current decision queries use current-mirror receipts; historical audit reads remain explicitly separate. The live mirror still contained a rehearsal approval with Commit pending; no reset or business approval was performed. See `docs/status/Viveka.Hackathon.md` and `reports/evidence/deputy-natural-commit-card.png`.
+
+## 2026-11-07 18:52 PST — Deputy conversation continuation checkpoint
+
+Viveka.Hackathon reports owner-authorized post-demo polish committed in `e1f934e`: the dashboard offers an editable English follow-up and a Copy & return action to the same ASI conversation. She verified S03 → original chat → paste, leaving the draft unsent; this is not an automatic prefill or message send. The Outcomes card now reads “Commitment outcomes.” Her card audit in `app/deputy/agentverse/CARD-COVERAGE.md` records four variants and remaining Memory/Culture and natural-intent gaps. No demo state, owner approval, or business data changed in this step. The coordinator recorded the handoff; the hosted behavior was verified by the worker and was not independently repeated here.
