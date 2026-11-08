@@ -547,6 +547,7 @@ function renderS02(d) {
         <button type="button" class="btn btn-amber" onclick="navigateToFrame('S03')">
           Review possible drift →
         </button>
+        ${deputyReturnAction()}
       </div>
     </div>
   `;
@@ -721,10 +722,11 @@ function renderS03(d) {
         </div>
       </div>
 
-      <div style="display:flex; justify-content:flex-end; margin-top: 14px;">
+      <div style="display:flex; justify-content:flex-end; gap:8px; flex-wrap:wrap; margin-top: 14px;">
         <button type="button" class="btn btn-amber" onclick="navigateToFrame('S04')">
           Review a correction →
         </button>
+        ${deputyReturnAction()}
       </div>
     </div>
   `;
@@ -870,13 +872,14 @@ function renderS04(d) {
           ${renderCiteButton("ev:codex-ep-80901", "See source: founder direction")}
           ${renderCiteButton("ev:culture-crm-blindness", "See source: CRM data completeness check")}
         </div>
-        <div style="display:flex; gap:8px;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <button type="button" class="btn btn-secondary" onclick="navigateToFrame('S05')">
             Request changes
           </button>
           <button type="button" class="btn btn-amber" onclick="navigateToFrame('S05')">
             Review decision →
           </button>
+          ${deputyReturnAction()}
         </div>
       </div>
     </div>
@@ -1084,6 +1087,7 @@ function renderS05(d) {
         <button type="button" class="btn btn-amber" onclick="navigateToFrame('S06')">
           See simulated outcome (Step 6) →
         </button>
+        ${deputyReturnAction()}
       </div>
 
       ${subRows ? `
@@ -1392,6 +1396,7 @@ function renderS06(d) {
         <button type="button" class="btn btn-amber" onclick="navigateToFrame('S01')">
           Return to direction review (Step 1) ↻
         </button>
+        ${deputyReturnAction()}
       </div>
     </div>
   `;

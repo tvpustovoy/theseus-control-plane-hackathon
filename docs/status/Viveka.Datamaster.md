@@ -32,6 +32,7 @@
 - Each reference shows target/constraint and actual evidence gaps. Baseline and proposed direction remain distinct. S06 links back to commitments; fixed synthetic results are explicitly not recalculated after wording edits and are not observed business outcomes.
 - This is a current-state view, not a new persistent version-history ledger. Original saved wording is preserved.
 - Back to Deputy is beside S01 confirmation and S05 decision/application controls, including after save. Uses the validated exact-chat return target; navigation does not save and saving does not redirect.
+- Extended the same validated return action to the bottom review rows of S02, S03 (beside Review a correction), S04, S05 and S06. Flex wrapping keeps actions usable at narrower widths. Syntax and whitespace checks pass; no backend/state change.
 - Checked JavaScript syntax, diff whitespace, rendering from a read-only live-state snapshot, draft/confirmed references and valid/invalid return targets. No restart, reset, model call or business-state mutation. Visual browser review remains for this increment.
 
 ## Post-demo exact Deputy return navigation
