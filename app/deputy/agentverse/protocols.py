@@ -36,6 +36,7 @@ WORKFLOW_LINKS = {
     "theseus_open_evidence": ("Review evidence", "http://127.0.0.1:8765/#S03"),
     "theseus_open_change": ("Review proposed change", "http://127.0.0.1:8765/#S04"),
     "theseus_open_apply": ("Review & apply on website", "http://127.0.0.1:8765/#S05"),
+    "theseus_open_decision": ("Review decision", "http://127.0.0.1:8765/#S05"),
     "theseus_open_simulation": ("View commitment outcomes", "http://127.0.0.1:8765/#S06"),
 }
 
@@ -155,14 +156,27 @@ def wants_direction_card(user_text):
 
 
 def wants_workflow_brief(user_text):
-    return bool(re.search(
+    return wants_approval_review(user_text) or bool(re.search(
         r"against.{0,60}direction|what.{0,35}(?:next|recommend)|"
         r"(?:show|open|review).{0,30}(?:alignment|evidence|proposed change|next step|decision card)|"
         r"что.{0,25}(?:дальше|предлага|рекоменду)|(?:покажи|открой).{0,25}(?:проверк|изменени|плашк)",
         user_text, re.IGNORECASE))
 
 
-def workflow_metadata(state):
+def wants_approval_review(user_text):
+    """A request to review permission is navigation, never permission itself."""
+    if wants_commit_overview(user_text):
+        return False
+    asks_permission = re.search(
+        r"what.{0,35}(?:needs?|requires?).{0,15}(?:my |your )?approval|"
+        r"(?:show|open|review).{0,25}(?:approval|decision screen)|"
+        r"что.{0,30}(?:одобр|утверд|подтверд)|(?:открой|покажи).{0,20}решени", user_text, re.I)
+    reviewed = re.search(r"\b(?:reviewed|read|checked)\b.{0,30}\b(?:proposed change|proposal)\b", user_text, re.I)
+    not_reviewed = re.search(r"\b(?:not|never|haven't|haven’t|hadn't|didn't)\b.{0,20}\b(?:reviewed|read|checked)\b", user_text, re.I)
+    return bool(asks_permission or (reviewed and not not_reviewed))
+
+
+def workflow_metadata(state, user_text=""):
     """A current-session navigation card; all consequential decisions stay on the website."""
     direction_label = "Confirmed by you" if state.get("mandate_status") == "committed_mandate" else "Awaiting your confirmation"
     active = state.get("active_runtime_version") == "tool-v2"
@@ -179,6 +193,12 @@ def workflow_metadata(state):
         actions = ["theseus_open_apply", "theseus_open_evidence"]
         rows = [{"label": "Direction", "value": direction_label},
                 {"label": "Change", "value": status}]
+    elif state.get("mandate_status") == "committed_mandate" and wants_approval_review(user_text):
+        title = "Your approval is needed"
+        actions = ["theseus_open_decision", "theseus_open_change"]
+        rows = [{"label": "Direction", "value": direction_label},
+                {"label": "Change", "value": "Awaiting your approval"},
+                {"label": "Next", "value": "Approve, reject or revise on the website"}]
     else:
         title = "Make the rule measurable"
         actions = ["theseus_open_evidence", "theseus_open_change"]
@@ -200,13 +220,13 @@ def decision_card_for(user_text, memory):
     if not memory.get("connected") or not states:
         return None
     if wants_direction_card(user_text) or wants_workflow_brief(user_text):
-        explicit_review = re.search(r"(?:show|open|review).{0,25}(?:evidence|alignment|proposed change)|(?:покажи|открой).{0,25}(?:проверк|изменени)", user_text, re.IGNORECASE)
+        explicit_review = re.search(r"\b(?:show|open|review)\b.{0,25}(?:evidence|alignment|proposed change)|(?:покажи|открой).{0,25}(?:проверк|изменени)", user_text, re.IGNORECASE)
         if explicit_review and states[0].get("demo_session_id"):
-            return workflow_metadata(states[0])
+            return workflow_metadata(states[0], user_text)
         if states[0].get("mandate_status") == "draft_pending_owner_commit":
             return commit_metadata()
         if states[0].get("mandate_status") == "committed_mandate" and states[0].get("demo_session_id"):
-            return workflow_metadata(states[0])
+            return workflow_metadata(states[0], user_text)
     return None
 
 
@@ -228,6 +248,10 @@ def workflow_response(user_text, memory):
     elif (state.get("decision_record") or {}).get("decision", (state.get("decision_record") or {}).get("action")) == "approve":
         text = ("**You have approved the change, but it has not been applied yet.**\n\n"
                 "Review it on the website before applying it, then check how the sales form behaves.")
+    elif wants_approval_review(user_text):
+        text = ("**The proposed change needs your approval before it can be applied.**\n\n"
+                "Open Review decision to see the exact changes and choose whether to approve, reject or revise them. "
+                "Your direction is already confirmed. Opening the page does not approve or apply the change.")
     else:
         gap = ("The current sales form still does not record why a discount was given, so we cannot check the rule reliably. "
                "That is a gap in our data, not proof of a violation. "

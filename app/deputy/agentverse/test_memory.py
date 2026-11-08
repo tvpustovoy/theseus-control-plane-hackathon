@@ -14,6 +14,7 @@ from unittest.mock import MagicMock, patch
 # The tests exercise retrieval boundaries, not the provider SDK.
 sys.modules.setdefault("openai", types.SimpleNamespace(OpenAI=MagicMock()))
 sys.modules.setdefault("requests", types.SimpleNamespace(get=MagicMock(), post=MagicMock()))
+sys.modules.setdefault("pymongo", types.SimpleNamespace(MongoClient=MagicMock()))
 spec = importlib.util.spec_from_file_location("deputy_http", Path(__file__).with_name("http_client.py"))
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
@@ -21,7 +22,7 @@ spec.loader.exec_module(module)
 
 def card_namespace(memory=None):
     tree = ast.parse(Path(__file__).with_name("protocols.py").read_text())
-    names = {"wants_direction_card", "wants_workflow_brief", "decision_card_for", "workflow_metadata",
+    names = {"wants_direction_card", "wants_workflow_brief", "wants_approval_review", "decision_card_for", "workflow_metadata",
              "workflow_response", "card_response", "commit_metadata", "validated_chat_url",
              "chat_return_context", "with_chat_return", "with_card_links", "wants_commit_overview", "commit_overview_response"}
     constants = {"WORKFLOW_LINKS", "RECORD_ID", "RECORD_VERSION", "COMMIT_ROWS", "COMMIT_URL", "COMMITMENTS_URL", "SNAPSHOT_DATE"}
@@ -142,6 +143,30 @@ class MemoryContract(unittest.TestCase):
         reply, card = ns["workflow_response"]("What should we do next?", memory)
         self.assertIn("active in the demo", reply)
         self.assertIn("View commitment outcomes", card["card_payload"])
+
+    def test_reviewed_proposal_moves_to_decision_without_granting_approval(self):
+        state = {"demo_session_id": "session-a", "mandate_status": "committed_mandate",
+                 "active_runtime_version": "tool-v1", "decision_record": None}
+        memory = {"connected": True, "current_state_records": [state]}
+        ns = card_namespace(memory)
+        question = "I have reviewed the proposed change. What should we do next? Tell me what needs my approval before anything is applied."
+        before = json.dumps(memory, sort_keys=True)
+        reply, card = ns["workflow_response"](question, memory)
+        payload = json.loads(card["card_payload"])
+        self.assertEqual(payload["title"], "Your approval is needed")
+        self.assertEqual(payload["ctas"][0]["label"], "Review decision")
+        self.assertIn("needs your approval", reply)
+        link, _ = ns["card_response"](json.dumps(payload["ctas"][0]["selection"]))
+        self.assertIn("#S05", link)
+        self.assertEqual(json.dumps(memory, sort_keys=True), before)
+        self.assertFalse(ns["wants_approval_review"]("I haven't reviewed the proposed change. What next?"))
+        state["mandate_status"] = "draft_pending_owner_commit"
+        _, card = ns["workflow_response"](question, memory)
+        self.assertIn("Commit · Set our course", card["card_payload"])
+        state["mandate_status"] = "committed_mandate"
+        state["decision_record"] = {"decision": "approve"}
+        _, card = ns["workflow_response"](question, memory)
+        self.assertIn("Review before applying", card["card_payload"])
 
     def test_confirmed_direction_does_not_require_implementation_approval(self):
         memory = {"current_state_records": [{"demo_session_id": "fresh",
