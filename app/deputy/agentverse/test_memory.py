@@ -23,7 +23,7 @@ def card_namespace(memory=None):
     tree = ast.parse(Path(__file__).with_name("protocols.py").read_text())
     names = {"wants_direction_card", "wants_workflow_brief", "decision_card_for", "workflow_metadata",
              "workflow_response", "card_response", "commit_metadata", "validated_chat_url",
-             "chat_return_context", "with_chat_return"}
+             "chat_return_context", "with_chat_return", "with_card_links", "wants_commit_overview", "commit_overview_response"}
     constants = {"WORKFLOW_LINKS", "RECORD_ID", "RECORD_VERSION", "COMMIT_ROWS", "COMMIT_URL", "SNAPSHOT_DATE"}
     nodes = [n for n in tree.body if (isinstance(n, ast.FunctionDef) and n.name in names)
              or (isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id in constants for t in n.targets))]
@@ -33,6 +33,34 @@ def card_namespace(memory=None):
 
 
 class MemoryContract(unittest.TestCase):
+    def test_current_commits_have_live_status_card_and_clickable_return_links(self):
+        state = {"demo_session_id": "session-current", "mandate_status": "committed_mandate",
+                 "active_runtime_version": "tool-v1", "decision_record": None}
+        memory = {"connected": True, "current_state_records": [state]}
+        ns = card_namespace(memory)
+        for question in ("show current commits", "Show Commit", "Please list our current commits",
+                         "What are our confirmed decisions?", "Покажи текущие решения"):
+            reply, metadata = ns["card_response"](question)
+            self.assertIn("Your direction is confirmed", reply)
+            self.assertIn("still needs your approval", reply)
+            linked = ns["with_card_links"](reply, metadata)
+            self.assertIn("#S01)", linked)
+            self.assertIn("#S03)", linked)
+            self.assertIn("#S04)", linked)
+            returned = ns["with_chat_return"](linked, "https://asi1.ai/chat/11111111-2222-3333-4444-555555555555")
+            self.assertEqual(returned.count("?return_to="), 3)
+            self.assertIsNone(state["decision_record"])
+        self.assertFalse(ns["wants_commit_overview"]("show current git commits"))
+        state["mandate_status"] = "draft_pending_owner_commit"
+        reply, metadata = ns["card_response"]("show current commits")
+        self.assertIn("awaiting your confirmation", reply)
+        self.assertIn("Commit · Set our course", metadata["card_payload"])
+        self.assertEqual(ns["with_card_links"](reply, metadata).count("#S01)"), 1)
+        memory["connected"] = False
+        reply, metadata = ns["card_response"]("show current commits")
+        self.assertIn("cannot check", reply)
+        self.assertIsNone(metadata)
+
     def test_return_link_uses_current_asi_chat_session_and_scopes_explicit_override(self):
         ns = card_namespace()
         saved = {}

@@ -83,6 +83,48 @@ def with_chat_return(text, return_to):
     return text
 
 
+def with_card_links(text, metadata):
+    """Every navigation card also has usable links, independent of card rendering."""
+    if not metadata:
+        return text
+    payload = json.loads(metadata.get("card_payload", "{}"))
+    routes = {"theseus_open_commit": ("Review direction", COMMIT_URL), **WORKFLOW_LINKS}
+    links = []
+    for cta in payload.get("ctas", []):
+        route = routes.get(cta.get("selection", {}).get("action"))
+        if route and route[1] not in text:
+            links.append(f"[{route[0]} →]({route[1]})")
+    return text + ("\n\n" + " · ".join(links) if links else "")
+
+
+def wants_commit_overview(user_text):
+    """Recognize requests for organizational commitments, excluding source-control commits."""
+    if re.search(r"\b(?:git|github|repository|repo|sha|branch)\b", user_text, re.I):
+        return False
+    topic = re.search(r"\bcommits?\b|(?:current|confirmed|approved)\s+(?:direction|decisions)|текущ.{0,12}(?:решени|коммит)", user_text, re.I)
+    request = re.search(r"\b(?:show|open|review|list|what|current|status)\b|покажи|открой|какие", user_text, re.I)
+    return bool(topic and request)
+
+
+def commit_overview_response(user_text, memory):
+    states = memory.get("current_state_records") or []
+    if not memory.get("connected") or not states:
+        return ("I cannot check the current direction right now. "
+                f"[Open the dashboard →]({COMMIT_URL})", None)
+    state = states[0]
+    if state.get("mandate_status") == "committed_mandate":
+        text = "Your direction is confirmed."
+        if state.get("active_runtime_version") == "tool-v2":
+            text += " The approved changes are active in the demo."
+        elif (state.get("decision_record") or {}).get("decision", (state.get("decision_record") or {}).get("action")) == "approve":
+            text += " The implementation change is approved but has not been applied yet."
+        else:
+            text += " The implementation change still needs your approval. Review the evidence and proposed change next."
+    else:
+        text = "Your direction is still a draft awaiting your confirmation. Review it before deciding."
+    return text + f"\n\n[Review current direction →]({COMMIT_URL})", decision_card_for(user_text, memory)
+
+
 def commit_metadata():
     def selection(action):
         return {"action": action, "record_id": RECORD_ID, "version": RECORD_VERSION}
@@ -108,7 +150,7 @@ def wants_direction_card(user_text):
     topic = re.search(r"discount|скид", user_text, re.IGNORECASE)
     direction = re.search(r"strateg|polic|rule|direction|propos|стратег|правил|предлож|политик", user_text, re.IGNORECASE)
     explicit = re.search(r"(?:show|open|review|покажи|открой).{0,30}(?:decision card|direction|карточк|плашк)", user_text, re.IGNORECASE)
-    return bool((topic and direction) or explicit)
+    return bool((topic and direction) or explicit or wants_commit_overview(user_text))
 
 
 def wants_workflow_brief(user_text):
@@ -239,12 +281,8 @@ def card_response(user_text):
         return (
             "We want to grow sales while protecting margin, and help customers see value before offering discounts. "
             "This is a draft for discussion. What would you change: the goal, the rules, or the culture?", None)
-    if re.search(r"\b(show|open|покажи|открой)\s+commit\b", user_text, re.IGNORECASE):
-        return (
-            "Let’s agree what your AI employees should protect.\n\n"
-            f"[Open Commit in Theseus →]({COMMIT_URL})\n\n"
-            "Review the proposed direction on the dashboard.",
-            commit_metadata())
+    if wants_commit_overview(user_text):
+        return commit_overview_response(user_text, read_memory())
     return None
 
 SYSTEM_PROMPT = (
@@ -291,7 +329,8 @@ SYSTEM_PROMPT = (
     "After confirmation, the handler adds a current-session card with Review evidence / Review proposed change. "
     "An approved change gets Review & apply on website; an active demo gets behavior and simulation links. "
     "These are navigation cards, never approval actions. Refer only to the relevant known card. "
-    "'Show Commit' opens the recorded draft explicitly. Never invent cards, URLs or interfaces outside these known routes.\n"
+    "Requests to show current commits read the current direction and return its review link with a relevant navigation card. "
+    "Never invent cards, URLs or interfaces outside these known routes.\n"
     "GROUNDING: Never turn an example, proposal, assumption or an AI's earlier statement into an "
     "observed fact. Repeated anecdotes are not a proven culture trend. Ask for sources, time window "
     "and denominator when relevant. A rollback must restore an explicitly approved, safer baseline; "
@@ -306,7 +345,7 @@ SYSTEM_PROMPT += "\n\n" + REPLY_STYLE
 
 
 def create_text_chat(text: str, metadata=None, return_to=None) -> ChatMessage:
-    content = [TextContent(type="text", text=with_chat_return(text, return_to))]
+    content = [TextContent(type="text", text=with_chat_return(with_card_links(text, metadata), return_to))]
     if metadata is not None:
         content.append(MetadataContent(type="metadata", metadata=metadata))
     return ChatMessage(timestamp=datetime.utcnow(), msg_id=uuid4(), content=content)

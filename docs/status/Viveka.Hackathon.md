@@ -1,5 +1,13 @@
 # Viveka.Hackathon · Agentverse setup
 
+## Current commitments always include navigation
+
+Taras's exact `show current commits` query fell through the former exact `Show Commit` shortcut and received prose without a card or link. Added a current-commitment intent covering singular/plural and ordinary status wording (excluding Git requests). It reads the fresh current-state mirror, distinguishes confirmed direction from implementation approval/application, and links directly to S01 plus the relevant current-session card. Every navigation card now also includes its known destinations as ordinary Markdown links, so navigation does not depend solely on card rendering or model wording. All links receive the existing exact-chat return_to parameter. Twenty offline checks pass, including the exact failing query, state distinctions, missing memory, unchanged decisions, and return links.
+
+Hosted update verified at 18:15 PST in the owner's actual failing conversation: the identical query returned a concise current-status answer, three clickable links (S01/S03/S04) and the native workflow card. Opened the direction link and clicked Back to Deputy; the same conversation/history loaded. Proof: reports/evidence/deputy-current-commits-links.png. No direction, implementation or demo state was changed.
+
+Taras additionally authorized Datamaster to build a dedicated Current Commitments screen and attach S06 progress/trajectories to the commitments being monitored. Sent the implementation request through ours (wire 703F2412C9E2A5AEB172513F8C9CE9780E07D52BF3F41B679016243B09A89366), copied the coordinator, and requested the stable screen route/data contract for Deputy integration. The requested overview includes confirmed goals, rules/principles/culture, monitoring targets and evidence gaps, with actual observations separate from simulation. Pending Datamaster delivery: Deputy currently links to S01 for direction review; the separate overview is not yet claimed as implemented.
+
 ## Post-demo polish: concise replies and return to conversation
 
 At Taras's explicit request after his first demonstration, tightened the default to 35–65 words, with at most three one-sentence lines for Facts / Principles / Your decision. Replies over 80 words get one editing pass; an explicit request for detail is exempt. An incomplete or failed edit preserves the full original answer rather than truncating an approval/uncertainty statement. Cards still carry the next step. No business authority or retrieval scope changed.
