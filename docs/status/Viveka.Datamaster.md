@@ -16,3 +16,10 @@
 - Single server running at `http://127.0.0.1:8765/`, backend `mongodb_atlas`. Live `/`, `/api/state`, `/api/memory/overview`, source pages return HTTP 200; invalid empty question returns 400. Existing S01–S06 and reset passed before the new route; S01–S06 remained present after restart.
 - In-app browser automation was unavailable, so visual layout has not been screenshot-verified. Browser QA and a post-change reset check remain.
 - No `app/deputy/agentverse/` changes or public raw-data exposure. The source browser is metadata-only until owner-approved access/UI scope is defined.
+
+## Final live recheck
+
+- Commit `91dd768` adds explicit Atlas derived counts: `claims=0`, `source_chunks=0`, `extraction_runs=0`. Muse's 3,351 candidate claims remain labeled as a local private checkpoint, not stored Atlas facts.
+- `/api/memory/overview` returned HTTP 200 on Atlas; first and next source pages each returned two distinct metadata records.
+- Two real Opus 5.5 questions succeeded. The discount answer separated verified counts from uncertain outcomes; the unexpected churn/revenue question declined to name a customer or amount. Both returned citation IDs and no raw/private path or credential pattern in the public answer. Private run IDs: `27b0d4febdd54d24b0a7826f4591aad8`, `4e3dab23f05248fdba3eb6d509607af7`.
+- Post-change `POST /api/reset` returned HTTP 200, restored `mandate-v1`, retained `S01`–`S06` and Organization Memory remained available with verified receipt. The sole server is running on localhost port 8765.
