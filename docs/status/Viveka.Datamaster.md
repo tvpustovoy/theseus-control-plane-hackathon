@@ -26,6 +26,14 @@
 
 ## Acceptance — complete
 
+## Current Commitments and decision-row return — 2026-11-07
+
+- Added `/#COMMITMENTS`, using existing `/api/state` fields: `s01_commit` for goal, principle, culture, monitoring, version and confirmation; `s05_application` for the separate implementation decision/runtime; `s06_track.ui_metrics` for linked simulation proxies. No new backend contract.
+- Each reference shows target/constraint and actual evidence gaps. Baseline and proposed direction remain distinct. S06 links back to commitments; fixed synthetic results are explicitly not recalculated after wording edits and are not observed business outcomes.
+- This is a current-state view, not a new persistent version-history ledger. Original saved wording is preserved.
+- Back to Deputy is beside S01 confirmation and S05 decision/application controls, including after save. Uses the validated exact-chat return target; navigation does not save and saving does not redirect.
+- Checked JavaScript syntax, diff whitespace, rendering from a read-only live-state snapshot, draft/confirmed references and valid/invalid return targets. No restart, reset, model call or business-state mutation. Visual browser review remains for this increment.
+
 ## Post-demo exact Deputy return navigation
 
 - Static UI changes: `app/ui/index.html`, `app/ui/app.js`; initial checkpoints `0197e58`, `61d5209`.

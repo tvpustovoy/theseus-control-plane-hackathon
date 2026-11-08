@@ -93,6 +93,15 @@ function updateDeputyReturn() {
   }
 }
 
+function deputyReturnAction() {
+  const values = new URL(window.location.href).searchParams.getAll('return_to');
+  let target = values.length === 1 ? validDeputyReturn(values[0]) : null;
+  if (!values.length) {
+    try { target = validDeputyReturn(sessionStorage.getItem('theseus.deputyReturn')); } catch (_) {}
+  }
+  return target ? `<a class="btn btn-secondary" href="${esc(target)}">Back to Deputy</a>` : '';
+}
+
 function provenanceBadgeClass(cat) {
   const s = String(cat || "").toLowerCase();
   if (s.includes("simulation") || s.includes("prepared")) return "amber";
@@ -139,7 +148,7 @@ async function postApi(path, payload) {
 
 function setFrameFromHash() {
   const hash = (window.location.hash || "#MEMORY").replace("#", "").toUpperCase();
-  const valid = ["MEMORY", "S01", "S02", "S03", "S04", "S05", "S06"];
+  const valid = ["MEMORY", "COMMITMENTS", "S01", "S02", "S03", "S04", "S05", "S06"];
   stateStore.currentFrame = valid.includes(hash) ? hash : "MEMORY";
   // Keep evidence drawer closed on fresh route navigation
   closeEvidenceDrawer(false);
@@ -382,6 +391,7 @@ function renderS01(d) {
           <button type="button" class="btn btn-amber" id="btn-commit-mandate" onclick="handleCommitMandate()">
             ${isCommitted ? "Update confirmed direction &amp; monitoring scope" : "Confirm direction &amp; monitoring scope"}
           </button>
+          ${deputyReturnAction()}
           <button type="button" class="btn btn-secondary" onclick="toggleS01Edit()">
             ${stateStore.s01EditOpen ? "Hide edit fields" : "Edit direction"}
           </button>
@@ -944,6 +954,7 @@ function renderS05(d) {
             <button type="button" class="btn btn-secondary" onclick="handleProposalDecision('reject')">
               Reject
             </button>
+            ${deputyReturnAction()}
           </div>
           ${dec ? `
             <div style="margin-top:10px; font-size:0.84rem;">
@@ -975,6 +986,7 @@ function renderS05(d) {
             <button type="button" class="btn btn-teal" onclick="handleActivateCandidate()" ${!isApproved || isApplied ? "disabled" : ""}>
               ${isApplied ? "Applied in demo ✓" : "Apply in demo"}
             </button>
+            ${deputyReturnAction()}
             ${isApplied ? `
               <button type="button" class="btn btn-secondary" onclick="handleRollbackCandidate()">
                 Roll back to previous baseline
@@ -1385,6 +1397,60 @@ function renderS06(d) {
   `;
 }
 
+function commitmentRows(d) {
+  const c = d.s01_commit;
+  const confirmed = c.mandate_status === 'committed_mandate';
+  const version = c.committed_version;
+  const common = { version, confirmed, confirmedAt: c.effective_time, approvedBy: c.approved_by };
+  return [
+    { ...common, id: confirmed ? c.intent_and_goal.id : 'goal-v1:quarterly-pipeline', kind: 'Goal',
+      text: confirmed ? c.intent_and_goal.proposed_text : c.intent_and_goal.previous_text,
+      target: confirmed ? c.intent_and_goal.success_measure : 'Quarterly pipeline targets; numeric target not recorded in this baseline.',
+      metric: 'avg_discount_pct_when_offered', metricLabel: 'Average offered discount', gap: 'Verified revenue and list-price realization are not measured. Offered discount is a simulation proxy.' },
+    { ...common, id: confirmed ? c.governing_principle.id : 'codex-v1:flexible-discounts', kind: 'Rule / principle',
+      text: confirmed ? c.governing_principle.proposed_text : c.governing_principle.previous_text,
+      target: confirmed ? c.governing_principle.authority_boundary : 'Flexible seller discounts; proposed reciprocity rule remains unconfirmed.',
+      metric: 'value_exchange_share_pct', metricLabel: 'Discounts with customer commitment', gap: 'Historical CRM discount outcomes and reciprocity are not established.' },
+    { ...common, id: 'culture:value-before-price', kind: 'Culture', text: c.culture_to_protect.protect,
+      target: c.culture_to_protect.risk_to_watch, pending: !confirmed, metric: null,
+      gap: 'No direct culture-outcome metric. Conversation evidence and risk hypotheses require review.' },
+    { ...common, id: 'monitoring:discount-exceptions', kind: 'Monitoring', text: c.monitoring_mandate.signals_watched.join('; '),
+      target: c.monitoring_mandate.escalation_criteria, pending: !confirmed, metric: null,
+      gap: c.monitoring_mandate.known_coverage_gap }
+  ];
+}
+
+function renderCommitments(d) {
+  const c = d.s01_commit;
+  const app = d.s05_application;
+  const ui = d.s06_track.ui_metrics || {};
+  const arms = ui.arms || {};
+  const confirmed = c.mandate_status === 'committed_mandate';
+  return `<div class="card"><div class="card-kicker">CURRENT AGREEMENT</div><h2>Current Commitments</h2>
+    <p>Direction: <strong>${confirmed ? 'Confirmed' : 'Baseline active; updated direction awaits confirmation'}</strong> · ${esc(c.committed_version)}</p>
+    <p>Implementation decision: <strong>${esc(app.decision_record?.human_decision_label || app.decision_record?.action || 'No decision recorded')}</strong> · Runtime: <strong>${esc(app.active_runtime_version)}</strong></p>
+    <p class="muted">${esc(c.human_monitoring_status)}. Direction confirmation, implementation approval and application are separate steps.</p>
+    <p><a class="cite-btn" href="#S01">Review / update direction</a> <a class="cite-btn" href="#S05">Implementation decision</a> <a class="cite-btn" href="#S06">Progress and simulation</a></p>
+    ${commitmentRows(d).map(row => {
+      const before = arms.before?.overall?.[row.metric];
+      const after = arms.combined?.overall?.[row.metric];
+      return `<article class="subcard" style="margin-top:16px"><div class="card-kicker">${esc(row.kind)}</div>
+        <p><span class="status-pill ${row.pending ? 'amber' : 'teal'}">${row.pending ? 'Proposed — not confirmed' : row.confirmed ? 'Confirmed direction' : 'Existing baseline'}</span></p>
+        <p>${esc(row.text)}</p>
+        <details><summary>Commitment reference and confirmation</summary><p class="mono">${esc(row.id)} @ ${esc(row.pending ? c.draft_version : row.version)}</p>
+        <p>Confirmed at: ${esc(row.confirmedAt || 'Not recorded')} · By: ${esc(row.approvedBy || 'Not recorded')}</p>
+        <p class="muted">Original wording is preserved. Any draft/awaiting-approval wording inside it describes its origin; the status above reports the current direction decision.</p></details>
+        <p><strong>Target / constraint:</strong> ${esc(row.target)}</p>
+        <p><strong>Actual evidence gap:</strong> ${esc(row.gap)}</p>
+        ${row.metric ? `<p><span class="status-pill amber">SIMULATION — linked illustrative scenario</span></p>
+        <p>${esc(row.metricLabel)}: ${before == null ? 'Not available' : esc(before) + '%'} → ${after == null ? 'Not available' : esc(after) + '%'} (baseline → combined scenario).</p>
+        <p class="muted">Synthetic cohort: ${esc(ui.total_synthetic_leads ?? 'unknown')} leads. This fixed scenario is not recalculated when direction wording changes. It does not establish an observed business outcome or prove that the change has been applied.</p>` : ''}
+        <a class="cite-btn" href="${row.metric ? '#S06' : row.kind === 'Culture' ? '#S02' : '#S05'}">${row.metric ? 'Inspect linked simulation' : 'Inspect evidence / coverage'}</a>
+        </article>`;
+    }).join('')}
+    <p class="muted">Current server state as of ${esc(d.timestamp)}. This view does not create approvals or change saved wording.</p></div>`;
+}
+
 function renderAll() {
   const d = stateStore.data;
   if (!d) return;
@@ -1409,6 +1475,9 @@ function renderAll() {
   if (!stage) return;
 
   switch (stateStore.currentFrame) {
+    case "COMMITMENTS":
+      stage.innerHTML = renderCommitments(d);
+      break;
     case "MEMORY":
       stage.innerHTML = renderMemory();
       break;
@@ -1428,7 +1497,11 @@ function renderAll() {
       stage.innerHTML = renderS05(d);
       break;
     case "S06":
-      stage.innerHTML = renderS06(d);
+      stage.innerHTML = `<div class="card"><h3>Commitments monitored by this simulation</h3>
+        <p>${d.s01_commit.mandate_status === 'committed_mandate' ? 'Confirmed direction' : 'Proposed direction preview'} · ${esc(d.s01_commit.mandate_status === 'committed_mandate' ? d.s01_commit.committed_version : d.s01_commit.draft_version)}</p>
+        <p class="mono">${esc(d.s01_commit.intent_and_goal.id)} · ${esc(d.s01_commit.governing_principle.id)}</p>
+        <p>Discount rate and average discount are goal proxies. Customer commitment and justification measure rule behavior; consistency is a simulated rule check. The references link this illustrative scenario to the current direction; the fixed simulation is not recalculated when wording changes. Culture and real revenue effects remain unmeasured.</p>
+        <a class="cite-btn" href="#COMMITMENTS">View commitments, targets and evidence gaps</a></div>` + renderS06(d);
       break;
     default:
       stage.innerHTML = renderS01(d);
@@ -1522,7 +1595,7 @@ window.addEventListener("DOMContentLoaded", () => {
     });
   }
   const hash = (window.location.hash || "#MEMORY").replace("#", "").toUpperCase();
-  const valid = ["MEMORY", "S01", "S02", "S03", "S04", "S05", "S06"];
+  const valid = ["MEMORY", "COMMITMENTS", "S01", "S02", "S03", "S04", "S05", "S06"];
   stateStore.currentFrame = valid.includes(hash) ? hash : "MEMORY";
   fetchState().then(() => {
     if (stateStore.currentFrame === "MEMORY") loadMemory();
