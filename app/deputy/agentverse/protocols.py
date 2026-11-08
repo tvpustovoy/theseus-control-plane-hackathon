@@ -2,6 +2,7 @@ import json
 import re
 from datetime import datetime
 from uuid import uuid4
+from urllib.parse import quote, urlsplit
 
 from uagents import Context, Protocol
 from uagents.experimental.chat_agent.protocol import build_llm_message_history
@@ -36,6 +37,46 @@ WORKFLOW_LINKS = {
     "theseus_open_apply": ("Review & apply on website", "http://127.0.0.1:8765/#S05"),
     "theseus_open_simulation": ("View simulation", "http://127.0.0.1:8765/#S06"),
 }
+
+
+def validated_chat_url(value):
+    """Only an explicit ASI conversation URL; agent session IDs are not browser IDs."""
+    if not isinstance(value, str):
+        return None
+    try:
+        parsed = urlsplit(value)
+        if parsed.scheme != "https" or parsed.netloc != "asi1.ai":
+            return None
+        if not re.fullmatch(r"/chat/[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}", parsed.path):
+            return None
+        return "https://asi1.ai" + parsed.path
+    except ValueError:
+        return None
+
+
+def chat_return_context(ctx, user_text):
+    session = getattr(ctx, "session", None)
+    key = "theseus-return-chat:" + str(session) if session else None
+    # ASI may paraphrase the user's command before forwarding it to the agent.
+    linking = re.search(r"\b(?:connect|link|associate)\b", user_text, re.I)
+    match = re.search(r"https://asi1\.ai/chat/[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}(?=$|[\s?\#)\]>'\"])", user_text) if linking else None
+    if match:
+        url = validated_chat_url(match.group(0))
+        if not url or not key:
+            return None, "Please use the full https://asi1.ai/chat/... address of this conversation. Nothing else changed."
+        ctx.storage.set(key, url)
+        return url, "Connected. Dashboard links will return to this conversation."
+    return (validated_chat_url(ctx.storage.get(key)) if key else None), None
+
+
+def with_chat_return(text, return_to):
+    url = validated_chat_url(return_to)
+    if not url:
+        return text
+    for target in [COMMIT_URL, *(link[1] for link in WORKFLOW_LINKS.values())]:
+        root, fragment = target.split("#", 1)
+        text = text.replace(target, root + "?return_to=" + quote(url, safe="") + "#" + fragment)
+    return text
 
 
 def commit_metadata():
@@ -260,8 +301,8 @@ SYSTEM_PROMPT = (
 SYSTEM_PROMPT += "\n\n" + REPLY_STYLE
 
 
-def create_text_chat(text: str, metadata=None) -> ChatMessage:
-    content = [TextContent(type="text", text=text)]
+def create_text_chat(text: str, metadata=None, return_to=None) -> ChatMessage:
+    content = [TextContent(type="text", text=with_chat_return(text, return_to))]
     if metadata is not None:
         content.append(MetadataContent(type="metadata", metadata=metadata))
     return ChatMessage(timestamp=datetime.utcnow(), msg_id=uuid4(), content=content)
@@ -303,9 +344,14 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
         )
         return
 
+    return_to, connection_reply = chat_return_context(ctx, user_text)
+    if connection_reply:
+        await ctx.send(sender, create_text_chat(connection_reply))
+        return
+
     card_reply = card_response(user_text)
     if card_reply is not None:
-        await ctx.send(sender, create_text_chat(*card_reply))
+        await ctx.send(sender, create_text_chat(*card_reply, return_to=return_to))
         return
 
     if not llm_available():
@@ -354,7 +400,7 @@ async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
     else:
         reply = response
 
-    await ctx.send(sender, create_text_chat(reply, metadata))
+    await ctx.send(sender, create_text_chat(reply, metadata, return_to=return_to))
 
 
 @chat_protocol.on_message(ChatAcknowledgement)

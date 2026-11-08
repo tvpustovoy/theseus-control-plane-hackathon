@@ -8,6 +8,7 @@ from pathlib import Path
 import sys
 import types
 import unittest
+from urllib.parse import quote, urlsplit
 from unittest.mock import MagicMock, patch
 
 # The tests exercise retrieval boundaries, not the provider SDK.
@@ -21,16 +22,57 @@ spec.loader.exec_module(module)
 def card_namespace(memory=None):
     tree = ast.parse(Path(__file__).with_name("protocols.py").read_text())
     names = {"wants_direction_card", "wants_workflow_brief", "decision_card_for", "workflow_metadata",
-             "workflow_response", "card_response", "commit_metadata"}
+             "workflow_response", "card_response", "commit_metadata", "validated_chat_url",
+             "chat_return_context", "with_chat_return"}
     constants = {"WORKFLOW_LINKS", "RECORD_ID", "RECORD_VERSION", "COMMIT_ROWS", "COMMIT_URL", "SNAPSHOT_DATE"}
     nodes = [n for n in tree.body if (isinstance(n, ast.FunctionDef) and n.name in names)
              or (isinstance(n, ast.Assign) and any(isinstance(t, ast.Name) and t.id in constants for t in n.targets))]
-    namespace = {"re": re, "json": json, "read_memory": lambda: memory}
+    namespace = {"re": re, "json": json, "quote": quote, "urlsplit": urlsplit, "read_memory": lambda: memory}
     exec(compile(ast.Module(body=nodes, type_ignores=[]), "card-contract", "exec"), namespace)
     return namespace
 
 
 class MemoryContract(unittest.TestCase):
+    def test_return_link_uses_only_explicit_valid_chat_in_same_session(self):
+        ns = card_namespace()
+        saved = {}
+        ctx = types.SimpleNamespace(session="one", storage=types.SimpleNamespace(
+            get=saved.get, set=lambda k, v: saved.update({k: v})))
+        url = "https://asi1.ai/chat/11111111-2222-3333-4444-555555555555"
+        returned, reply = ns["chat_return_context"](ctx, "Connect this chat: " + url)
+        self.assertEqual(returned, url)
+        self.assertIn("Connected", reply)
+        self.assertEqual(ns["chat_return_context"](ctx, "Please connect the current conversation at " + url + " to the dashboard.")[0], url)
+        self.assertEqual(ns["chat_return_context"](ctx, "Show Commit")[0], url)
+        ctx.session = "two"
+        self.assertIsNone(ns["chat_return_context"](ctx, "Show Commit")[0])
+        for bad in ["https://evil.example/chat/a", "javascript:alert(1)", "https://asi1.ai.evil.example/chat/a", "https://asi1.ai/chat"]:
+            self.assertIsNone(ns["validated_chat_url"](bad))
+        for frame in ["S01", "S03", "S04", "S05", "S06"]:
+            linked = ns["with_chat_return"]("[Open](http://127.0.0.1:8765/#" + frame + ")", url)
+            self.assertIn("?return_to=" + quote(url, safe="") + "#" + frame, linked)
+
+    def test_long_brief_gets_one_edit_without_truncating_approval_status(self):
+        client = MagicMock()
+        short = "Facts: Discount reasons are missing. Principle: Require a customer commitment. Your decision: Review the direction; implementation still needs separate approval."
+        client.chat.completions.create.return_value.choices = [types.SimpleNamespace(
+            finish_reason="stop", message=types.SimpleNamespace(content=short))]
+        original = "This is an overly detailed answer. " * 25
+        self.assertEqual(module.concise_reply(client, original, "Separate facts, principles and decisions."), short)
+        self.assertEqual(client.chat.completions.create.call_count, 1)
+        client.reset_mock()
+        self.assertEqual(module.concise_reply(client, original, "Give a detailed report."), original)
+        client.chat.completions.create.assert_not_called()
+
+    def test_failed_or_incomplete_edit_preserves_complete_grounded_answer(self):
+        client = MagicMock()
+        original = "The approved direction is not yet implemented. " * 20
+        client.chat.completions.create.return_value.choices = [types.SimpleNamespace(
+            finish_reason="length", message=types.SimpleNamespace(content="The change is"))]
+        self.assertEqual(module.concise_reply(client, original, "What is the status?"), original)
+        client.chat.completions.create.side_effect = RuntimeError("unavailable")
+        self.assertEqual(module.concise_reply(client, original, "What is the status?"), original)
+
     def test_company_deal_count_never_uses_demo_count(self):
         memory = {"connected": True, "organization_counts": {
             "crm_deal_records": {"count": 6102, "scope": "imported_snapshot_rows"},
