@@ -1425,35 +1425,119 @@ function commitmentRows(d) {
   ];
 }
 
+function commitmentList(d) {
+  if (Array.isArray(d.commitments)) return d.commitments.map(row => ({
+    ...row, confirmedAt: row.confirmed_at || row.accepted_at || null,
+    changedAt: row.updated_at || row.confirmed_at || row.accepted_at || null,
+    confirmed: row.status === 'confirmed', pending: row.status === 'proposed',
+  }));
+  return commitmentRows(d).map(row => ({
+    ...row, key: 'snapshot:' + row.kind,
+    confirmedAt: row.confirmed ? row.confirmedAt : null,
+    changedAt: row.confirmed ? row.confirmedAt : null,
+  }));
+}
+
+function commitmentSeenKey(d) {
+  return 'theseus.commitments.reviewed.' + d.organization_id + '.' + d.demo_session_id;
+}
+
+function commitmentFingerprint(row) {
+  const value = JSON.stringify([row.text, row.target, row.version, row.confirmed, row.pending, row.changedAt]);
+  let hash = 2166136261;
+  for (let i = 0; i < value.length; i++) hash = Math.imul(hash ^ value.charCodeAt(i), 16777619);
+  return (hash >>> 0).toString(16);
+}
+
+function commitmentReviewState(d, rows) {
+  let seen = null;
+  try { seen = JSON.parse(localStorage.getItem(commitmentSeenKey(d))); } catch (_) {}
+  if (!seen || typeof seen !== 'object' || Array.isArray(seen)) {
+    seen = Object.fromEntries(rows.map(row => [row.key || row.id, commitmentFingerprint(row)]));
+    try { localStorage.setItem(commitmentSeenKey(d), JSON.stringify(seen)); } catch (_) {}
+  }
+  return seen;
+}
+
+function markCommitmentsReviewed() {
+  const d = stateStore.data;
+  const seen = Object.fromEntries(commitmentList(d).map(row => [row.key || row.id, commitmentFingerprint(row)]));
+  try { localStorage.setItem(commitmentSeenKey(d), JSON.stringify(seen)); }
+  catch (_) { alert('This browser cannot save review markers.'); return; }
+  renderAll();
+}
+
+function commitmentDate(value) {
+  if (!value) return 'Date not recorded';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? 'Date not recorded' :
+    date.toLocaleString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit'});
+}
+
+async function refreshCommitments() {
+  try { await fetchState(); }
+  catch (_) {
+    const feedback = document.getElementById('commitments-feedback');
+    if (feedback) feedback.textContent = 'Could not refresh. Your displayed list is unchanged; try again.';
+  }
+}
+
+async function checkCommitmentUpdates() {
+  if (document.hidden || stateStore.currentFrame !== 'COMMITMENTS') return;
+  try {
+    const response = await fetch('/api/state');
+    if (!response.ok) return;
+    const payload = await response.json();
+    const next = payload.state || payload;
+    if (JSON.stringify(commitmentList(next)) !== JSON.stringify(commitmentList(stateStore.data))) {
+      stateStore.data = next;
+      renderAll();
+    }
+  } catch (_) { /* Keep the last successfully loaded list; manual refresh reports errors. */ }
+}
+
 function renderCommitments(d) {
+  const rows = commitmentList(d);
+  const seen = commitmentReviewState(d, rows);
+  const changes = row => !Object.hasOwn(seen, row.key || row.id) ? 'New' :
+    seen[row.key || row.id] !== commitmentFingerprint(row) ? 'Updated' : '';
+  rows.sort((a,b) => Number(Boolean(changes(b))) - Number(Boolean(changes(a))) ||
+    (Date.parse(b.changedAt) || 0) - (Date.parse(a.changedAt) || 0));
+  const changedCount = rows.filter(changes).length;
   const c = d.s01_commit;
-  const app = d.s05_application;
-  const ui = d.s06_track.ui_metrics || {};
-  const arms = ui.arms || {};
-  const confirmed = c.mandate_status === 'committed_mandate';
-  return `<div class="card"><div class="card-kicker">CURRENT AGREEMENT</div><h2>Current Commitments</h2>
-    <p>Direction: <strong>${confirmed ? 'Confirmed' : 'Baseline active; updated direction awaits confirmation'}</strong> · ${esc(c.committed_version)}</p>
-    <p>Implementation decision: <strong>${esc(app.decision_record?.human_decision_label || app.decision_record?.action || 'No decision recorded')}</strong> · Runtime: <strong>${esc(app.active_runtime_version)}</strong></p>
-    <p class="muted">${esc(c.human_monitoring_status)}. Direction confirmation, implementation approval and application are separate steps.</p>
-    <p><a class="cite-btn" href="#S01">Review / update direction</a> <a class="cite-btn" href="#S05">Implementation decision</a> <a class="cite-btn" href="#S06">Progress and simulation</a></p>
-    ${commitmentRows(d).map(row => {
-      const before = arms.before?.overall?.[row.metric];
-      const after = arms.combined?.overall?.[row.metric];
-      return `<article class="subcard" style="margin-top:16px"><div class="card-kicker">${esc(row.kind)}</div>
-        <p><span class="status-pill ${row.pending ? 'amber' : 'teal'}">${row.pending ? 'Proposed — not confirmed' : row.confirmed ? 'Confirmed direction' : 'Existing baseline'}</span></p>
-        <p>${esc(row.text)}</p>
-        <details><summary>Commitment reference and confirmation</summary><p class="mono">${esc(row.id)} @ ${esc(row.pending ? c.draft_version : row.version)}</p>
-        <p>Confirmed at: ${esc(row.confirmedAt || 'Not recorded')} · By: ${esc(row.approvedBy || 'Not recorded')}</p>
-        <p class="muted">Original wording is preserved. Any draft/awaiting-approval wording inside it describes its origin; the status above reports the current direction decision.</p></details>
-        <p><strong>Target / constraint:</strong> ${esc(row.target)}</p>
-        <p><strong>Actual evidence gap:</strong> ${esc(row.gap)}</p>
-        ${row.metric ? `<p><span class="status-pill amber">SIMULATION — linked illustrative scenario</span></p>
-        <p>${esc(row.metricLabel)}: ${before == null ? 'Not available' : esc(before) + '%'} → ${after == null ? 'Not available' : esc(after) + '%'} (baseline → combined scenario).</p>
-        <p class="muted">Synthetic cohort: ${esc(ui.total_synthetic_leads ?? 'unknown')} leads. This fixed scenario is not recalculated when direction wording changes. It does not establish an observed business outcome or prove that the change has been applied.</p>` : ''}
-        <a class="cite-btn" href="${row.metric ? '#S06' : row.kind === 'Culture' ? '#S02' : '#S05'}">${row.metric ? 'Inspect linked simulation' : 'Inspect evidence / coverage'}</a>
-        </article>`;
-    }).join('')}
-    <p class="muted">Current server state as of ${esc(d.timestamp)}. This view does not create approvals or change saved wording.</p></div>`;
+  return `<section class="commitments-page" aria-labelledby="commitments-title">
+    <header class="commitments-heading"><div><h2 id="commitments-title">Commitments</h2>
+    <p>What we agreed, and when.</p></div>
+    <a class="btn btn-secondary" href="#S01">Review direction</a></header>
+    <div class="commitments-toolbar">
+      <span role="status">${changedCount ? `<strong>${changedCount} new or updated since your last review</strong>` : `${rows.length} items · Latest first`}</span>
+      <div><button class="btn btn-secondary" onclick="refreshCommitments()">Refresh</button>
+      ${changedCount ? '<button class="btn btn-secondary" onclick="markCommitmentsReviewed()">Mark as reviewed</button>' : ''}</div>
+    </div>
+    <p id="commitments-feedback" role="status"></p>
+    <div class="commitments-columns" aria-hidden="true"><span>Commitment</span><span>${Array.isArray(d.commitments) ? 'Accepted' : 'Last confirmed'}</span><span>Status</span></div>
+    <div class="commitments-list">${rows.length ? rows.map(row => {
+      const change = changes(row);
+      const status = row.status || (row.pending ? 'Proposed' : row.confirmed ? 'Confirmed' : 'Baseline');
+      return `<details class="commitment-item ${change ? 'has-change' : ''}">
+        <summary><span class="commitment-main"><span class="commitment-kind">${esc(row.kind || 'Commitment')}${change ? ` <b class="commitment-change">${change}</b>` : ''}</span>
+        <span class="commitment-text">${esc(row.text)}</span></span>
+        <span class="commitment-date">${esc(commitmentDate(row.confirmedAt))}</span>
+        <span class="commitment-status">${esc(status)}<span class="commitment-expand" aria-hidden="true"></span></span></summary>
+        <div class="commitment-detail">
+          ${row.target ? `<p><strong>Target / constraint</strong><br>${esc(row.target)}</p>` : ''}
+          ${row.gap ? `<p><strong>Evidence still needed</strong><br>${esc(row.gap)}</p>` : ''}
+          <p class="muted">Reference: ${esc(row.id)} · ${esc(row.version || c.committed_version)}<br>
+          Confirmed by: ${esc(row.approvedBy || row.confirmed_by || 'Not recorded')}</p>
+          ${row.changedAt && row.changedAt !== row.confirmedAt ? `<p class="muted">Updated: ${esc(commitmentDate(row.changedAt))}</p>` : ''}
+          ${validDeputyReturn(row.source_chat_url) ? `<a class="cite-btn" href="${esc(validDeputyReturn(row.source_chat_url))}">Open source conversation</a>` : ''}
+        </div></details>`;
+    }).join('') : '<p>No commitments recorded yet.</p>'}</div>
+    <footer class="commitments-footer">
+      <p class="muted">${Array.isArray(d.commitments) ? 'Acceptance confirms direction; applying a change is a separate decision.' : 'Current agreement snapshot. Earlier acceptance dates were not retained. Updates to these items are not new commitments.'}
+      Dates use your local time. New / Updated markers stay until you mark them reviewed.</p>
+      <div class="commitments-links"><a href="#S05">Implementation status</a><a href="#S06">Simulation results</a>${deputyReturnAction()}</div>
+    </footer></section>`;
 }
 
 function renderAll() {
@@ -1604,6 +1688,8 @@ window.addEventListener("DOMContentLoaded", () => {
   stateStore.currentFrame = valid.includes(hash) ? hash : "MEMORY";
   fetchState().then(() => {
     if (stateStore.currentFrame === "MEMORY") loadMemory();
+    window.addEventListener('focus', checkCommitmentUpdates);
+    window.setInterval(checkCommitmentUpdates, 15000);
   }).catch((err) => {
     const stage = document.getElementById("main-stage");
     if (stage) {

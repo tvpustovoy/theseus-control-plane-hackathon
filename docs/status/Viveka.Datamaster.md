@@ -28,6 +28,13 @@
 
 ## Current Commitments and decision-row return — 2026-11-07
 
+### Compact list revision
+
+- Replaced long nested cards with a text/date/status list, expandable details and newest/changed items first. Preserved exact saved wording; hidden details retain IDs, targets and evidence gaps. Unknown dates remain explicit.
+- Added per-browser reviewed fingerprints (no copies of commitment text in localStorage), distinct New/Updated badges, explicit Mark as reviewed, manual refresh and read-only refresh on focus/every 15 seconds while the page is visible.
+- Supports additive `state.commitments` rows (`id`, `kind`, `text`, `version`, `status`, `confirmed_at`, `updated_at`, optional `source_chat_url`). Existing backend only overwrites four snapshot categories, so fallback labels dates Last confirmed and explains it is not historical acceptance data. Additive chat storage integration requested from Viveka.Hackathon; not yet confirmed.
+- Verified live desktop 1440×1000 and mobile 390×844 screenshots, disclosure interaction and no horizontal overflow. Renderer checks cover New vs Updated, unknown dates and HTML escaping. No restart/reset/database mutation.
+
 - Added `/#COMMITMENTS`, using existing `/api/state` fields: `s01_commit` for goal, principle, culture, monitoring, version and confirmation; `s05_application` for the separate implementation decision/runtime; `s06_track.ui_metrics` for linked simulation proxies. No new backend contract.
 - Each reference shows target/constraint and actual evidence gaps. Baseline and proposed direction remain distinct. S06 links back to commitments; fixed synthetic results are explicitly not recalculated after wording edits and are not observed business outcomes.
 - This is a current-state view, not a new persistent version-history ledger. Original saved wording is preserved.
