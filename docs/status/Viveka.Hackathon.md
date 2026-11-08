@@ -211,3 +211,23 @@ Read all 38 waiting inbound messages for the bound Viveka.Hackathon identity. Da
 Validation: 20 offline memory/navigation checks passed. The live ASI reply contained the new commitments link and evidence/change links. Clicked the commitments link, verified the four current agreement items, navigated to S03, and clicked its bottom Back to Deputy beside Review a correction. Returned to the exact originating chat with the conversation intact. Screenshot: `reports/evidence/deputy-s03-bottom-return.png`. No mandate, approval, application state, or demo checkpoint was changed during verification.
 
 Scope: this is a current agreement snapshot, not a complete acceptance-history ledger. Historical acceptance dates are not reconstructed. Simulation results remain illustrative and do not automatically recalculate when the owner edits a goal.
+
+## Card coverage audit and outcomes wording · November 7, 2026, 18:42 PST
+
+Audited the basic demo against native Deputy cards: four implemented variants, missing Memory/Culture cards and several natural-intent routing gaps. Recorded the exact 13 prompt/state probes and live-versus-offline boundaries in `app/deputy/agentverse/CARD-COVERAGE.md`; all 20 existing contract checks passed. Updated the earlier CARD-MAPPING introduction to point to this current audit.
+
+At Taras's request, renamed the active workflow card to `Commitment outcomes` and its button to `View commitment outcomes`. The evidence row now says `Test run; company outcomes not yet measured`. Deployed the updated protocol; Agentverse reported successful startup at 18:42:20 with the memory connection healthy. One incoming envelope arrived during the short restart and was not processed; a retry is required if that was the owner's latest question. No current business/demo state was changed. The outcomes card's active-state rendering was checked offline; no claim of a fresh live rendering is made.
+
+Researched conversational return from the dashboard in `app/deputy/agentverse/CHAT-CONTINUATION.md`. ACP documents asynchronous replies preserving session context; ASI website acceptance of a delayed unsolicited continuation still needs a live probe. No event bridge, background notifier, or new task was launched.
+
+## Contextual return with an unsent user draft · November 7, 2026
+
+Taras clarified that continuation should prepare a user message, not send one, and authorized a suitable implementation. Added Copy & return to Deputy beside the existing bottom actions. The expandable draft is editable and varies by screen and confirmed/approved/active/rolled-back state. The exact ASI conversation URL is preserved; the owner pastes and sends. A blocked clipboard leaves the selected draft and a return link visible instead of navigating away. No credentials, server changes or new permissions are needed.
+
+Informed Datamaster before touching the narrow shared UI helper and styles (receipts 891F607AE49264BC83235E6C8AE3101405E02E77CB0F68AC321E4EE477369E98 and 64C78E44015DE32797B97C37A2BB623436B23EB6E30E4DCBC21801167E6A467F). No inbound mail was read or identity rebound in this task.
+
+Verified the real S03 return, clipboard content and paste in the same ASI chat: the draft appeared and the recipient resolved to Theseus Deputy CEO. Left the message unsent; no mandate, approval, activation or checkpoint changed. Browser screenshot retained privately outside the public repository. Node syntax and continuation behavior checks passed, including denied clipboard and invalid return destination. The Python suite had passed 20 checks earlier in this turn; a later rerun through system/Homebrew Python could not load pymongo, so no additional Python-suite result is claimed. The continuation change itself is browser-side only.
+
+Updated CHAT-CONTINUATION.md with the shipped behavior and clearly marked earlier proactive-message research as an unimplemented alternative. Official ASI documentation describes internal new-chat prefills but did not establish an external prefill URL for an existing chat. The shipped mechanism requires one paste; it is not presented as automatic prefill.
+
+Public push review rejected the initial inclusion of a browser screenshot containing private chat/account context. Removed it from the unpublished commit and retained only local evidence; public changes include code, checks and documentation.

@@ -141,7 +141,7 @@ class MemoryContract(unittest.TestCase):
         state["active_runtime_version"] = "tool-v2"
         reply, card = ns["workflow_response"]("What should we do next?", memory)
         self.assertIn("active in the demo", reply)
-        self.assertIn("View simulation", card["card_payload"])
+        self.assertIn("View commitment outcomes", card["card_payload"])
 
     def test_confirmed_direction_does_not_require_implementation_approval(self):
         memory = {"current_state_records": [{"demo_session_id": "fresh",

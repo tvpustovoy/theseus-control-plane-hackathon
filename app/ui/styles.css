@@ -507,3 +507,33 @@ table.data-table th {
   color: var(--theseus-muted, #5a7389);
   font-size: 0.83rem;
 }
+/* Continue the same conversation without submitting a message or a decision. */
+.deputy-continuation {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  max-width: 34rem;
+  text-align: left;
+}
+.deputy-continuation small,
+.deputy-continuation summary,
+.deputy-copy-status { font-size: .85rem; color: #536f85; }
+.deputy-continuation details { width: 100%; }
+.deputy-continuation summary { cursor: pointer; }
+.deputy-continuation textarea {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 6rem;
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px solid #b9d3e5;
+  border-radius: 8px;
+  background: #fff;
+  color: #103e5b;
+  font: inherit;
+  resize: vertical;
+}
+.deputy-copy-status { margin: 0; }
+.deputy-copy-fallback[hidden], .deputy-copy-status[hidden] { display: none !important; }

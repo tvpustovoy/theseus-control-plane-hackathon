@@ -99,8 +99,94 @@ function deputyReturnAction() {
   if (!values.length) {
     try { target = validDeputyReturn(sessionStorage.getItem('theseus.deputyReturn')); } catch (_) {}
   }
-  return target ? `<a class="btn btn-secondary" href="${esc(target)}">Back to Deputy</a>` : '';
+  if (!target) return '';
+  const pasteKey = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘V' : 'Ctrl+V';
+  return `<div class="deputy-continuation">
+    <button type="button" class="btn btn-secondary" data-deputy-continue="${esc(target)}">Copy &amp; return to Deputy ↗</button>
+    <small>Paste with ${pasteKey} in your chat, then send when ready.</small>
+    <details><summary>Suggested message · edit if needed</summary>
+      <textarea aria-label="Message to continue with Deputy" rows="3">${esc(deputyFollowUp(stateStore.currentFrame, stateStore.data))}</textarea>
+    </details>
+    <p class="deputy-copy-status" role="status" aria-live="polite" hidden></p>
+    <a class="deputy-copy-fallback" href="${esc(target)}" hidden>Return to chat after copying →</a>
+  </div>`;
 }
+
+// A draft for the owner, never an instruction to approve or send automatically.
+// Describe the displayed state, not an action that the owner may not have taken.
+function deputyFollowUp(frame, data) {
+  const confirmed = data?.s01_commit?.mandate_status === 'committed_mandate';
+  const application = data?.s05_application || {};
+  let message;
+  switch (frame) {
+    case 'S01':
+      message = confirmed
+        ? 'The dashboard shows our direction is confirmed. What needs attention in the recent evidence? Show evidence and keep it brief.'
+        : 'I have reviewed the proposed direction. What do I still need to decide? Show Commit and keep it brief.';
+      break;
+    case 'S02':
+      message = `I have reviewed how we work. How do our habits compare with the ${confirmed ? 'confirmed' : 'proposed'} direction? Show evidence and keep it brief.`;
+      break;
+    case 'S03':
+      message = 'I have reviewed the alignment check. What is the smallest change you recommend, and why? Show the proposed change and keep it brief.';
+      break;
+    case 'S04':
+      message = 'I have reviewed the proposed change. What should we do next? Tell me what needs my approval before anything is applied.';
+      break;
+    case 'S05':
+      if (application.active_runtime_version === 'tool-v2') {
+        message = 'The dashboard shows the change is active. What should we do next? Show the outcomes of this commitment and distinguish test evidence from company outcomes.';
+      } else if (application.rollback_receipt) {
+        message = 'The dashboard shows the previous setup is restored. What is active now, and what should we do next? Keep it brief.';
+      } else if (application.decision_record?.action === 'approve') {
+        message = 'The dashboard shows approval, but the change is not active yet. What should we do next? Keep it brief.';
+      } else {
+        message = 'I have reviewed the decision page. What should we do next? Explain what still needs my decision; do not approve or apply anything for me.';
+      }
+      break;
+    case 'S06':
+      message = 'Let us review the outcomes of this commitment. What do we know from the test run, what is still unmeasured in the company, and what should we do next? Keep it brief.';
+      break;
+    case 'COMMITMENTS':
+      message = 'I have reviewed our current commitments. Which one needs my attention next, and why? Show current commitments and keep it brief.';
+      break;
+    default:
+      message = 'I have reviewed Organization Memory. What do our facts tell us about our discount strategy, and what still needs my decision? Keep it brief.';
+  }
+  return '@theseus-deputy-ceo ' + message;
+}
+
+async function continueWithDeputy(button) {
+  const container = button.closest('.deputy-continuation');
+  const target = validDeputyReturn(button.dataset.deputyContinue);
+  const draft = container.querySelector('textarea');
+  const status = container.querySelector('.deputy-copy-status');
+  if (!target || !draft.value.trim()) {
+    status.hidden = false;
+    status.textContent = !target ? 'Connect a valid ASI:One chat first.' : 'Write a message before continuing.';
+    return;
+  }
+  button.disabled = true;
+  try {
+    await navigator.clipboard.writeText(draft.value.trim());
+    window.location.assign(target);
+  } catch (_) {
+    // Keep the draft visible and preserve the exact destination if copying is blocked.
+    container.querySelector('details').open = true;
+    status.hidden = false;
+    status.textContent = 'Automatic copy was unavailable. Copy the selected message, return to chat, and paste it there.';
+    container.querySelector('.deputy-copy-fallback').hidden = false;
+    draft.focus();
+    draft.select();
+  } finally {
+    button.disabled = false;
+  }
+}
+
+document.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-deputy-continue]');
+  if (button) continueWithDeputy(button);
+});
 
 function provenanceBadgeClass(cat) {
   const s = String(cat || "").toLowerCase();

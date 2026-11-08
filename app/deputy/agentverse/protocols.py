@@ -36,7 +36,7 @@ WORKFLOW_LINKS = {
     "theseus_open_evidence": ("Review evidence", "http://127.0.0.1:8765/#S03"),
     "theseus_open_change": ("Review proposed change", "http://127.0.0.1:8765/#S04"),
     "theseus_open_apply": ("Review & apply on website", "http://127.0.0.1:8765/#S05"),
-    "theseus_open_simulation": ("View simulation", "http://127.0.0.1:8765/#S06"),
+    "theseus_open_simulation": ("View commitment outcomes", "http://127.0.0.1:8765/#S06"),
 }
 
 
@@ -169,11 +169,11 @@ def workflow_metadata(state):
     decision = state.get("decision_record") or {}
     approved = decision.get("decision", decision.get("action")) == "approve"
     if active:
-        title, status = "See what changed", "New rules active in the demo"
+        title, status = "Commitment outcomes", "New rules active in the demo"
         actions = ["theseus_open_apply", "theseus_open_simulation"]
         rows = [{"label": "Direction", "value": direction_label},
                 {"label": "Change", "value": status},
-                {"label": "Results", "value": "Simulation, not real business outcomes"}]
+                {"label": "Evidence", "value": "Test run; company outcomes not yet measured"}]
     elif approved:
         title, status = "Review before applying", "Approved, not yet applied"
         actions = ["theseus_open_apply", "theseus_open_evidence"]
@@ -223,7 +223,8 @@ def workflow_response(user_text, memory):
                 "You can review the evidence and proposed change before deciding. Opening a page does not approve or apply anything.")
     elif state.get("active_runtime_version") == "tool-v2":
         text = ("Your direction is confirmed, and the new rules are active in the demo. "
-                "Open the website to check how the sales form behaves now. The outcome comparison is a simulation, not measured business results.")
+                "Review this commitment's outcomes and check how the sales form behaves now. "
+                "The comparison comes from a test run; company outcomes have not yet been measured.")
     elif (state.get("decision_record") or {}).get("decision", (state.get("decision_record") or {}).get("action")) == "approve":
         text = ("Your direction is confirmed. You have approved the proposed change, but it has not been applied yet. "
                 "Review it on the website before applying it, then check how the sales form behaves.")
@@ -328,7 +329,7 @@ SYSTEM_PROMPT = (
     "or a failed link. Do not append implementation caveats to routine navigation replies. "
     "A discount strategy question automatically includes the Commit review card while direction is pending. "
     "After confirmation, the handler adds a current-session card with Review evidence / Review proposed change. "
-    "An approved change gets Review & apply on website; an active demo gets behavior and simulation links. "
+    "An approved change gets Review & apply on website; an active demo gets behavior and View commitment outcomes links. "
     "These are navigation cards, never approval actions. Refer only to the relevant known card. "
     "Requests to show current commits read the current direction and return its review link with a relevant navigation card. "
     "Never invent cards, URLs or interfaces outside these known routes.\n"
